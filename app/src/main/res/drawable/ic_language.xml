@@ -1,0 +1,63 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+
+    <!-- Outer circle -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#5EA3D5"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="
+            M64,20
+            A44,44 0 1,1 64,108
+            A44,44 0 1,1 64,20
+            Z"/>
+
+    <!-- Vertical meridians -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#5EA3D5"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="
+            M64,20
+            C49,20 38,40 38,64
+            C38,88 49,108 64,108
+
+            M64,20
+            C79,20 90,40 90,64
+            C90,88 79,108 64,108"/>
+
+    <!-- Equator -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#5EA3D5"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M20,64 H108"/>
+
+    <!-- Upper latitude -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#5EA3D5"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="
+            M32,40
+            C44,50 84,52 96,40"/>
+
+    <!-- Lower latitude -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#5EA3D5"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="
+            M32,90
+            C44,76 84,76 96,90"/>
+
+</vector>

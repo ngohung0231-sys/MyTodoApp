@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_setup"
     tools:context=".fragment.SetupProfileFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,7 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="80dp"
+
             android:fontFamily="@font/cherry_bomb_one"
             android:text="@string/setup_profile"
             android:textSize="40dp"
@@ -31,22 +32,63 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="50dp"
             android:src="@drawable/icon"
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/CircleImageStyle"/>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:textSize="15sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="42dp"
+            android:text="@string/name" />
 
         <EditText
             android:id="@+id/etUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="40dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
             android:background="@drawable/et_name"
             android:hint="@string/enter_your_name"
             android:inputType="textPersonName"
             android:padding="10dp"
             android:shadowColor="@color/black" />
+
+        <LinearLayout
+            android:id="@+id/rowSelectBirthdate"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:background="@drawable/bg_grey"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="15dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_calendar" />
+
+            <TextView
+                android:id="@+id/tvBirthdate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="15dp"
+                android:text="@string/chose_your_birthday"
+                android:textSize="16sp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnContinue"
@@ -55,7 +97,7 @@
             android:textColor="#FFFFFF"
             android:backgroundTint="#212121"
             android:layout_marginHorizontal="40dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="24dp"
             android:text="Continue"
             app:cornerRadius="8dp"/>
     </LinearLayout>

@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.hungday.mytodoapp.Models.OnboardingItem
+import com.hungday.mytodoapp.model.OnboardingItem
 import com.hungday.mytodoapp.R
 class OnboardingAdapter(private val onboardingItems: List<OnboardingItem>) :
     RecyclerView.Adapter<OnboardingAdapter.OnBoardingViewHolder>() {

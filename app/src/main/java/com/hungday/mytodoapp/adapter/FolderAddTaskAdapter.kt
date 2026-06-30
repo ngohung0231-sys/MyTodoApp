@@ -1,0 +1,59 @@
+package com.hungday.mytodoapp.adapter
+
+import android.media.Image
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.RadioButton
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.hungday.mytodoapp.R
+import com.hungday.mytodoapp.model.Folder
+
+class FolderAddTaskAdapter(
+    private val folderList: List<Folder>,
+    private val onFolderClick: (Folder) -> Unit
+) : RecyclerView.Adapter<FolderAddTaskAdapter.FolderViewHolder>() {
+
+    private var selectedPosition = 0
+
+    class FolderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val tvFolderName: TextView = itemView.findViewById(R.id.tvFolderName)
+        val rbSelected: RadioButton = itemView.findViewById(R.id.rbSelected)
+        val imgFolderIcon: ImageView = itemView.findViewById(R.id.imgFolderIcon)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_folder_add_task, parent, false)
+        return FolderViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
+        val currentFolder = folderList[position]
+        holder.tvFolderName.text = currentFolder.folderName
+        holder.tvFolderName.setTextColor(currentFolder.folderColor)
+
+        holder.imgFolderIcon.setColorFilter(currentFolder.folderColor)
+        
+        // Cập nhật trạng thái cho RadioButton
+        holder.rbSelected.isChecked = (position == selectedPosition)
+
+        val clickListener = View.OnClickListener {
+            // Cập nhật vị trí được chọn
+            val oldPosition = selectedPosition
+            selectedPosition = holder.bindingAdapterPosition
+            
+            // Thông báo thay đổi để cập nhật UI
+            notifyItemChanged(oldPosition)
+            notifyItemChanged(selectedPosition)
+
+            onFolderClick(currentFolder)
+        }
+
+        holder.itemView.setOnClickListener(clickListener)
+        holder.rbSelected.setOnClickListener(clickListener)
+    }
+
+    override fun getItemCount(): Int = folderList.size
+}

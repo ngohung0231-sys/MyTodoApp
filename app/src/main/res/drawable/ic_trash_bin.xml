@@ -1,0 +1,83 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Lid -->
+    <path
+        android:fillColor="#FF3B3B"
+        android:pathData="
+            M1,4
+            A1,1 0 0,1 2,3
+            H8.5
+            V2
+            A1,1 0 0,1 9.5,1
+            H14.5
+            A1,1 0 0,1 15.5,2
+            V3
+            H22
+            A1,1 0 0,1 23,4
+            V6
+            A1,1 0 0,1 22,7
+            H2
+            A1,1 0 0,1 1,6
+            Z"/>
+
+    <!-- Body -->
+    <path
+        android:fillColor="#FF3B3B"
+        android:pathData="
+            M3.2,8.4
+            A1.2,1.2 0 0,1 4.4,7.2
+            H19.6
+            A1.2,1.2 0 0,1 20.8,8.4
+            L19.7,22
+            A1.5,1.5 0 0,1 18.2,23
+            H5.8
+            A1.5,1.5 0 0,1 4.3,22
+            Z"/>
+
+    <!-- Left slot -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="
+            M6.3,11
+            A0.7,0.7 0 0,1 7,10.3
+            H7
+            A0.7,0.7 0 0,1 7.7,11
+            V18.5
+            A0.7,0.7 0 0,1 7,19.2
+            H7
+            A0.7,0.7 0 0,1 6.3,18.5
+            Z"/>
+
+    <!-- Middle slot -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="
+            M11.3,11
+            A0.7,0.7 0 0,1 12,10.3
+            H12
+            A0.7,0.7 0 0,1 12.7,11
+            V18.5
+            A0.7,0.7 0 0,1 12,19.2
+            H12
+            A0.7,0.7 0 0,1 11.3,18.5
+            Z"/>
+
+    <!-- Right slot -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="
+            M16.3,11
+            A0.7,0.7 0 0,1 17,10.3
+            H17
+            A0.7,0.7 0 0,1 17.7,11
+            V18.5
+            A0.7,0.7 0 0,1 17,19.2
+            H17
+            A0.7,0.7 0 0,1 16.3,18.5
+            Z"/>
+
+</vector>

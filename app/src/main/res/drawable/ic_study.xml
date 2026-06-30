@@ -1,0 +1,48 @@
+<!--
+  ~ Copyright (C) 2026 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M103.93,114.52h115.22v30.42h-115.22z"/>
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M103.93,168.12h115.22v30.42h-115.22z"/>
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M103.93,221.72h115.22v30.42h-115.22z"/>
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M103.93,275.32h115.22v30.42h-115.22z"/>
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M292.86,114.52h115.22v30.42h-115.22z"/>
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M292.86,168.12h115.22v30.42h-115.22z"/>
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M292.86,221.72h115.22v30.42h-115.22z"/>
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M292.86,275.32h115.22v30.42h-115.22z"/>
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M460.14,83.6V57.64H301.05c-16.81,0 -32.84,6.37 -45.05,17.35c-12.21,-10.98 -28.24,-17.35 -45.05,-17.35H51.86v25.95H0v330.92h210.95c16.81,0 32.84,-6.37 45.05,-17.35c12.21,10.98 28.24,17.35 45.05,17.35h26.04v39.84l43.54,-24.35l43.54,24.35v-39.84H512V83.6H460.14zM210.95,384.1H30.42V114.01h21.44v248.59h159.1c9.82,0 19.15,3.97 25.99,10.75C230.11,380.13 220.77,384.1 210.95,384.1zM240.79,339.21c-9.15,-4.54 -19.34,-7.02 -29.84,-7.02H82.27V114.01V88.06h128.68c11.83,0 22.94,5.77 29.84,15.26V339.21zM327.09,384.1h-26.04c-9.82,0 -19.15,-3.97 -25.99,-10.75c6.83,-6.78 16.17,-10.75 25.99,-10.75h26.04V384.1zM383.75,402.49l-13.12,-7.34l-13.12,7.34v-39.88h26.25V402.49zM327.09,332.08v0.11h-26.04c-10.5,0 -20.69,2.48 -29.84,7.02v-235.89c6.9,-9.49 18.01,-15.26 29.84,-15.26h128.68v25.95v218.18h-15.56v-0.11H327.09zM481.58,384.1h-67.41v-21.49h45.97V114.01h21.44V384.1z"/>
+</vector>

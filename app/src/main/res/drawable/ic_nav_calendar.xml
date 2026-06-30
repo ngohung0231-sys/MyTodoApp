@@ -1,0 +1,46 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Khung ngoài -->
+    <path
+        android:pathData="M6,3H18A3,3 0 0 1 21,6V18A3,3 0 0 1 18,21H6A3,3 0 0 1 3,18V6A3,3 0 0 1 6,3Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#8A8D96"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Thanh ngang phía trên -->
+    <path
+        android:pathData="M3.5,8H20.5"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#8A8D96"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round" />
+
+    <!-- Hàng trên -->
+    <path
+        android:pathData="M8,11.5m-1,0a1,1 0 1,1 2,0a1,1 0 1,1 -2,0"
+        android:fillColor="#8A8D96"/>
+
+    <path
+        android:pathData="M12,11.5m-1,0a1,1 0 1,1 2,0a1,1 0 1,1 -2,0"
+        android:fillColor="#8A8D96"/>
+
+    <path
+        android:pathData="M16,11.5m-1,0a1,1 0 1,1 2,0a1,1 0 1,1 -2,0"
+        android:fillColor="#8A8D96"/>
+
+    <!-- Hàng dưới -->
+    <path
+        android:pathData="M8,15.5m-1,0a1,1 0 1,1 2,0a1,1 0 1,1 -2,0"
+        android:fillColor="#8A8D96"/>
+
+    <path
+        android:pathData="M12,15.5m-1,0a1,1 0 1,1 2,0a1,1 0 1,1 -2,0"
+        android:fillColor="#8A8D96"/>
+
+</vector>

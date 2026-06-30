@@ -1,4 +1,4 @@
-package com.hungday.mytodoapp.Models
+package com.hungday.mytodoapp.model
 
 import com.hungday.mytodoapp.R
 

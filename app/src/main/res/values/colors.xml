@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
     <color name="green_light">#a6e385</color>
+    <color name="green">#44be65</color>
+    <color name="green_leaf">#a6e385</color>
+    <color name="green_leaf_light">#e5f7dd</color>
     <color name="blue_light">#95c1e4</color>
+    <color name="blue">#4997cf</color>
     <color name="red_light">#f9a9ab</color>
+    <color name="red">#ee4d5e</color>
     <color name="grey">#f3f5f9</color>
+    <color name="yellow_light">#fde3a7</color>
+    <color name="yellow">#f89520</color>
+    <color name="pink">#fe6e9a</color>
+    <color name="purple">#a792ec</color>
+    <color name="orange">#ffad83</color>
+    <color name="orange_light">#ffefe7</color>
 </resources>

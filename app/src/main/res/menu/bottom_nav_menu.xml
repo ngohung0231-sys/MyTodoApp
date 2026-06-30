@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_nav_home"
+        android:title="@string/home" />
+
+    <item
+        android:id="@+id/taskFragment"
+        android:icon="@drawable/ic_nav_task"
+        android:title="Tasks" />
+
+    <item
+        android:id="@+id/calenderFragment"
+        android:icon="@drawable/ic_nav_calendar"
+        android:title="@string/calendar" />
+
+    <item
+        android:id="@+id/addTaskFragment"
+        android:icon="@drawable/ic_add_folder"
+        android:title="@string/add_task" />
 </menu>
