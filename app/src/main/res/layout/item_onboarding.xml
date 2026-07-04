@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="80dp"
         android:fontFamily="@font/cherry_bomb_one"
-        android:text="ToDo"
+        android:text="@string/todo"
         android:textColor="#FFFFFF"
         android:textSize="50sp"
         android:textStyle="bold" />
@@ -21,7 +21,8 @@
         android:id="@+id/imgOnboard"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:layout_marginBottom="48dp" />
+        android:layout_marginBottom="48dp"
+        android:contentDescription="@string/image" />
 
     <TextView
         android:id="@+id/tvTitleOnboard"
@@ -29,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:gravity="center"
-        android:text="Title here"
+        android:text="@string/title_here"
         android:textColor="@color/black"
         android:textSize="22sp"
         android:textStyle="bold" />
@@ -39,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Description goes here..."
+        android:text="@string/description_goes_here"
         android:textColor="#424242"
         android:textSize="14sp" />
 

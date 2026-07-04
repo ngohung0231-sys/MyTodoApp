@@ -19,6 +19,7 @@
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:contentDescription="@string/back"
             android:src="@drawable/ic_arrow_back"
             android:clickable="true"
             android:focusable="true"
@@ -29,16 +30,17 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/settings"
-            android:textSize="20sp"
-            android:textColor="@color/black"
             android:layout_weight="1"
-            android:textStyle="bold"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:text="@string/settings"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <FrameLayout
             android:layout_width="40dp"
-            android:layout_height="40dp"/>
+            android:layout_height="40dp"
+            tools:ignore="UselessLeaf" />
     </LinearLayout>
 
     <FrameLayout
@@ -68,14 +70,14 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:textColor="@color/black"
-            android:text="PROFILE"
+            android:text="@string/profile"
             android:textStyle="bold"
             android:textSize="16sp"/>
 
         <LinearLayout
             android:id="@+id/lnlUsername"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/bg_grey"
             android:clickable="true"
@@ -90,6 +92,7 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginEnd="10dp"
+                android:contentDescription="@string/user"
                 android:src="@drawable/ic_profile" />
 
             <TextView
@@ -97,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="Username"
+                android:text="@string/username"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
 
@@ -108,23 +111,24 @@
                 android:layout_gravity="center"
                 android:layout_marginEnd="10dp"
                 android:layout_weight="2"
-                android:text="HungDay"
+                android:text="@string/hungday"
                 android:textAlignment="textEnd"
                 android:textColor="#696e76"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                tools:ignore="RtlCompat" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="＞"
+                android:text="@string/right_arrow"
                 android:textColor="@color/blue" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/lnlDarkMode"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:orientation="horizontal"
             android:background="@drawable/bg_grey"
             android:padding="10dp"
@@ -137,6 +141,7 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:contentDescription="@string/dark_mode"
                 android:src="@drawable/ic_constrast"
                 android:layout_gravity="center"
                 android:layout_marginEnd="10dp"/>
@@ -147,7 +152,7 @@
                 android:layout_weight="2"
                 android:textColor="@color/black"
                 android:layout_gravity="center"
-                android:text="Dark Mode"
+                android:text="@string/dark_mode"
                 android:textSize="16sp"/>
 
             <TextView
@@ -157,10 +162,11 @@
                 android:layout_gravity="center"
                 android:layout_marginEnd="10dp"
                 android:layout_weight="2"
-                android:text="Light"
+                android:text="@string/light"
                 android:textAlignment="textEnd"
                 android:textColor="#696e76"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                tools:ignore="RtlCompat" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switchDarkMode"
@@ -181,7 +187,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:text="ACCOUNT"
+            android:text="@string/account"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -189,7 +195,7 @@
         <LinearLayout
             android:id="@+id/lnlLanguage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:orientation="horizontal"
             android:background="@drawable/bg_grey"
             android:padding="10dp"
@@ -202,6 +208,7 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:contentDescription="@string/language"
                 android:src="@drawable/ic_language"
                 android:layout_gravity="center"
                 android:layout_marginEnd="10dp"/>
@@ -212,7 +219,7 @@
                 android:layout_weight="1"
                 android:textColor="@color/black"
                 android:layout_gravity="center"
-                android:text="Language"
+                android:text="@string/language"
                 android:textSize="16sp"/>
 
             <TextView
@@ -220,37 +227,39 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text="English (UK)"
+                android:text="@string/english_uk"
                 android:textSize="16sp"
                 android:textColor="#696e76"
                 android:layout_gravity="center"
                 android:textAlignment="textEnd"
-                android:layout_marginEnd="10dp"/>
+                android:layout_marginEnd="10dp"
+                tools:ignore="RtlCompat" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="＞"
+                android:text="@string/right_arrow"
                 android:textColor="@color/blue"/>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/lnlBirthday"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:orientation="horizontal"
             android:background="@drawable/bg_grey"
             android:padding="10dp"
+            android:layout_marginBottom="10dp"
             android:clickable="true"
             android:focusable="true"
-            android:layout_marginBottom="10dp"
             android:stateListAnimator="@animator/btn_click_scale"
             android:foreground="@drawable/ripple_rounded_bg">
 
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:contentDescription="@string/calendar"
                 android:src="@drawable/ic_calendar"
                 android:layout_gravity="center"
                 android:layout_marginEnd="10dp"/>
@@ -261,7 +270,7 @@
                 android:layout_weight="1"
                 android:textColor="@color/black"
                 android:layout_gravity="center"
-                android:text="Birthday"
+                android:text="@string/birthday"
                 android:textSize="16sp"/>
 
             <TextView
@@ -269,19 +278,51 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text="Jan 05, 2006"
+                android:text="@string/jan_05_2006"
                 android:textSize="16sp"
                 android:textColor="#696e76"
                 android:layout_gravity="center"
                 android:textAlignment="textEnd"
-                android:layout_marginEnd="10dp"/>
+                android:layout_marginEnd="10dp"
+                tools:ignore="RtlCompat" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="＞"
+                android:text="@string/right_arrow"
                 android:textColor="@color/blue"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lnlDeleteData"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_grey"
+            android:padding="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="10dp"
+            android:stateListAnimator="@animator/btn_click_scale"
+            android:foreground="@drawable/ripple_rounded_bg">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Delete all data"
+                android:textSize="20sp"
+                android:layout_gravity="center"
+                android:textStyle="bold"
+                android:textColor="@color/red"/>
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_trash_bin"
+                android:tint="@color/red"/>
+
         </LinearLayout>
 
     </LinearLayout>

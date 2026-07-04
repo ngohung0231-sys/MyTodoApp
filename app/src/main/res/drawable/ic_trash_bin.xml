@@ -1,83 +1,41 @@
+<!--
+  ~ Copyright (C) 2026 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-
-    <!-- Lid -->
-    <path
-        android:fillColor="#FF3B3B"
-        android:pathData="
-            M1,4
-            A1,1 0 0,1 2,3
-            H8.5
-            V2
-            A1,1 0 0,1 9.5,1
-            H14.5
-            A1,1 0 0,1 15.5,2
-            V3
-            H22
-            A1,1 0 0,1 23,4
-            V6
-            A1,1 0 0,1 22,7
-            H2
-            A1,1 0 0,1 1,6
-            Z"/>
-
-    <!-- Body -->
-    <path
-        android:fillColor="#FF3B3B"
-        android:pathData="
-            M3.2,8.4
-            A1.2,1.2 0 0,1 4.4,7.2
-            H19.6
-            A1.2,1.2 0 0,1 20.8,8.4
-            L19.7,22
-            A1.5,1.5 0 0,1 18.2,23
-            H5.8
-            A1.5,1.5 0 0,1 4.3,22
-            Z"/>
-
-    <!-- Left slot -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="
-            M6.3,11
-            A0.7,0.7 0 0,1 7,10.3
-            H7
-            A0.7,0.7 0 0,1 7.7,11
-            V18.5
-            A0.7,0.7 0 0,1 7,19.2
-            H7
-            A0.7,0.7 0 0,1 6.3,18.5
-            Z"/>
-
-    <!-- Middle slot -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="
-            M11.3,11
-            A0.7,0.7 0 0,1 12,10.3
-            H12
-            A0.7,0.7 0 0,1 12.7,11
-            V18.5
-            A0.7,0.7 0 0,1 12,19.2
-            H12
-            A0.7,0.7 0 0,1 11.3,18.5
-            Z"/>
-
-    <!-- Right slot -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="
-            M16.3,11
-            A0.7,0.7 0 0,1 17,10.3
-            H17
-            A0.7,0.7 0 0,1 17.7,11
-            V18.5
-            A0.7,0.7 0 0,1 17,19.2
-            H17
-            A0.7,0.7 0 0,1 16.3,18.5
-            Z"/>
-
+    android:width="50dp"
+    android:height="50dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+  <path
+      android:pathData="m112,112l20,320c0.95,18.49 14.4,32 32,32h184c17.67,0 30.87,-13.51 32,-32l20,-320"
+      android:strokeLineJoin="round"
+      android:strokeWidth="32"
+      android:fillColor="#00000000"
+      android:strokeColor="#000"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M80,112h352"
+      android:strokeWidth="32"
+      android:fillColor="#000"
+      android:strokeColor="#000"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M192,112V72h0a23.93,23.93 0,0 1,24 -24h80a23.93,23.93 0,0 1,24 24h0v40m-64,64v224m-72,-224l8,224m136,-224l-8,224"
+      android:strokeLineJoin="round"
+      android:strokeWidth="32"
+      android:fillColor="#00000000"
+      android:strokeColor="#000"
+      android:strokeLineCap="round"/>
 </vector>

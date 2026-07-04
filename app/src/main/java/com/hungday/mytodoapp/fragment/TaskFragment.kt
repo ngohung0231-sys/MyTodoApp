@@ -6,8 +6,6 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.graphics.toColorInt
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -21,7 +19,6 @@ import com.hungday.mytodoapp.model.Folder
 import com.hungday.mytodoapp.model.FolderWithTasks
 import com.hungday.mytodoapp.model.Task
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 class TaskFragment : Fragment(R.layout.fragment_task) {
     // Database & Repository
@@ -31,40 +28,48 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
     // Adapter
     private lateinit var folderGroupAdapter: FolderGroupAdapter
 
-    // Filter & dataList
-    private enum class FilterMode { TODAY, UPCOMING }
-    private var currentFilterMode = FilterMode.TODAY
+    // dataList
     private var allTasks = mutableListOf<Task>()
     private var allFolders = mutableListOf<Folder>()
 
     // Init UI
     private lateinit var btnBack: ImageView
     private lateinit var lnlAddTask: LinearLayout
-    private lateinit var tvTabToday: TextView
-    private lateinit var tvTabUpcoming: TextView
     private lateinit var rvFolderGroup: RecyclerView
     private lateinit var blank: FrameLayout
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initDatabase()
+        initViews(view)
+        setupAdapter()
+        observeData()
+        setupListeners()
+    }
 
-        //------------------------------------ Init Database ------------------------------------//
+    private fun initDatabase() {
         database = TodoDatabase.getDatabase(requireContext())
         repository = TodoRepository(database.todoDao())
-        //---------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Init Views ------------------------------------//
+    private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         lnlAddTask = view.findViewById(R.id.lnlAddTask)
-        tvTabToday = view.findViewById(R.id.tvTabToday)
-        tvTabUpcoming = view.findViewById(R.id.tvTabUpcoming)
         rvFolderGroup = view.findViewById(R.id.rvFolderGroup)
         blank = view.findViewById(R.id.blank)
-        //------------------------------------------------------------------------------------//
+    }
 
-        //----------------------------------- Setup Adapter -----------------------------------//
+    private fun setupAdapter() {
         folderGroupAdapter = FolderGroupAdapter(emptyList() , {folder ->
-            // TODO: navigate to Folder
+            val bundle = Bundle().apply {
+                putInt("folderId", folder.folderId)
+            }
+            findNavController().navigate(R.id.action_homeFragment_to_folderDetailFragment, bundle)
+        }, { task ->
+            val bundle = Bundle().apply {
+                putInt("taskId", task.id)
+            }
+            findNavController().navigate(R.id.editTaskFragment, bundle)
         }, { task, isChecked ->
             viewLifecycleOwner.lifecycleScope.launch {
                 repository.updateTaskStatus(task.id, isChecked)
@@ -72,9 +77,9 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
         })
         rvFolderGroup.layoutManager = LinearLayoutManager(requireContext())
         rvFolderGroup.adapter = folderGroupAdapter
-        //-------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------- Setup data loading -------------------------------------//
+    private fun observeData() {
         viewLifecycleOwner.lifecycleScope.launch {
             repository.allTasks.collect { taskFromRoom ->
                 allTasks = taskFromRoom.toMutableList()
@@ -87,9 +92,9 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                 refreshTasks()
             }
         }
-        //----------------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Listeners ------------------------------------//
+    private fun setupListeners() {
         btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -102,29 +107,11 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                 .build()
             findNavController().navigate(R.id.addTaskFragment, null, navOptions)
         }
-
-        tvTabToday.setOnClickListener {
-            updateTabUI(isToday = true)
-            currentFilterMode = FilterMode.TODAY
-            refreshTasks()
-        }
-
-        tvTabUpcoming.setOnClickListener {
-            updateTabUI(isToday = false)
-            currentFilterMode = FilterMode.UPCOMING
-            refreshTasks()
-        }
-        //-----------------------------------------------------------------------------------------//
     }
 
     //------------------------------------------ Helper ------------------------------------------//
     private fun refreshTasks() {
-        val today = LocalDate.now()
-        val filteredTasks = when (currentFilterMode) {
-            FilterMode.TODAY -> allTasks.filter { it.date == today || (it.dateStr.isNullOrEmpty() && it.timeStr.isNullOrEmpty()) }
-            FilterMode.UPCOMING -> allTasks.filter { it.date.isAfter(today) || (it.dateStr.isNullOrEmpty() && it.timeStr.isNullOrEmpty()) }
-        }
-        updateTaskDisplay(filteredTasks)
+        updateTaskDisplay(allTasks)
     }
 
     private fun updateTaskDisplay(tasks: List<Task>) {
@@ -139,17 +126,6 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
             val tasksInFolder = tasks.filter { it.folderId == folder.folderId }
             if (tasksInFolder.isNotEmpty()) FolderWithTasks(folder, tasksInFolder) else null
         }
-    }
-
-    private fun updateTabUI(isToday: Boolean) {
-        val activeTab = if (isToday) tvTabToday else tvTabUpcoming
-        val inactiveTab = if (isToday) tvTabUpcoming else tvTabToday
-
-        activeTab.setTextColor("#4a93ce".toColorInt())
-        activeTab.setBackgroundResource(R.drawable.filter_task_bg)
-
-        inactiveTab.setTextColor("#A0A0A0".toColorInt())
-        inactiveTab.setBackgroundResource(android.R.color.transparent)
     }
     //--------------------------------------------------------------------------------------------//
 }

@@ -23,7 +23,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="12dp"
         android:textColor="@color/black"
-        android:text="Task Title"
+        android:text="@string/task_title"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cbTaskStatus"
@@ -44,6 +44,7 @@
             android:id="@+id/imgClock"
             android:layout_width="20dp"
             android:layout_height="20dp"
+            android:contentDescription="@string/clock"
             app:tint="#6b6f72"
             app:srcCompat="@drawable/clock" />
 
@@ -53,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="10dp"
-            android:text="09:00 AM"
+            android:text="@string/_09_00_am"
             android:textColor="#6b6f72"
             android:textSize="14sp" />
 
@@ -62,6 +63,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginEnd="10dp"
+            android:contentDescription="@string/notification"
             app:tint="#6b6f72"
             app:srcCompat="@drawable/bell_click" />
 
@@ -69,6 +71,7 @@
             android:id="@+id/imgPriorityIcon"
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:contentDescription="@string/priority"
             android:src="@drawable/ic_tag"
             android:layout_gravity="center"
             app:tint="#ee4d5e" />
@@ -78,7 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:text="High"
+            android:text="@string/high"
             android:textColor="#ee4d5e"
             android:textSize="14sp" />
 

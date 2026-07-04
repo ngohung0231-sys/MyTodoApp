@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +17,7 @@ import com.hungday.mytodoapp.model.Task
 class FolderGroupAdapter(
     private var folderGroupList: List<FolderWithTasks>,
     private val onSettingClick: (Folder) -> Unit,
+    private val onTaskClick: (Task) -> Unit,
     private val onTaskStatusChanged: (Task, Boolean) -> Unit
 ) : RecyclerView.Adapter<FolderGroupAdapter.FolderGroupViewHolder>() {
 
@@ -23,6 +25,7 @@ class FolderGroupAdapter(
         val tvFolderName = itemView.findViewById<TextView>(R.id.tvFolderName)
         val rvTasks = itemView.findViewById<RecyclerView>(R.id.rvTasks)
         val btnTaskSetting = itemView.findViewById<ImageView>(R.id.btnTaskSetting)
+        val lnlFolderDetail = itemView.findViewById<LinearLayout>(R.id.lnlFolderDetail)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderGroupViewHolder {
@@ -36,15 +39,17 @@ class FolderGroupAdapter(
         holder.tvFolderName.setTextColor(currentFolderGroup.folder.folderColor)
         holder.btnTaskSetting.setColorFilter(currentFolderGroup.folder.folderColor)
 
-        if(folderGroupList.isEmpty()) {
-
-        }
-
         holder.btnTaskSetting.setOnClickListener {
             onSettingClick(currentFolderGroup.folder)
         }
 
-        val taskAdapter = TaskAdapter(currentFolderGroup.taskList) { task, isCompleted ->
+        holder.lnlFolderDetail.setOnClickListener {
+            onSettingClick(currentFolderGroup.folder)
+        }
+
+        val taskAdapter = TaskAdapter(currentFolderGroup.taskList, { task ->
+            onTaskClick(task)
+        }) { task, isCompleted ->
             onTaskStatusChanged(task, isCompleted)
         }
         holder.rvTasks.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(

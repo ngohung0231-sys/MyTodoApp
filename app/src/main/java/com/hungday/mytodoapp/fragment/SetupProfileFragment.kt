@@ -66,25 +66,27 @@ class SetupProfileFragment : Fragment(R.layout.fragment_setup_profile) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initViews(view)
+        setupInitialState()
+        setupListeners()
+    }
 
-        //------------------------------------ Init Views ------------------------------------//
+    private fun initViews(view: View) {
         imgAvatar = view.findViewById(R.id.avatar)
         etUserName = view.findViewById(R.id.etUserName)
         btnContinue = view.findViewById(R.id.btnContinue)
         rowSelectBirthdate = view.findViewById(R.id.rowSelectBirthdate)
         tvBirthdate = view.findViewById(R.id.tvBirthdate)
-        //------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Initial State Setup ------------------------------------//
+    private fun setupInitialState() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Prevent going back to onboarding
             }
         })
-        //---------------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Listeners ------------------------------------//
-        
+    private fun setupListeners() {
         // Chọn ngày sinh
         rowSelectBirthdate.setOnClickListener {
             showDatePicker()
@@ -99,7 +101,6 @@ class SetupProfileFragment : Fragment(R.layout.fragment_setup_profile) {
         btnContinue.setOnClickListener {
             handleProfileSetup()
         }
-        //-----------------------------------------------------------------------------------------//
     }
 
     //-------------------- Các hàm chức năng bổ trợ (Helper Functions) --------------------//

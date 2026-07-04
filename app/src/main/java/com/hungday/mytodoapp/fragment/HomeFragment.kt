@@ -29,6 +29,7 @@ import com.hungday.mytodoapp.model.Folder
 import com.hungday.mytodoapp.model.FolderWithTasks
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -81,47 +82,66 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initDatabase()
+        initViews(view)
+        setupInitialState()
+        setupAdapters()
+        observeData()
+        setupListeners()
+    }
 
-        //------------------------------------ Init Database ------------------------------------//
+    private fun initDatabase() {
         database = TodoDatabase.getDatabase(requireContext())
         repository = TodoRepository(database.todoDao())
-        //---------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Init Views ------------------------------------//
+    private fun initViews(view: View) {
         rvFolderGroup = view.findViewById(R.id.rvFolderGroup)
         rvFolders = view.findViewById(R.id.rvFolders)
         rvCalendar = view.findViewById(R.id.rvCalendar)
-        
+
         tvTabToday = view.findViewById(R.id.tvTabToday)
         tvTabUpcoming = view.findViewById(R.id.tvTabUpcoming)
         tvUserName = view.findViewById(R.id.tvUserName)
         imgAvatar = view.findViewById(R.id.imgAvatar)
         etSearchTask = view.findViewById(R.id.etSearchTask)
-        
+
         tvSeeAllFolders = view.findViewById(R.id.tvSeeAllFolders)
         tvSeeAllTasks = view.findViewById(R.id.tvSeeAllTasks)
         lnlFolders = view.findViewById(R.id.lnlFolders)
         lnlFilter = view.findViewById(R.id.lnlFilter)
         blank = view.findViewById(R.id.blank)
         btnSetting = view.findViewById(R.id.btnSetting)
-        //------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Initial State Setup ------------------------------------//
+    private fun setupInitialState() {
         val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
         tvUserName.text = "Hello, ${sharedPref.getString("USER_NAME", "User")}!"
         sharedPref.getString("USER_AVATAR", null)?.let { loadAvatarSafely(imgAvatar, it) }
 
-        tvTabToday.setTextColor("#4a93ce".toColorInt())
-        tvTabToday.setBackgroundResource(R.drawable.filter_task_bg)
-        
-        askNotificationPermission()
-        //---------------------------------------------------------------------------------------------//
+        // Khôi phục trạng thái Filter (Cách 1)
+        val savedMode = sharedPref.getString("LAST_FILTER_MODE", FilterMode.TODAY.name)
+        currentFilterMode = try {
+            FilterMode.valueOf(savedMode ?: FilterMode.TODAY.name)
+        } catch (e: Exception) {
+            FilterMode.TODAY
+        }
 
-        //------------------------------------ Setup Adapters ------------------------------------//
+        // Nếu là CALENDAR thì tạm thời đưa về TODAY cho đơn giản khi quay lại màn hình
+        if (currentFilterMode == FilterMode.CALENDAR) currentFilterMode = FilterMode.TODAY
+
+        updateTabUI(currentFilterMode == FilterMode.TODAY)
+
+        askNotificationPermission()
+    }
+
+    private fun setupAdapters() {
         // 1. Calendar Horizontal List
         generateCurrentWeek()
         calendarAdapter = CalendarAdapter(calendarDays) { selectedDay ->
+            val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
             currentFilterMode = FilterMode.CALENDAR
+            sharedPref.edit().putString("LAST_FILTER_MODE", FilterMode.CALENDAR.name).apply()
             selectedCalendarDate = selectedDay.date
             refreshTasks()
 
@@ -135,13 +155,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         rvCalendar.adapter = calendarAdapter
 
         // 2. Folder Horizontal List
-        folderAdapter = FolderAdapter(allFolders)
+        folderAdapter = FolderAdapter(allFolders) { folder ->
+            val bundle = Bundle().apply {
+                putInt("folderId", folder.folderId)
+            }
+            findNavController().navigate(R.id.action_homeFragment_to_folderDetailFragment, bundle)
+        }
         rvFolders.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvFolders.adapter = folderAdapter
 
         // 3. Task Group Vertical List
         folderGroupAdapter = FolderGroupAdapter(emptyList(), { folder ->
-            // TODO: Navigate to Folder detail/settings
+            val bundle = Bundle().apply {
+                putInt("folderId", folder.folderId)
+            }
+            findNavController().navigate(R.id.action_homeFragment_to_folderDetailFragment, bundle)
+        }, { task ->
+            val bundle = Bundle().apply {
+                putInt("taskId", task.id)
+            }
+            findNavController().navigate(R.id.editTaskFragment, bundle)
         }, { task, isChecked ->
             viewLifecycleOwner.lifecycleScope.launch {
                 repository.updateTaskStatus(task.id, isChecked)
@@ -149,30 +182,35 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         })
         rvFolderGroup.layoutManager = LinearLayoutManager(requireContext())
         rvFolderGroup.adapter = folderGroupAdapter
-        //---------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Data Loading (Room) ------------------------------------//
+    private fun observeData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            repository.allTasks.collect { tasksFromRoom ->
-                allTasks = tasksFromRoom.toMutableList()
+            combine(
+                repository.allFolders,
+                repository.allTasks,
+                repository.allLists
+            ) { folders, tasks, lists ->
+                Triple(folders, tasks, lists)
+            }.collect { (folders, tasks, lists) ->
+                allTasks = tasks.toMutableList()
+                allFolders = folders.map { folder ->
+                    folder.copy(
+                        taskCount = tasks.count { it.folderId == folder.folderId },
+                        listCount = lists.count { it.folderId == folder.folderId }
+                    )
+                }.toMutableList()
+
                 generateCurrentWeek()
                 if (::calendarAdapter.isInitialized) calendarAdapter.notifyDataSetChanged()
-                refreshTasks()
-                updateFolderTaskCounts()
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            repository.allFolders.collect { foldersFromRoom ->
-                allFolders = foldersFromRoom.toMutableList()
                 folderAdapter.updateData(allFolders)
                 refreshTasks()
-                updateFolderTaskCounts()
             }
         }
-        //--------------------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Listeners ------------------------------------//
+    private fun setupListeners() {
+        val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
 
         // Change fragment
         tvSeeAllFolders.setOnClickListener { findNavController().navigate(R.id.foldersFragment) }
@@ -190,6 +228,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tvTabToday.setOnClickListener {
             updateTabUI(isToday = true)
             currentFilterMode = FilterMode.TODAY
+            sharedPref.edit().putString("LAST_FILTER_MODE", FilterMode.TODAY.name).apply()
             refreshTasks()
             etSearchTask.clearFocus()
             calendarAdapter.selectToday()
@@ -199,6 +238,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tvTabUpcoming.setOnClickListener {
             updateTabUI(isToday = false)
             currentFilterMode = FilterMode.UPCOMING
+            sharedPref.edit().putString("LAST_FILTER_MODE", FilterMode.UPCOMING.name).apply()
             refreshTasks()
             etSearchTask.clearFocus()
         }
@@ -234,7 +274,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
             }
         })
-        //-----------------------------------------------------------------------------------------//
     }
 
     //-------------------- Helper Functions --------------------//
@@ -362,10 +401,4 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
-    private fun updateFolderTaskCounts() {
-        for (folder in allFolders) {
-            folder.taskCount = allTasks.count { it.folderId == folder.folderId }
-        }
-        if (::folderAdapter.isInitialized) folderAdapter.notifyDataSetChanged()
-    }
 }

@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textColor="#212121"
+            android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold"
             android:text="Personal"
@@ -38,15 +38,26 @@
             app:layout_constraintTop_toBottomOf="@id/imgFolderIc" />
 
         <TextView
-            android:id="@+id/tvTaskCount"
+            android:id="@+id/tvListCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#666666"
-            android:text="4 Tasks"
-            android:textSize="12sp"
+            android:text="4 Lists"
+            android:textSize="11sp"
             tools:text="4 Lists"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvFolderName" />
+
+        <TextView
+            android:id="@+id/tvTaskCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#999999"
+            android:text="12 Tasks"
+            android:textSize="10sp"
+            tools:text="12 Tasks"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvListCount" />
 
         <TextView
             android:layout_width="wrap_content"

@@ -6,7 +6,11 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="#F8F9FB">
+    app:cardBackgroundColor="#F8F9FB"
+    android:clickable="true"
+    android:focusable="true"
+    android:stateListAnimator="@animator/btn_click_scale"
+    android:foreground="@drawable/ripple_rounded_bg">
 
     <LinearLayout
         android:id="@+id/layoutFolder"
@@ -14,11 +18,7 @@
         android:layout_height="180dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:stateListAnimator="@animator/btn_click_scale"
-        android:foreground="@drawable/ripple_rounded_bg">
+        android:padding="16dp">
 
         <LinearLayout
             android:id="@+id/containerFolderData"
@@ -56,12 +56,20 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tvTaskCount"
+                        android:id="@+id/tvListCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="4 Lists"
                         android:textColor="#707070"
-                        android:textSize="14sp" />
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvTaskCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12 Tasks"
+                        android:textColor="#A0A0A0"
+                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <ImageView

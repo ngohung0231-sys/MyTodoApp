@@ -1,5 +1,6 @@
 package com.hungday.mytodoapp.fragment
 
+import android.app.ActivityManager
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
@@ -25,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.imageview.ShapeableImageView
 import com.hungday.mytodoapp.R
+import com.hungday.mytodoapp.database.TodoDatabase
 import com.hungday.mytodoapp.utils.HandleImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -76,11 +78,16 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     private lateinit var lnlDarkMode: LinearLayout
     private lateinit var lnlLanguage: LinearLayout
     private lateinit var lnlBirthDay: LinearLayout
+    private lateinit var lnlDeleteAllData: LinearLayout
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initViews(view)
+        setupInitialState()
+        setupListeners()
+    }
 
-        //------------------------------------ Init Views ------------------------------------//
+    private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         avatar = view.findViewById(R.id.avatar)
         tvUserName = view.findViewById(R.id.tvUserName)
@@ -92,9 +99,10 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         lnlDarkMode = view.findViewById(R.id.lnlDarkMode)
         lnlLanguage = view.findViewById(R.id.lnlLanguage)
         lnlBirthDay = view.findViewById(R.id.lnlBirthday)
-        //------------------------------------------------------------------------------------//
+        lnlDeleteAllData = view.findViewById(R.id.lnlDeleteData)
+    }
 
-        //------------------------------------ Initial State Setup ------------------------------------//
+    private fun setupInitialState() {
         val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
         val name = sharedPref.getString("USER_NAME", "User Name")
         val avatarUriString = sharedPref.getString("USER_AVATAR", null)
@@ -106,10 +114,9 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
             currentUri = Uri.parse(it)
             avatar.setImageURI(currentUri)
         }
-        //---------------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Listeners ------------------------------------//
-        
+    private fun setupListeners() {
         // Quay lại
         btnBack.setOnClickListener { findNavController().navigateUp() }
 
@@ -138,7 +145,11 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         lnlBirthDay.setOnClickListener {
             showDatePicker()
         }
-        //-----------------------------------------------------------------------------------------//
+
+        // Xóa dữ liệu
+        lnlDeleteAllData.setOnClickListener {
+            showDeleteConfirmDialog()
+        }
     }
 
     //-------------------- Các hàm chức năng bổ trợ (Helper Functions) --------------------//
@@ -190,12 +201,74 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
                 val dateString = selectedBirthdate?.format(formatter) ?: ""
                 tvBirthDate.text = dateString
                 sharedPref.edit().putString("USER_BIRTHDAY", dateString).apply()
+                Toast.makeText(requireContext(), "Updated birthday! 🚀", Toast.LENGTH_SHORT).show()
             },
             calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
         )
 
         datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
         datePickerDialog.show()
-        Toast.makeText(requireContext(), "Updated birthday! 🚀", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showDeleteConfirmDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete_data, null)
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        alertDialog.show()
+
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
+        val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
+
+        btnCancel.setOnClickListener { alertDialog.dismiss() }
+
+        btnConfirm.setOnClickListener {
+            alertDialog.dismiss()
+            resetAppData()
+        }
+    }
+
+    private fun resetAppData() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // 1. Xóa Database
+                val database = TodoDatabase.getDatabase(requireContext())
+                database.clearAllTables()
+                
+                // 1.1 Khởi tạo lại dữ liệu mặc định ngay lập tức
+                TodoDatabase.initializeData(requireContext())
+
+                // 2. Xóa SharedPreferences
+                val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+                sharedPref.edit().clear().commit() // Dùng commit để đảm bảo xóa xong ngay lập tức
+
+                // 3. Xóa cache và files (optional nhưng tốt cho việc reset hoàn toàn)
+                requireContext().cacheDir.deleteRecursively()
+                requireContext().filesDir.deleteRecursively()
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Data cleared! Restarting...", Toast.LENGTH_SHORT).show()
+                    
+                    // 4. Khởi động lại ứng dụng
+                    val intent = requireContext().packageManager.getLaunchIntentForPackage(requireContext().packageName)
+                    intent?.let {
+                        it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(it)
+                    }
+                    requireActivity().finishAffinity()
+                    
+                    // Kết thúc process để đảm bảo mọi singleton/static variable được reset
+                    android.os.Process.killProcess(android.os.Process.myPid())
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Failed to clear data completely.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 }

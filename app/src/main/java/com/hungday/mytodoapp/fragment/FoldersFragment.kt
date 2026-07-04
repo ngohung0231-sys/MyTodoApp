@@ -12,6 +12,7 @@ import com.hungday.mytodoapp.R
 import com.hungday.mytodoapp.adapter.FolderGridAdapter
 import com.hungday.mytodoapp.database.TodoDatabase
 import com.hungday.mytodoapp.database.TodoRepository
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class FoldersFragment : Fragment(R.layout.fragment_folders) {
@@ -27,42 +28,60 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initDatabase()
+        initViews(view)
+        setupAdapters()
+        observeData()
+        setupListeners()
+    }
 
-        //------------------------------------ Init Database ------------------------------------//
+    private fun initDatabase() {
         val database = TodoDatabase.getDatabase(requireContext())
         repository = TodoRepository(database.todoDao())
-        //---------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Init Views ------------------------------------//
+    private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         rvFoldersGrid = view.findViewById(R.id.rvFoldersGrid)
-        //------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Adapters ------------------------------------//
+    private fun setupAdapters() {
         folderGridAdapter = FolderGridAdapter(emptyList(), {
             // Click "New Folder"
             // TODO: Mở Dialog hoặc Fragment thêm folder
         }, { folder ->
-            // Click vào Folder cụ thể
-            // TODO: Xem chi tiết task trong folder này
+            val bundle = Bundle().apply {
+                putInt("folderId", folder.folderId)
+            }
+            findNavController().navigate(R.id.action_foldersFragment_to_folderDetailFragment, bundle)
         })
 
         rvFoldersGrid.layoutManager = GridLayoutManager(requireContext(), 2)
         rvFoldersGrid.adapter = folderGridAdapter
-        //----------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Data Loading (Room) ------------------------------------//
+    private fun observeData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            repository.allFolders.collect { folders ->
-                folderGridAdapter.updateData(folders)
+            combine(
+                repository.allFolders,
+                repository.allTasks,
+                repository.allLists
+            ) { folders, tasks, lists ->
+                folders.map { folder ->
+                    folder.copy(
+                        taskCount = tasks.count { it.folderId == folder.folderId },
+                        listCount = lists.count { it.folderId == folder.folderId }
+                    )
+                }
+            }.collect { foldersWithCounts ->
+                folderGridAdapter.updateData(foldersWithCounts)
             }
         }
-        //--------------------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Listeners ------------------------------------//
+    private fun setupListeners() {
         btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
-        //-----------------------------------------------------------------------------------------//
     }
 }

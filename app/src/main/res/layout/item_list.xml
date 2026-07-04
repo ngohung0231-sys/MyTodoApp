@@ -13,52 +13,88 @@
     app:cardMaxElevation="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clListContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/green_leaf_light"
         android:padding="12dp"
-        android:foreground="?android:attr/selectableItemBackground">
+        android:clickable="true"
+        android:focusable="true"
+        android:stateListAnimator="@animator/btn_click_scale"
+        android:foreground="@drawable/ripple_rounded_bg">
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/imgFolderIcon"
+        <FrameLayout
+            android:id="@+id/layoutFolderIcon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:padding="4dp"
-            android:background="@color/green_leaf"
-            android:scaleType="centerInside"
-            app:srcCompat="@drawable/ic_book"
-            app:shapeAppearanceOverlay="@style/CircleImageStyle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imgFolderIconBg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/green_leaf"
+                app:shapeAppearanceOverlay="@style/CircleImageStyle" />
+
+            <ImageView
+                android:id="@+id/imgFolderIcon"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_book" />
+
+        </FrameLayout>
 
         <TextView
-            android:id="@+id/tvFolderName"
+            android:id="@+id/tvListName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Personal"
+            android:text="@string/shopping"
             android:textColor="#2D2D2D"
             android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imgFolderIcon"
-            app:layout_constraintTop_toTopOf="@+id/imgFolderIcon" />
+            app:layout_constraintStart_toEndOf="@+id/layoutFolderIcon"
+            app:layout_constraintTop_toTopOf="@+id/layoutFolderIcon" />
 
         <ProgressBar
-            android:id="@+id/progressFolder"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
+            android:id="@+id/progressList"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="10dp"
+            android:layout_marginStart="12dp"
             android:max="100"
-            android:progress="65"
+            android:progress="60"
+            android:progressDrawable="@drawable/custom_progress_bar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tvProgressList"
+            app:layout_constraintStart_toEndOf="@+id/layoutFolderIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvListName" />
+
+        <TextView
+            android:id="@+id/tvProgressList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/_20"
+            app:layout_constraintBottom_toBottomOf="@+id/progressList"
+            app:layout_constraintEnd_toStartOf="@+id/imgRightArrow"
+            app:layout_constraintStart_toEndOf="@+id/progressList"
+            app:layout_constraintTop_toTopOf="@+id/progressList" />
+
+        <TextView
+            android:id="@+id/imgRightArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/right_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imgFolderIcon"
-            app:layout_constraintTop_toBottomOf="@+id/tvFolderName"
-            app:trackCornerRadius="4dp"
-            app:trackThickness="5dp" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

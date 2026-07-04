@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="50dp" />
+            <!-- Màu nền thanh progress nhạt hơn (gần như trắng hoặc màu xám cực nhẹ) -->
+            <solid android:color="#FFFFFF" />
+            <!-- Màu viền nhạt hơn -->
+            <stroke android:width="0.5dp" android:color="#EEEEEE" />
+        </shape>
+    </item>
+
+    <item android:id="@android:id/progress">
+        <scale
+            android:scaleWidth="100%"
+            android:scaleGravity="left">
+            <shape>
+                <corners android:radius="50dp" />
+                <!-- Màu này sẽ được ghi đè bởi setProgressTintList trong code -->
+                <solid android:color="#A6E385" />
+            </shape>
+        </scale>
+    </item>
+
+</layer-list>

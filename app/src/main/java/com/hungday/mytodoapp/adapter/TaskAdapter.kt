@@ -18,6 +18,7 @@ import java.util.Locale
 
 class TaskAdapter(
     private var taskList: List<Task>,
+    private val onTaskClick: (Task) -> Unit,
     private val onTaskStatusChanged: (Task, Boolean) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
@@ -95,7 +96,7 @@ class TaskAdapter(
         }
 
         holder.itemView.setOnClickListener {
-            holder.cbTaskStatus.isChecked = !holder.cbTaskStatus.isChecked
+            onTaskClick(currentTask)
         }
 
         if (currentTask.isCompleted) {
@@ -113,12 +114,12 @@ class TaskAdapter(
                 holder.imgPriorityIcon.setColorFilter("#ee4d5e".toColorInt())
             }
             "Medium" -> {
-                holder.tvPriorityText.setTextColor("#FFB300".toColorInt())
-                holder.imgPriorityIcon.setColorFilter("#FFB300".toColorInt())
+                holder.tvPriorityText.setTextColor("#4997cf".toColorInt())
+                holder.imgPriorityIcon.setColorFilter("#4997cf".toColorInt())
             }
             "Low" -> {
-                holder.tvPriorityText.setTextColor("#42c064".toColorInt())
-                holder.imgPriorityIcon.setColorFilter("#42c064".toColorInt())
+                holder.tvPriorityText.setTextColor("#44be65".toColorInt())
+                holder.imgPriorityIcon.setColorFilter("#44be65".toColorInt())
             }
         }
     }

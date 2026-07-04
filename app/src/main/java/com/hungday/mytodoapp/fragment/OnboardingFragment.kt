@@ -21,20 +21,23 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initViews(view)
+        setupAdapters()
+        setupListeners()
+    }
 
-        //------------------------------------ Init Views ------------------------------------//
+    private fun initViews(view: View) {
         viewPager = view.findViewById(R.id.viewPager)
         btnNext = view.findViewById(R.id.btnNext)
         btnSkip = view.findViewById(R.id.btnSkip)
-        //------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Adapters ------------------------------------//
+    private fun setupAdapters() {
         onboardingAdapter = OnboardingAdapter(onboardingList)
         viewPager.adapter = onboardingAdapter
-        //----------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Setup Listeners ------------------------------------//
-        
+    private fun setupListeners() {
         // Theo dõi chuyển trang
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -59,7 +62,6 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
         btnSkip.setOnClickListener {
             navigateToSetupProfile()
         }
-        //-----------------------------------------------------------------------------------------//
     }
 
     //-------------------- Các hàm chức năng bổ trợ (Helper Functions) --------------------//

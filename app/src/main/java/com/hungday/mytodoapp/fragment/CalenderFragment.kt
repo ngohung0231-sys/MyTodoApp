@@ -13,15 +13,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hungday.mytodoapp.R
 import com.hungday.mytodoapp.adapter.CalendarGridAdapter
-import com.hungday.mytodoapp.adapter.FolderGroupAdapter
+import com.hungday.mytodoapp.adapter.TimelineHourAdapter
 import com.hungday.mytodoapp.database.TodoDatabase
 import com.hungday.mytodoapp.database.TodoRepository
 import com.hungday.mytodoapp.model.CalendarDay
-import com.hungday.mytodoapp.model.Folder
-import com.hungday.mytodoapp.model.FolderWithTasks
+import com.hungday.mytodoapp.model.HourTimeline
 import com.hungday.mytodoapp.model.Task
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -31,12 +31,11 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
     private lateinit var repository: TodoRepository
 
     private lateinit var calendarGridAdapter: CalendarGridAdapter
-    private lateinit var folderGroupAdapter: FolderGroupAdapter
+    private lateinit var timelineHourAdapter: TimelineHourAdapter
 
     private var allTasks = mutableListOf<Task>()
-    private var allFolders = mutableListOf<Folder>()
     private var calendarDays = mutableListOf<CalendarDay>()
-    
+
     private var selectedDate: LocalDate = LocalDate.now()
     private var currentMonth: LocalDate = LocalDate.now()
 
@@ -51,12 +50,20 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initDatabase()
+        initViews(view)
+        setupAdapters()
+        setupListeners()
+        loadData()
+        updateCalendar()
+    }
 
-        // Init Database
+    private fun initDatabase() {
         database = TodoDatabase.getDatabase(requireContext())
         repository = TodoRepository(database.todoDao())
+    }
 
-        // Init Views
+    private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnPrevMonth = view.findViewById(R.id.btnPrevMonth)
         btnNextMonth = view.findViewById(R.id.btnNextMonth)
@@ -65,15 +72,30 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
         rvTasks = view.findViewById(R.id.rvTasks)
         tvSelectedDateLabel = view.findViewById(R.id.tvSelectedDateLabel)
         blank = view.findViewById(R.id.blank)
+    }
 
-        // Setup Adapters
-        setupCalendarAdapter()
-        setupTaskAdapter()
+    private fun setupAdapters() {
+        // 1. Calendar Grid Adapter
+        calendarGridAdapter = CalendarGridAdapter(calendarDays, currentMonth) { clickedDay ->
+            selectedDate = clickedDay.date
+            updateCalendar()
+            refreshTasks()
+        }
+        rvCalendarGrid.layoutManager = GridLayoutManager(requireContext(), 7)
+        rvCalendarGrid.adapter = calendarGridAdapter
 
-        // Load Data
-        loadData()
+        // 2. Timeline Hour Adapter
+        timelineHourAdapter = TimelineHourAdapter(emptyList()) { task ->
+            val bundle = Bundle().apply {
+                putInt("taskId", task.id)
+            }
+            findNavController().navigate(R.id.editTaskFragment, bundle)
+        }
+        rvTasks.layoutManager = LinearLayoutManager(requireContext())
+        rvTasks.adapter = timelineHourAdapter
+    }
 
-        // Listeners
+    private fun setupListeners() {
         btnBack.setOnClickListener { findNavController().popBackStack() }
         btnPrevMonth.setOnClickListener {
             currentMonth = currentMonth.minusMonths(1)
@@ -83,30 +105,6 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
             currentMonth = currentMonth.plusMonths(1)
             updateCalendar()
         }
-
-        updateCalendar()
-    }
-
-    private fun setupCalendarAdapter() {
-        calendarGridAdapter = CalendarGridAdapter(calendarDays, currentMonth) { clickedDay ->
-            selectedDate = clickedDay.date
-            updateCalendar()
-            refreshTasks()
-        }
-        rvCalendarGrid.layoutManager = GridLayoutManager(requireContext(), 7)
-        rvCalendarGrid.adapter = calendarGridAdapter
-    }
-
-    private fun setupTaskAdapter() {
-        folderGroupAdapter = FolderGroupAdapter(emptyList(), { folder ->
-            // TODO: Navigate to folder
-        }, { task, isChecked ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                repository.updateTaskStatus(task.id, isChecked)
-            }
-        })
-        rvTasks.layoutManager = LinearLayoutManager(requireContext())
-        rvTasks.adapter = folderGroupAdapter
     }
 
     private fun loadData() {
@@ -117,12 +115,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
                 refreshTasks()
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            repository.allFolders.collect { folders ->
-                allFolders = folders.toMutableList()
-                refreshTasks()
-            }
-        }
+        // Lưu ý: Không cần collect allFolders ở màn hình này nữa vì chúng ta gom nhóm theo Giờ
     }
 
     private fun updateCalendar() {
@@ -130,32 +123,27 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
         tvMonthYear.text = currentMonth.format(formatter)
 
         calendarDays.clear()
-        
+
         val yearMonth = YearMonth.from(currentMonth)
         val firstOfMonth = yearMonth.atDay(1)
         val daysInMonth = yearMonth.lengthOfMonth()
-        
-        // Find the first day of the week for the first day of the month
-        // Adjusting to start from Monday (1) to Sunday (7)
-        var dayOfWeek = firstOfMonth.dayOfWeek.value
-        
-        // Days from previous month to fill the first row
+
+        val dayOfWeek = firstOfMonth.dayOfWeek.value
+
         val prevMonth = currentMonth.minusMonths(1)
         val prevYearMonth = YearMonth.from(prevMonth)
         val daysInPrevMonth = prevYearMonth.lengthOfMonth()
-        
+
         for (i in dayOfWeek - 1 downTo 1) {
             val date = prevMonth.withDayOfMonth(daysInPrevMonth - i + 1)
             calendarDays.add(CalendarDay(date, "", date.dayOfMonth.toString(), date == selectedDate, hasTask(date)))
         }
 
-        // Days of current month
         for (i in 1..daysInMonth) {
             val date = currentMonth.withDayOfMonth(i)
             calendarDays.add(CalendarDay(date, "", i.toString(), date == selectedDate, hasTask(date)))
         }
 
-        // Days from next month to fill the grid (total 35 or 42 cells for consistent rows)
         val nextMonth = currentMonth.plusMonths(1)
         var nextDay = 1
         val totalCells = if (calendarDays.size > 35) 42 else 35
@@ -174,24 +162,73 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
 
     private fun refreshTasks() {
         val today = LocalDate.now()
-        val label = if (selectedDate == today) "Tasks for Today" else "Tasks for ${selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}"
+        val pickedDate = selectedDate?.let {
+            val monthStr = it.month.name.lowercase(Locale.getDefault())
+                .replaceFirstChar { char -> char.uppercase() }
+                .take(3)
+            val dayStr = String.format(Locale.getDefault(), "%02d", it.dayOfMonth)
+            val yearStr = it.year
+            "$monthStr $dayStr, $yearStr"
+        }
+        val label = if (selectedDate == today) "Tasks for Today" else "Tasks for $pickedDate"
         tvSelectedDateLabel.text = label
 
+        // Lọc ra các task của ngày đang chọn
         val filteredTasks = allTasks.filter { it.date == selectedDate }
         updateTaskDisplay(filteredTasks)
     }
 
     private fun updateTaskDisplay(tasks: List<Task>) {
-        val groups = getFolderGroups(tasks)
-        folderGroupAdapter.updateData(groups)
-        rvTasks.visibility = if (groups.isEmpty()) View.GONE else View.VISIBLE
-        blank.visibility = if (groups.isEmpty()) View.VISIBLE else View.GONE
+        val timelineGroups = generateTimelineGroups(tasks)
+        timelineHourAdapter.updateData(timelineGroups)
+
+        // Toàn bộ 24 giờ luôn luôn hiển thị khung trục dọc, nên chỉ hiện rỗng nếu ko có gì xử lý hoặc tùy ý bro
+        // Ở đây để tối ưu: Nếu trong ngày đó hoàn toàn KHÔNG CÓ BẤT KỲ TASK NÀO ở bất kỳ giờ nào, ta hiện màn hình Blank
+        val hasAnyTaskInDay = tasks.isNotEmpty()
+        rvTasks.visibility = if (hasAnyTaskInDay) View.VISIBLE else View.GONE
+        blank.visibility = if (hasAnyTaskInDay) View.GONE else View.VISIBLE
     }
 
-    private fun getFolderGroups(tasks: List<Task>): List<FolderWithTasks> {
-        return allFolders.mapNotNull { folder ->
-            val tasksInFolder = tasks.filter { it.folderId == folder.folderId }
-            if (tasksInFolder.isNotEmpty()) FolderWithTasks(folder, tasksInFolder) else null
+    /**
+     * Hàm cốt lõi: Tự động sinh ra 24 khung giờ trong ngày (hoặc từ 06:00 AM đến 11:00 PM tùy chọn)
+     * Sau đó găm các Task có giờ tương ứng vào đúng nhóm.
+     */
+    private fun generateTimelineGroups(tasks: List<Task>): List<HourTimeline> {
+        val list = mutableListOf<HourTimeline>()
+
+        // 0. Xử lý các task không có giờ (All day)
+        val allDayTasks = tasks.filter { it.time == null }
+        if (allDayTasks.isNotEmpty()) {
+            list.add(HourTimeline("All day", null, allDayTasks))
         }
+
+        // 1. Trích xuất ra danh sách các số giờ duy nhất xuất hiện trong ngày đó và sắp xếp tăng dần
+        // Ví dụ: Hôm nay có task lúc 9:15, 9:45 và 15:30 -> Lấy ra được list: [9, 15]
+        val activeHours = tasks.mapNotNull { it.time?.hour }
+            .distinct()
+            .sorted()
+
+        // 2. Chỉ lặp qua những khung giờ thực sự có task
+        for (h in activeHours) {
+            val startLocalTime = LocalTime.of(h, 0)
+
+            // Định dạng chuỗi hiển thị 12 giờ AM/PM (Ví dụ: 09:00 AM, 03:00 PM)
+            val amPm = if (h >= 12) "PM" else "AM"
+            val displayHour = when {
+                h == 0 -> 12
+                h > 12 -> h - 12
+                else -> h
+            }
+            val hourText = String.format("%02d:00 %s", displayHour, amPm)
+
+            // Lọc ra các task con thuộc khung giờ này (Ví dụ: từ h:00 đến h:59)
+            val tasksInThisHour = tasks.filter { task ->
+                task.time?.hour == h
+            }
+
+            list.add(HourTimeline(hourText, startLocalTime, tasksInThisHour))
+        }
+
+        return list
     }
 }

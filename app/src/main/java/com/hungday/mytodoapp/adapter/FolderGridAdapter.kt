@@ -26,6 +26,7 @@ class FolderGridAdapter(
         val containerFolderData: LinearLayout = itemView.findViewById(R.id.containerFolderData)
         val containerNewFolder: LinearLayout = itemView.findViewById(R.id.containerNewFolder)
         val tvFolderName: TextView = itemView.findViewById(R.id.tvFolderName)
+        val tvListCount: TextView = itemView.findViewById(R.id.tvListCount)
         val tvTaskCount: TextView = itemView.findViewById(R.id.tvTaskCount)
         val imgFolderIllustration: ImageView = itemView.findViewById(R.id.imgFolderIllustration)
         val imgArrow: ImageView = itemView.findViewById(R.id.imgArrow)
@@ -56,7 +57,9 @@ class FolderGridAdapter(
             holder.tvFolderName.text = folder.folderName
             holder.tvFolderName.setTextColor(folder.folderColor)
             holder.imgArrow.setColorFilter(folder.folderColor)
-            holder.tvTaskCount.text = "${folder.taskCount} Lists"
+            
+            holder.tvListCount.text = if (folder.listCount < 2) "${folder.listCount} List" else "${folder.listCount} Lists"
+            holder.tvTaskCount.text = if (folder.taskCount < 2) "${folder.taskCount} Task" else "${folder.taskCount} Tasks"
             
             holder.imgFolderIllustration.setImageResource(folder.folderImg)
             holder.imgFolderIllustration.setColorFilter(folder.folderColor)

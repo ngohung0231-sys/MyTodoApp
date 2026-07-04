@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="6dp"
+    android:layout_marginBottom="4dp">
+
+    <TextView
+        android:id="@+id/tvCalendarTaskTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/_09_15_am"
+        android:textColor="#8E8E93"
+        android:textSize="12sp" />
+
+    <View
+        android:id="@+id/viewTaskPriorityIndicator"
+        android:layout_width="4dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="4dp"
+        android:background="@color/green" />
+
+    <TextView
+        android:id="@+id/tvCalendarTaskTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:text="@string/h_c_nh_m_v_i_b_n"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
+
+</LinearLayout>

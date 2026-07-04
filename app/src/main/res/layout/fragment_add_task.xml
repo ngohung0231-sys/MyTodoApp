@@ -29,6 +29,7 @@
                 android:foreground="@drawable/ripple_rounded_bg"/>
 
             <TextView
+                android:id="@+id/tvTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

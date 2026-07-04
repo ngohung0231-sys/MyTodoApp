@@ -39,6 +39,9 @@
         <action
             android:id="@+id/action_homeFragment_to_taskFragment"
             app:destination="@id/taskFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_folderDetailFragment"
+            app:destination="@id/folderDetailFragment" />
     </fragment>
 
     <fragment
@@ -93,12 +96,63 @@
         android:id="@+id/foldersFragment"
         android:name="com.hungday.mytodoapp.fragment.FoldersFragment"
         android:label="Folders"
-        tools:layout="@layout/fragment_folders" />
+        tools:layout="@layout/fragment_folders" >
+        <action
+            android:id="@+id/action_foldersFragment_to_folderDetailFragment"
+            app:destination="@id/folderDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/folderDetailFragment"
+        android:name="com.hungday.mytodoapp.fragment.FolderDetailFragment"
+        android:label="Folder Detail"
+        tools:layout="@layout/fragment_folder_detail" >
+        <argument
+            android:name="folderId"
+            app:argType="integer"
+            android:defaultValue="1" />
+        <action
+            android:id="@+id/action_folderDetailFragment_to_listDetailFragment"
+            app:destination="@id/listDetailFragment" />
+        <action
+            android:id="@+id/action_folderDetailFragment_to_addListFragment"
+            app:destination="@id/addListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addListFragment"
+        android:name="com.hungday.mytodoapp.fragment.AddListFragment"
+        android:label="Add List"
+        tools:layout="@layout/fragment_add_list" />
+
+    <fragment
+        android:id="@+id/listDetailFragment"
+        android:name="com.hungday.mytodoapp.fragment.ListDetailFragment"
+        android:label="List Detail"
+        tools:layout="@layout/fragment_list_detail">
+        <argument
+            android:name="listId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
 
     <fragment
         android:id="@+id/settingFragment"
         android:name="com.hungday.mytodoapp.fragment.SettingFragment"
         android:label="Settings"
         tools:layout="@layout/fragment_setting" />
+
+    <fragment
+        android:id="@+id/editTaskFragment"
+        android:name="com.hungday.mytodoapp.fragment.EditTaskFragment"
+        android:label="Edit Task"
+        tools:layout="@layout/fragment_add_task">
+        <argument
+            android:name="taskId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_editTaskFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 
 </navigation>

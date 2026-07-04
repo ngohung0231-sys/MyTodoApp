@@ -124,12 +124,18 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //------------------------------------ Init Database ------------------------------------//
+        initDatabase()
+        initViews(view)
+        setupFolderList()
+        setupListeners()
+    }
+
+    private fun initDatabase() {
         val database = com.hungday.mytodoapp.database.TodoDatabase.getDatabase(requireContext())
         repository = TodoRepository(database.todoDao())
-        //---------------------------------------------------------------------------------------//
+    }
 
-        //------------------------------------ Init views ------------------------------------//
+    private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         etTaskTitle = view.findViewById(R.id.etTaskTitle)
 
@@ -171,10 +177,9 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         // Thiết lập trạng thái mặc định ban đầu
         btnLow.isSelected = true
         btnLow.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-        //------------------------------------------------------------------------------------//
+    }
 
-
-        //------------------------------------------------------ Setup folder list ------------------------------------------------------//
+    private fun setupFolderList() {
         // 1. Cấu hình RecyclerView rvFolders (Quản lý layout dọc/ngang)
         rvFolders.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
@@ -202,13 +207,17 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
                 }
 
                 rvFolders.adapter = folderAddTaskAdapter
+                
+                // Mặc định chọn folder đầu tiên (thường là Others)
+                folderAddTaskAdapter.setSelectedFolder(selectedFolderId)
+                foldersList.find { it.folderId == selectedFolderId }?.let {
+                    tvSelectedFolder.text = it.folderName
+                }
             }
         }
-        //-------------------------------------------------------------------------------------------------------------------------------//
+    }
 
-
-        //------------------------------------ Setup listeners ------------------------------------//
-
+    private fun setupListeners() {
         // Nút Back trên Toolbar
         btnBack.setOnClickListener {
             findNavController().popBackStack()
@@ -275,41 +284,7 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         btnNoti30Min.setOnClickListener { updateNotiState(30, btnNoti30Min) }
         btnNoti1Hour.setOnClickListener { updateNotiState(60, btnNoti1Hour) }
 
-        //-----------------------------------------------------------------------------------------//
-
-        //------------------------------------ Setup Date & Time Pickers ------------------------------------//
-
-        Log.d("CalendarLog", "Selected Time: $selectedTime")
-        Log.d("CalendarLog", "Selected Date: $selectedDate")
-        // Đón đầu mốc Ngày khi người dùng bấm chọn trên lịch tháng
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
-            val dateString = DateConverter.dateToString(selectedDate)
-            tvSelectedDate.text = dateString
-            Log.d("CalendarLog", "Selected Date: $selectedDate")
-        }
-
-        // Đón đầu mốc Giờ khi người dùng cuộn đồng hồ
-        timePicker.setOnTimeChangedListener { _, hourOfDay, minute ->
-            selectedHour = hourOfDay
-            selectedMinute = minute
-            // Format 24h về chuỗi AM/PM sạch sẽ
-            val isPm = hourOfDay >= 12
-            val hour12 = when {
-                hourOfDay == 0 -> 12
-                hourOfDay > 12 -> hourOfDay - 12
-                else -> hourOfDay
-            }
-            val amPmStr = if (isPm) "PM" else "AM"
-            selectedTime = String.format(Locale.getDefault(), "%02d:%02d %s", hour12, minute, amPmStr)
-            Log.d("CalendarLog", "Selected Time: $selectedTime")
-
-            if(selectedDate == null) {
-                selectedDate = LocalDate.now()
-                val dateString = DateConverter.dateToString(selectedDate)
-                tvSelectedDate.text = dateString
-            }
-        }
+        setupDateTimePickers()
 
         // Sự kiện thêm task
         btnAddTask.setOnClickListener {
@@ -370,7 +345,40 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
                 }
             }
         }
-        //---------------------------------------------------------------------------------------------------//
+    }
+
+    private fun setupDateTimePickers() {
+        Log.d("CalendarLog", "Selected Time: $selectedTime")
+        Log.d("CalendarLog", "Selected Date: $selectedDate")
+        // Đón đầu mốc Ngày khi người dùng bấm chọn trên lịch tháng
+        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+            val dateString = DateConverter.dateToString(selectedDate)
+            tvSelectedDate.text = dateString
+            Log.d("CalendarLog", "Selected Date: $selectedDate")
+        }
+
+        // Đón đầu mốc Giờ khi người dùng cuộn đồng hồ
+        timePicker.setOnTimeChangedListener { _, hourOfDay, minute ->
+            selectedHour = hourOfDay
+            selectedMinute = minute
+            // Format 24h về chuỗi AM/PM sạch sẽ
+            val isPm = hourOfDay >= 12
+            val hour12 = when {
+                hourOfDay == 0 -> 12
+                hourOfDay > 12 -> hourOfDay - 12
+                else -> hourOfDay
+            }
+            val amPmStr = if (isPm) "PM" else "AM"
+            selectedTime = String.format(Locale.getDefault(), "%02d:%02d %s", hour12, minute, amPmStr)
+            Log.d("CalendarLog", "Selected Time: $selectedTime")
+
+            if(selectedDate == null) {
+                selectedDate = LocalDate.now()
+                val dateString = DateConverter.dateToString(selectedDate)
+                tvSelectedDate.text = dateString
+            }
+        }
     }
 
     private fun scheduleNotification(taskId: Int, title: String, date: LocalDate, hour: Int, minute: Int, reminderMinutes: Int) {
