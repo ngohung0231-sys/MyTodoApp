@@ -36,7 +36,7 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
     private lateinit var folderAdapter: FolderAddTaskAdapter
     
     private var selectedFolderId = 1
-    private var selectedColor = 0xFF4997CF.toInt() // Default blue
+    private var selectedColor = 0xFF4997CF.toInt()
     private var selectedIcon = R.drawable.ic_book
 
     private lateinit var btnBack: ImageView

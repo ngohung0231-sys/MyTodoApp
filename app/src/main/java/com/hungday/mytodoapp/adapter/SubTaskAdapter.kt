@@ -234,4 +234,6 @@ class SubTaskAdapter(
         this.subTasks = newList.toMutableList()
         notifyDataSetChanged()
     }
+
+    fun getSubTasks(): List<SubTask> = subTasks
 }

@@ -1,10 +1,7 @@
 package com.hungday.mytodoapp.fragment
 
 import android.os.Bundle
-import android.transition.ChangeBounds
-import android.transition.TransitionManager
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -39,8 +36,6 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
     private lateinit var rvFolderGroup: RecyclerView
     private lateinit var listBlank: FrameLayout
     private lateinit var taskBlank: FrameLayout
-    private lateinit var tvTabToday: TextView
-    private lateinit var tvTabUpcoming: TextView
     private lateinit var tvFolderTitle: TextView
 
     private var folderId: Int = 1 // Default
@@ -68,8 +63,6 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
         rvFolderGroup = view.findViewById(R.id.rvFolderGroup)
         listBlank = view.findViewById(R.id.listBlank)
         taskBlank = view.findViewById(R.id.taskBlank)
-        tvTabToday = view.findViewById(R.id.tvTabToday)
-        tvTabUpcoming = view.findViewById(R.id.tvTabUpcoming)
         tvFolderTitle = view.findViewById(R.id.tvFolderTitle)
     }
 
@@ -113,25 +106,6 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
             }
             findNavController().navigate(R.id.action_folderDetailFragment_to_addListFragment, bundle)
         }
-
-        tvTabToday.setOnClickListener { updateTabSelection(true) }
-        tvTabUpcoming.setOnClickListener { updateTabSelection(false) }
-    }
-
-    private fun updateTabSelection(isToday: Boolean) {
-        TransitionManager.beginDelayedTransition(view as ViewGroup, ChangeBounds())
-        if (isToday) {
-            tvTabToday.setBackgroundResource(R.drawable.filter_task_bg)
-            tvTabToday.setTextColor(requireContext().getColor(R.color.blue))
-            tvTabUpcoming.setBackgroundResource(0)
-            tvTabUpcoming.setTextColor(requireContext().getColor(R.color.black))
-        } else {
-            tvTabUpcoming.setBackgroundResource(R.drawable.filter_task_bg)
-            tvTabUpcoming.setTextColor(requireContext().getColor(R.color.blue))
-            tvTabToday.setBackgroundResource(0)
-            tvTabToday.setTextColor(requireContext().getColor(R.color.black))
-        }
-        // Filter tasks accordingly
     }
 
     private fun observeData() {

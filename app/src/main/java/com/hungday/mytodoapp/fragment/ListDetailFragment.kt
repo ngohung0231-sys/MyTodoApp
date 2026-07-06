@@ -28,6 +28,8 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
     private var listId: Int = -1
 
     private lateinit var etListTitle: TextView
+    private lateinit var imgListIcon: ImageView
+    private lateinit var imgListIconBg: com.google.android.material.imageview.ShapeableImageView
     private lateinit var btnBack: ImageView
     private lateinit var rvTasks: RecyclerView
     private lateinit var btnAddTaskToggle: ImageView
@@ -53,6 +55,8 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
 
     private fun initViews(view: View) {
         etListTitle = view.findViewById(R.id.etListTitle)
+        imgListIcon = view.findViewById(R.id.imgListIcon)
+        imgListIconBg = view.findViewById(R.id.imgListIconBg)
         btnBack = view.findViewById(R.id.btnBack)
         rvTasks = view.findViewById(R.id.rvTasks)
         btnAddTaskToggle = view.findViewById(R.id.btnAddTaskToggle)
@@ -100,6 +104,10 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
                 currentList = repository.getListById(listId)
                 currentList?.let { list ->
                     etListTitle.text = list.title
+                    imgListIcon.setImageResource(list.icon)
+                    imgListIcon.setColorFilter(android.graphics.Color.BLACK)
+                    imgListIconBg.backgroundTintList = android.content.res.ColorStateList.valueOf(list.color)
+
                     subTasks = list.subTasks.toMutableList()
 
                     // Nếu danh sách hoàn toàn trống, bắt đầu bằng 1 dòng text trắng
@@ -116,7 +124,7 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
 
     private fun saveListToDatabase() {
         val list = currentList ?: return
-        list.subTasks = subTasks
+        list.subTasks = taskAdapter.getSubTasks()
         lifecycleScope.launch {
             repository.updateTodoList(list)
         }

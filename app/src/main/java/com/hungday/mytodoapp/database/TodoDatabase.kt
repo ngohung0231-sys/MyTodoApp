@@ -15,7 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Folder::class, Task::class, TodoList::class], version = 17, exportSchema = false)
+@Database(entities = [Folder::class, Task::class, TodoList::class], version = 18, exportSchema = false)
 @TypeConverters(DateConverter::class)
 abstract class TodoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
