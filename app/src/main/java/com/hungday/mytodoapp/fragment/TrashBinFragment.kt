@@ -53,9 +53,9 @@ class TrashBinFragment : Fragment(R.layout.fragment_trash_bin) {
                 val taskCount = items.count { it.itemType == "TASK" }
                 val listCount = items.count { it.itemType == "LIST" }
 
-                tvTrashFoldersCount.text = if (folderCount < 2) "$folderCount item" else "$folderCount items"
-                tvTrashTasksCount.text = if (taskCount < 2) "$taskCount item" else "$taskCount items"
-                tvTrashListsCount.text = if (listCount < 2) "$listCount item" else "$listCount items"
+                tvTrashFoldersCount.text = if (folderCount < 2) getString(R.string.item_format, folderCount) else getString(R.string.items_format, folderCount)
+                tvTrashTasksCount.text = if (taskCount < 2) getString(R.string.item_format, taskCount) else getString(R.string.items_format, taskCount)
+                tvTrashListsCount.text = if (listCount < 2) getString(R.string.item_format, listCount) else getString(R.string.items_format, listCount)
             }
         }
     }

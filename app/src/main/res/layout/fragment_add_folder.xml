@@ -34,7 +34,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Add Folder"
+                android:text="@string/add_folder"
                 android:textSize="20sp"
                 android:textColor="@color/black"
                 android:layout_weight="1"
@@ -60,7 +60,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginBottom="16dp"
             android:padding="16dp"
-            android:hint="Enter folder name"
+            android:hint="@string/enter_folder_name"
             android:textColor="#333333"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -103,7 +103,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="16dp"
-                    android:text="Select Color"
+                    android:text="@string/select_color"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
 
@@ -171,7 +171,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="16dp"
-                    android:text="Select Icon"
+                    android:text="@string/select_icon"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
 
@@ -207,7 +207,7 @@
             android:layout_marginTop="40dp"
             android:layout_marginBottom="20dp"
             android:backgroundTint="?attr/mainThemeColor"
-            android:text="Add Folder"
+            android:text="@string/add_folder"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"

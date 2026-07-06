@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">MyTodoApp</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="setup_profile">Setup Profile</string>
@@ -13,9 +12,9 @@
     <string name="tasks_lower_case">Tasks</string>
     <string name="today">Today</string>
     <string name="upcoming">Upcoming</string>
-    <string name="chose_your_birthday">Chose your birthday</string>
+    <string name="choose_your_birthday">Choose your birthday</string>
     <string name="personal">Personal</string>
-    <string name="hello_user">Hello, User!</string>
+    <string name="hello_user">Hello, %1$s!</string>
     <string name="have_a_nice_day">Have a nice day!</string>
     <string name="set_date_amp_time"><![CDATA[Set Date & Time]]></string>
     <string name="add_notification">Add Notification</string>
@@ -50,7 +49,6 @@
     <string name="user">User</string>
     <string name="profile">PROFILE</string>
     <string name="back">back</string>
-    <string name="h_c_nh_m_v_i_b_n">Học nhóm với bạn</string>
     <string name="_09_15_am">09:15 AM</string>
     <string name="_09_00_am">09:00 AM</string>
     <string name="notification">notification</string>
@@ -68,4 +66,52 @@
     <string name="tasks">TASKS</string>
     <string name="shopping">Shopping</string>
     <string name="blue">Blue</string>
+
+    <!-- New Strings for English Synchronization -->
+    <string name="repeat">Repeat</string>
+    <string name="daily">DAILY</string>
+    <string name="weekly">WEEKLY</string>
+    <string name="monthly">MONTHLY</string>
+    <string name="yearly">YEARLY</string>
+    <string name="every_week_on">Every week on...</string>
+    <string name="repeat_on_date">Repeat on date:</string>
+    <string name="theme_color">Theme Color</string>
+    <string name="trash_bin">Trash Bin</string>
+    <string name="delete_all_data">Delete all data</string>
+    <string name="no_task_here">There is no task here</string>
+    <string name="get_started">Get Started</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
+    <string name="on">On</string>
+    <string name="edit_task">Edit Task</string>
+    <string name="update_task">Update Task</string>
+    <string name="delete_task_q">Delete Task?</string>
+    <string name="delete_task_msg">Are you sure you want to delete this task? This action will move it to the trash bin.</string>
+    <string name="title_empty_error">Title cannot be empty</string>
+    <string name="enter_name_error">Please enter your name!</string>
+    <string name="username_length_error">Username must be 11 characters or less!</string>
+    <string name="choose_birthday_error">Please choose your birthday!</string>
+    <string name="continue_text">Continue</string>
+    <string name="no_list_here">There is no list here</string>
+    <string name="folders">Folders</string>
+    <string name="items_format">%1$d items</string>
+    <string name="item_format">%1$d item</string>
+    <string name="list_format">%1$d List</string>
+    <string name="lists_format">%1$d Lists</string>
+    <string name="task_format_val">%1$d Task</string>
+    <string name="tasks_format_val">%1$d Tasks</string>
+    <string name="add_folder">Add Folder</string>
+    <string name="enter_folder_name">Enter folder name</string>
+    <string name="select_color">Select Color</string>
+    <string name="select_icon">Select Icon</string>
+    <string name="edit_folder">Edit Folder</string>
+    <string name="update_folder">Update Folder</string>
+    <string name="name_required_error">Name is required</string>
+    <string name="add_list">Add List</string>
+    <string name="enter_list_name">Enter list name</string>
+    <string name="edit_list">Edit List</string>
+    <string name="update_list">Update List</string>
+    <string name="title_required_error">Title is required</string>
+    <string name="delete_list_q">Delete List?</string>
+    <string name="delete_list_msg">Are you sure you want to delete this list? This action will move it to the trash bin.</string>
 </resources>

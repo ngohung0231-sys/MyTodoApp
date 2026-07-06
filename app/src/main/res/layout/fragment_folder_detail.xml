@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textColor="@color/black"
-                android:text="There is no list here"
+                android:text="@string/no_list_here"
                 android:textAlignment="center" />
         </FrameLayout>
 
@@ -158,7 +158,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textColor="@color/black"
-                android:text="There is no task here"
+                android:text="@string/no_task_here"
                 android:textAlignment="center" />
         </FrameLayout>
     </LinearLayout>

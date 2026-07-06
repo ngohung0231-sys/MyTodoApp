@@ -119,7 +119,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun setupInitialState() {
         val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
-        tvUserName.text = "Hello, ${sharedPref.getString("USER_NAME", "User")}!"
+        val userName = sharedPref.getString("USER_NAME", getString(R.string.user)) ?: getString(R.string.user)
+        tvUserName.text = getString(R.string.hello_user, userName)
         sharedPref.getString("USER_AVATAR", null)?.let { loadAvatarSafely(imgAvatar, it) }
 
         // Khôi phục trạng thái Filter (Cách 1)

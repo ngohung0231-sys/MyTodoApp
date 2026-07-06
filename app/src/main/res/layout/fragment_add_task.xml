@@ -27,7 +27,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:stateListAnimator="@animator/btn_click_scale"
-                android:foreground="@drawable/ripple_rounded_bg"/>
+                android:foreground="@drawable/ripple_rounded_bg"
+                android:contentDescription="@string/back"/>
 
             <TextView
                 android:id="@+id/tvTitle"
@@ -53,7 +54,8 @@
                 android:visibility="gone"
                 android:stateListAnimator="@animator/btn_click_scale"
                 android:foreground="@drawable/ripple_rounded_bg"
-                tools:visibility="visible"/>
+                tools:visibility="visible"
+                android:contentDescription="@string/trash_bin"/>
         </LinearLayout>
 
         <FrameLayout
@@ -105,7 +107,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_tag"
-                    app:tint="?attr/mainThemeColor"/>
+                    app:tint="?attr/mainThemeColor"
+                    android:contentDescription="@string/priority"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -128,7 +131,8 @@
                     android:id="@+id/chevronPriority"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_chevron_down"/>
+                    android:src="@drawable/ic_chevron_down"
+                    android:contentDescription="@string/right_arrow"/>
             </LinearLayout>
 
             <LinearLayout
@@ -220,7 +224,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_folder"
-                    app:tint="?attr/mainThemeColor"/>
+                    app:tint="?attr/mainThemeColor"
+                    android:contentDescription="@string/folders_lowerCase"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -243,7 +248,8 @@
                     android:id="@+id/chevronFolder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_chevron_down"/>
+                    android:src="@drawable/ic_chevron_down"
+                    android:contentDescription="@string/right_arrow"/>
             </LinearLayout>
 
             <LinearLayout
@@ -287,7 +293,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="?attr/mainThemeColor"/>
+                    app:tint="?attr/mainThemeColor"
+                    android:contentDescription="@string/calendar"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -310,7 +317,8 @@
                     android:id="@+id/chevronDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_chevron_down"/>
+                    android:src="@drawable/ic_chevron_down"
+                    android:contentDescription="@string/right_arrow"/>
             </LinearLayout>
 
             <LinearLayout
@@ -367,7 +375,8 @@
                     android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:src="@drawable/bell"
-                    app:tint="?attr/mainThemeColor"/>
+                    app:tint="?attr/mainThemeColor"
+                    android:contentDescription="@string/notification"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -496,6 +505,7 @@
                         android:foreground="@drawable/ripple_rounded_bg"/>
                 </LinearLayout>
 
+                <!-- Repeat Section -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -514,7 +524,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Repeat"
+                            android:text="@string/repeat"
                             android:textColor="@color/black"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -527,7 +537,8 @@
                             app:track="@drawable/switch_track"
                             app:switchMinWidth="52dp"
                             app:thumbTint="@null"
-                            app:trackTint="@null" />
+                            app:trackTint="@null"
+                            android:contentDescription="@string/repeat"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -553,7 +564,7 @@
                                 android:layout_margin="4dp"
                                 android:background="@drawable/bg_repeat_option_selector"
                                 android:gravity="center"
-                                android:text="DAILY"
+                                android:text="@string/daily"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
                                 android:clickable="true"
@@ -567,7 +578,7 @@
                                 android:layout_margin="4dp"
                                 android:background="@drawable/bg_repeat_option_selector"
                                 android:gravity="center"
-                                android:text="WEEKLY"
+                                android:text="@string/weekly"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
                                 android:clickable="true"
@@ -581,7 +592,7 @@
                                 android:layout_margin="4dp"
                                 android:background="@drawable/bg_repeat_option_selector"
                                 android:gravity="center"
-                                android:text="MONTHLY"
+                                android:text="@string/monthly"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
                                 android:clickable="true"
@@ -595,7 +606,7 @@
                                 android:layout_margin="4dp"
                                 android:background="@drawable/bg_repeat_option_selector"
                                 android:gravity="center"
-                                android:text="YEARLY"
+                                android:text="@string/yearly"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
                                 android:clickable="true"
@@ -614,7 +625,7 @@
                                 android:id="@+id/tvWeeklySummary"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Mỗi tuần vào..."
+                                android:text="@string/every_week_on"
                                 android:textColor="#707070"
                                 android:layout_marginBottom="8dp"/>
                             <LinearLayout
@@ -646,7 +657,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Lặp lại vào ngày:"
+                                android:text="@string/repeat_on_date"
                                 android:textColor="@color/black"/>
                             <TextView
                                 android:id="@+id/tvRepeatDateVal"

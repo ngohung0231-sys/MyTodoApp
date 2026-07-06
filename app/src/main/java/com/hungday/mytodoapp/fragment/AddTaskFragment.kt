@@ -64,7 +64,12 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
     // Biến cho tính năng lặp lại
     private var repeatType = "NONE"
     private var repeatValues: String? = null
-    private val dayOfWeekNames = arrayOf("Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật")
+    private val dayOfWeekNames by lazy {
+        arrayOf(
+            getString(R.string.mon), getString(R.string.tue), getString(R.string.wed),
+            getString(R.string.thu), getString(R.string.fri), getString(R.string.sat), getString(R.string.sun)
+        )
+    }
     private val selectedDays = BooleanArray(7) // Để lưu trạng thái chọn các thứ trong tuần
 
     // Permission launcher for POST_NOTIFICATIONS (Android 13+)
@@ -310,7 +315,7 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
             TransitionManager.beginDelayedTransition(view as ViewGroup, customTransition)
 
             expandableAddNoti.isVisible = isChecked
-            tvNotiSwitch.text = if (isChecked) "On" else "Off"
+            tvNotiSwitch.text = if (isChecked) getString(R.string.on) else getString(R.string.off)
 
             if (isChecked) {
                 // Mặc định khi vừa bật lên thì chọn mốc đầu tiên (At time)
@@ -552,7 +557,8 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         }
         
         repeatValues = if (selectedIndices.isNotEmpty()) selectedIndices.joinToString(",") else null
-        tvWeeklySummary.text = if (selectedNames.isNotEmpty()) "Mỗi ${selectedNames.joinToString(", ")}" else "Mỗi tuần vào..."
+        tvWeeklySummary.text = if (selectedNames.isNotEmpty()) getString(R.string.every_format, selectedNames.joinToString(", ")) 
+                               else getString(R.string.every_week_on)
     }
 
     private fun updateRepeatDateSummary() {
@@ -560,8 +566,8 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         repeatValues = if (repeatType == "MONTHLY") date.dayOfMonth.toString() 
                        else "${date.monthValue},${date.dayOfMonth}"
         
-        tvRepeatDateVal.text = if (repeatType == "MONTHLY") "Ngày ${date.dayOfMonth} hàng tháng"
-                               else "Ngày ${date.dayOfMonth}/${date.monthValue} hàng năm"
+        tvRepeatDateVal.text = if (repeatType == "MONTHLY") getString(R.string.day_monthly_format, date.dayOfMonth)
+                               else getString(R.string.day_yearly_format, date.dayOfMonth, date.monthValue)
     }
 
     // Xóa các hàm Dialog cũ không còn dùng

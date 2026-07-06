@@ -129,8 +129,8 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
         viewLifecycleOwner.lifecycleScope.launch {
             repository.getListById(listId)?.let { list ->
                 existingList = list
-                tvHeaderTitle.text = "Edit List"
-                btnAddList.text = "Update List"
+                tvHeaderTitle.text = getString(R.string.edit_list)
+                btnAddList.text = getString(R.string.update_list)
                 etListTitle.setText(list.title)
                 selectedColor = list.color
                 selectedIcon = list.icon
@@ -253,7 +253,7 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
         btnAddList.setOnClickListener {
             val title = etListTitle.text.toString().trim()
             if (title.isEmpty()) {
-                etListTitle.error = "Title is required"
+                etListTitle.error = getString(R.string.title_required_error)
                 return@setOnClickListener
             }
 
@@ -299,8 +299,8 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
         val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
         val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
 
-        tvTitle.text = "Delete List?"
-        tvMessage.text = "Are you sure you want to delete this list? This action will move it to the trash bin."
+        tvTitle.text = getString(R.string.delete_list_q)
+        tvMessage.text = getString(R.string.delete_list_msg)
 
         btnCancel.setOnClickListener { alertDialog.dismiss() }
         btnConfirm.setOnClickListener {

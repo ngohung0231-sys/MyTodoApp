@@ -213,7 +213,7 @@
                 android:id="@+id/imgThemeColor"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:contentDescription="Theme Color"
+                android:contentDescription="@string/theme_color"
                 android:src="@drawable/ic_theme_color"
                 android:layout_gravity="center"
                 app:tint="?attr/mainThemeColor"
@@ -225,7 +225,7 @@
                 android:layout_weight="2"
                 android:textColor="@color/black"
                 android:layout_gravity="center"
-                android:text="Theme Color"
+                android:text="@string/theme_color"
                 android:textSize="16sp"/>
 
             <TextView
@@ -386,7 +386,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Trash Bin"
+                android:text="@string/trash_bin"
                 android:textSize="20sp"
                 android:layout_gravity="center"
                 android:textStyle="bold"
@@ -417,7 +417,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Delete all data"
+                android:text="@string/delete_all_data"
                 android:textSize="20sp"
                 android:layout_gravity="center"
                 android:textStyle="bold"

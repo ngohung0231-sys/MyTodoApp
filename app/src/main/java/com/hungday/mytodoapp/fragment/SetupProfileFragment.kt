@@ -130,19 +130,19 @@ class SetupProfileFragment : Fragment(R.layout.fragment_setup_profile) {
     private fun handleProfileSetup() {
         val name = etUserName.text.toString().trim()
         val birthdateText = tvBirthdate.text.toString()
-        val defaultBirthdateText = getString(R.string.chose_your_birthday)
+        val defaultBirthdateText = getString(R.string.choose_your_birthday)
 
         if (name.isEmpty()) {
-            etUserName.error = "Please enter your name!"
+            etUserName.error = getString(R.string.enter_name_error)
             return
         }
 
         if (name.length > 11) {
-            etUserName.error = "Username must be 11 characters or less!"
+            etUserName.error = getString(R.string.username_length_error)
         }
         
         if (birthdateText == defaultBirthdateText) {
-            Toast.makeText(requireContext(), "Please choose your birthday!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.choose_birthday_error), Toast.LENGTH_SHORT).show()
             return
         }
 

@@ -44,7 +44,7 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
                 super.onPageSelected(position)
                 val currentItem = onboardingList[position]
                 viewPager.setBackgroundColor(currentItem.backgroundColor)
-                btnNext.text = if (position == onboardingList.size - 1) "Get Started" else "Next"
+                btnNext.text = if (position == onboardingList.size - 1) getString(R.string.get_started) else getString(R.string.next)
             }
         })
 

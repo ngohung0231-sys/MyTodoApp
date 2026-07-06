@@ -40,8 +40,8 @@ class FolderAdapter(
         holder.tvFolderName.text = currentFolder.folderName
         holder.tvFolderName.setTextColor(currentFolder.folderColor)
         
-        holder.tvListCount.text = if (currentFolder.listCount < 2) "${currentFolder.listCount} List" else "${currentFolder.listCount} Lists"
-        holder.tvTaskCount.text = if (currentFolder.taskCount < 2) "${currentFolder.taskCount} Task" else "${currentFolder.taskCount} Tasks"
+        holder.tvListCount.text = if (currentFolder.listCount < 2) holder.itemView.context.getString(R.string.list_format, currentFolder.listCount) else holder.itemView.context.getString(R.string.lists_format, currentFolder.listCount)
+        holder.tvTaskCount.text = if (currentFolder.taskCount < 2) holder.itemView.context.getString(R.string.task_format_val, currentFolder.taskCount) else holder.itemView.context.getString(R.string.tasks_format_val, currentFolder.taskCount)
 
         holder.itemView.setOnClickListener {
             onFolderClick(currentFolder)

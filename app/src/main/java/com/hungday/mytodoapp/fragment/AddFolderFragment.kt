@@ -103,8 +103,8 @@ class AddFolderFragment : Fragment(R.layout.fragment_add_folder) {
     private fun loadFolderData() {
         viewLifecycleOwner.lifecycleScope.launch {
             repository.getFolderById(folderId)?.let { folder ->
-                tvHeaderTitle.text = "Edit Folder"
-                btnAddFolder.text = "Update Folder"
+                tvHeaderTitle.text = getString(R.string.edit_folder)
+                btnAddFolder.text = getString(R.string.update_folder)
                 etFolderName.setText(folder.folderName)
                 selectedColor = folder.folderColor
                 selectedIcon = folder.folderImg
@@ -188,7 +188,7 @@ class AddFolderFragment : Fragment(R.layout.fragment_add_folder) {
         btnAddFolder.setOnClickListener {
             val name = etFolderName.text.toString().trim()
             if (name.isEmpty()) {
-                etFolderName.error = "Name is required"
+                etFolderName.error = getString(R.string.name_required_error)
                 return@setOnClickListener
             }
 

@@ -147,7 +147,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                     selectedReminderMinutes = task.isNotify
                     switchAddNoti.isChecked = true
                     expandableAddNoti.isVisible = true
-                    tvNotiSwitch.text = "On"
+                    tvNotiSwitch.text = getString(R.string.on)
                     when (selectedReminderMinutes) {
                         0 -> updateNotiSelection(btnNotiAtTime)
                         10 -> updateNotiSelection(btnNoti10Min)
@@ -179,7 +179,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
 
     private fun initViews(view: View) {
         tvTitle = view.findViewById(R.id.tvTitle)
-        tvTitle.text = "Edit Task"
+        tvTitle.text = getString(R.string.edit_task)
         
         btnBack = view.findViewById(R.id.btnBack)
         btnTrash = view.findViewById(R.id.btnTrash)
@@ -213,7 +213,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
         btnNoti30Min = view.findViewById(R.id.btnNoti30Min)
         btnNoti1Hour = view.findViewById(R.id.btnNoti1Hour)
         btnUpdateTask = view.findViewById(R.id.btnAddTask)
-        btnUpdateTask.text = "Update Task"
+        btnUpdateTask.text = getString(R.string.update_task)
 
         expandableSetPriority.visibility = View.GONE
     }
@@ -246,7 +246,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
 
         switchAddNoti.setOnCheckedChangeListener { _, isChecked ->
             expandableAddNoti.isVisible = isChecked
-            tvNotiSwitch.text = if (isChecked) "On" else "Off"
+            tvNotiSwitch.text = if (isChecked) getString(R.string.on) else getString(R.string.off)
             if (isChecked) {
                 if (selectedReminderMinutes == null) selectedReminderMinutes = 0
                 when (selectedReminderMinutes) {
@@ -286,7 +286,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
         btnUpdateTask.setOnClickListener {
             val taskTitle = etTaskTitle.text.toString().trim()
             if (taskTitle.isEmpty()) {
-                etTaskTitle.error = "Title cannot be empty"
+                etTaskTitle.error = getString(R.string.title_empty_error)
                 return@setOnClickListener
             }
 
@@ -341,8 +341,8 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
         val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
         val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
 
-        tvTitle.text = "Delete Task?"
-        tvMessage.text = "Are you sure you want to delete this task? This action will move it to the trash bin."
+        tvTitle.text = getString(R.string.delete_task_q)
+        tvMessage.text = getString(R.string.delete_task_msg)
 
         btnCancel.setOnClickListener { alertDialog.dismiss() }
         btnConfirm.setOnClickListener {

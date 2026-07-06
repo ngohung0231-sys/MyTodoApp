@@ -30,7 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Trash Bin"
+            android:text="@string/trash_bin"
             android:textColor="@color/black"
             android:textSize="20sp"
             android:layout_weight="1"
@@ -85,7 +85,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Folders"
+                    android:text="@string/folders"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -132,7 +132,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Tasks"
+                    android:text="@string/tasks_lower_case"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -179,7 +179,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Lists"
+                    android:text="@string/lists"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold" />
