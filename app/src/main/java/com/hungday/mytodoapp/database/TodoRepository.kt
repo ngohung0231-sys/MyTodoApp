@@ -20,7 +20,21 @@ class TodoRepository(
         todoDao.insertFolder(folder)
     }
 
+    suspend fun updateFolder(folder: Folder) {
+        todoDao.updateFolder(folder)
+    }
+
+    suspend fun getFolderById(folderId: Int): Folder? {
+        return todoDao.getFolderById(folderId)
+    }
+
     suspend fun deleteFolder(folder: Folder) {
+        todoDao.deleteFolder(folder)
+    }
+
+    suspend fun deleteFolderWithTasks(folder: Folder) {
+        todoDao.deleteTasksByFolderId(folder.folderId)
+        todoDao.deleteListsByFolderId(folder.folderId)
         todoDao.deleteFolder(folder)
     }
 
@@ -50,6 +64,50 @@ class TodoRepository(
         }
     }
 
+    suspend fun restoreFolderFromTrash(trashItem: TrashItem) {
+        trashDao?.let { tDao ->
+            val backup = Gson().fromJson(trashItem.folderDataJson, FolderBackup::class.java)
+            
+            // 1. Insert Folder lại
+            todoDao.insertFolder(backup.folder)
+            
+            // 2. Insert Lists lại
+            backup.lists.forEach { list ->
+                todoDao.insertTodoList(list)
+            }
+            
+            // 3. Insert Tasks lại
+            backup.tasks.forEach { task ->
+                todoDao.insertTask(task)
+            }
+            
+            // 4. Xóa khỏi thùng rác
+            tDao.deleteTrashItem(trashItem.trashId)
+        }
+    }
+
+    suspend fun moveTaskToTrash(task: Task) {
+        trashDao?.let { tDao ->
+            val taskDataJson = Gson().toJson(task)
+            val trashItem = TrashItem(
+                originalId = task.id,
+                itemType = "TASK",
+                title = task.title,
+                folderDataJson = taskDataJson
+            )
+            tDao.insertTrashItem(trashItem)
+            todoDao.deleteTask(task)
+        }
+    }
+
+    suspend fun restoreTaskFromTrash(trashItem: TrashItem) {
+        trashDao?.let { tDao ->
+            val task = Gson().fromJson(trashItem.folderDataJson, Task::class.java)
+            todoDao.insertTask(task)
+            tDao.deleteTrashItem(trashItem.trashId)
+        }
+    }
+
     suspend fun moveListToTrash(todoList: TodoList) {
         trashDao?.let { tDao ->
             val listDataJson = Gson().toJson(todoList)
@@ -61,6 +119,14 @@ class TodoRepository(
             )
             tDao.insertTrashItem(trashItem)
             todoDao.deleteTodoList(todoList)
+        }
+    }
+
+    suspend fun restoreListFromTrash(trashItem: TrashItem) {
+        trashDao?.let { tDao ->
+            val list = Gson().fromJson(trashItem.folderDataJson, TodoList::class.java)
+            todoDao.insertTodoList(list)
+            tDao.deleteTrashItem(trashItem.trashId)
         }
     }
 

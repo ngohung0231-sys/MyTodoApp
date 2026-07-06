@@ -12,6 +12,7 @@ import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.transition.TransitionSet
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -68,6 +69,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
 
     private lateinit var tvTitle: TextView
     private lateinit var btnBack: ImageView
+    private lateinit var btnTrash: ImageView
     private lateinit var etTaskTitle: EditText
     private lateinit var rowSetPriority: LinearLayout
     private lateinit var rowSelectFolder: LinearLayout
@@ -107,7 +109,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
     private fun initDatabase() {
         taskId = arguments?.getInt("taskId") ?: -1
         val database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao())
     }
 
     private fun loadData() {
@@ -180,6 +182,9 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
         tvTitle.text = "Edit Task"
         
         btnBack = view.findViewById(R.id.btnBack)
+        btnTrash = view.findViewById(R.id.btnTrash)
+        btnTrash.isVisible = taskId != -1
+        
         etTaskTitle = view.findViewById(R.id.etTaskTitle)
         rowSetPriority = view.findViewById(R.id.rowSetPriority)
         rowSelectFolder = view.findViewById(R.id.rowSelectFolder)
@@ -215,6 +220,10 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
 
     private fun setupListeners() {
         btnBack.setOnClickListener { findNavController().popBackStack() }
+
+        btnTrash.setOnClickListener {
+            showDeleteConfirmDialog()
+        }
 
         btnLow.setOnClickListener { handlePrioritySelection("Low", btnLow, R.color.green) }
         btnMedium.setOnClickListener { handlePrioritySelection("Medium", btnMedium, R.color.blue) }
@@ -316,6 +325,38 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                 }
             }
         }
+    }
+
+    private fun showDeleteConfirmDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete_folder, null)
+        val alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
+        val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
+
+        tvTitle.text = "Delete Task?"
+        tvMessage.text = "Are you sure you want to delete this task? This action will move it to the trash bin."
+
+        btnCancel.setOnClickListener { alertDialog.dismiss() }
+        btnConfirm.setOnClickListener {
+            alertDialog.dismiss()
+            existingTask?.let { task ->
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    repository.moveTaskToTrash(task)
+                    withContext(Dispatchers.Main) {
+                        findNavController().popBackStack()
+                    }
+                }
+            }
+        }
+        alertDialog.show()
     }
 
     private fun handlePrioritySelection(priority: String, clickedButton: TextView, colorRes: Int) {

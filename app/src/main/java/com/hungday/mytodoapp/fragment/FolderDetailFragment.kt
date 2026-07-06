@@ -99,6 +99,13 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
             findNavController().popBackStack()
         }
 
+        btnSetting.setOnClickListener {
+            val bundle = Bundle().apply {
+                putInt("folderId", folderId)
+            }
+            findNavController().navigate(R.id.action_folderDetailFragment_to_addFolderFragment, bundle)
+        }
+
         lnlAddTask.setOnClickListener {
             // Navigate to Add List Fragment
             val bundle = Bundle().apply {

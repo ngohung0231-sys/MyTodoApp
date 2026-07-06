@@ -3,6 +3,7 @@ package com.hungday.mytodoapp.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -14,8 +15,11 @@ import com.hungday.mytodoapp.model.Folder
 class FolderGridAdapter(
     private var folderList: List<Folder>,
     private val onNewFolderClick: () -> Unit,
-    private val onFolderClick: (Folder) -> Unit
+    private val onFolderClick: (Folder) -> Unit,
+    private val onDeleteFolderClick: (Folder) -> Unit
 ) : RecyclerView.Adapter<FolderGridAdapter.FolderGridViewHolder>() {
+
+    private var isEditMode: Boolean = false
 
     companion object {
         private const val TYPE_NEW_FOLDER = 0
@@ -30,7 +34,8 @@ class FolderGridAdapter(
         val tvTaskCount: TextView = itemView.findViewById(R.id.tvTaskCount)
         val imgFolderIllustration: ImageView = itemView.findViewById(R.id.imgFolderIllustration)
         val imgArrow: ImageView = itemView.findViewById(R.id.imgArrow)
-        val cardView: CardView = itemView as CardView
+        val ivDeleteFolder: ImageView = itemView.findViewById(R.id.ivDeleteFolder)
+        val cardView: CardView = itemView.findViewById(R.id.cardFolder)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -43,11 +48,17 @@ class FolderGridAdapter(
     }
 
     override fun onBindViewHolder(holder: FolderGridViewHolder, position: Int) {
+        val context = holder.itemView.context
         if (getItemViewType(position) == TYPE_NEW_FOLDER) {
             holder.containerFolderData.visibility = View.GONE
             holder.containerNewFolder.visibility = View.VISIBLE
             holder.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#dbe9f5"))
-            holder.itemView.setOnClickListener { onNewFolderClick() }
+            holder.ivDeleteFolder.visibility = View.GONE
+            holder.itemView.clearAnimation()
+            
+            holder.cardView.setOnClickListener { 
+                if (!isEditMode) onNewFolderClick() 
+            }
         } else {
             val folder = folderList[position - 1]
             holder.containerFolderData.visibility = View.VISIBLE
@@ -64,7 +75,23 @@ class FolderGridAdapter(
             holder.imgFolderIllustration.setImageResource(folder.folderImg)
             holder.imgFolderIllustration.setColorFilter(folder.folderColor)
 
-            holder.itemView.setOnClickListener { onFolderClick(folder) }
+            // Edit Mode handling
+            if (isEditMode) {
+                holder.ivDeleteFolder.visibility = View.VISIBLE
+                val shakeAnim = AnimationUtils.loadAnimation(context, R.anim.folder_shake)
+                holder.itemView.startAnimation(shakeAnim)
+            } else {
+                holder.ivDeleteFolder.visibility = View.GONE
+                holder.itemView.clearAnimation()
+            }
+
+            holder.ivDeleteFolder.setOnClickListener {
+                onDeleteFolderClick(folder)
+            }
+
+            holder.cardView.setOnClickListener {
+                if (!isEditMode) onFolderClick(folder) 
+            }
         }
     }
 
@@ -72,6 +99,11 @@ class FolderGridAdapter(
 
     fun updateData(newList: List<Folder>) {
         this.folderList = newList
+        notifyDataSetChanged()
+    }
+
+    fun setEditMode(enabled: Boolean) {
+        isEditMode = enabled
         notifyDataSetChanged()
     }
 }

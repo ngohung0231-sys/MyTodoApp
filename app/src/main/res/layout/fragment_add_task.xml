@@ -40,9 +40,19 @@
                 android:textStyle="bold"
                 android:gravity="center"/>
 
-            <FrameLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp"/>
+            <ImageView
+                android:id="@+id/btnTrash"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_trash_bin"
+                app:tint="@color/red"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone"
+                android:stateListAnimator="@animator/btn_click_scale"
+                android:foreground="@drawable/ripple_rounded_bg"
+                tools:visibility="visible"/>
         </LinearLayout>
 
         <FrameLayout
@@ -346,7 +356,10 @@
             android:id="@+id/rowAddNoti"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
             android:gravity="center_vertical"
             android:clickable="true"
             android:focusable="true"
@@ -399,6 +412,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
+            android:padding="16dp"
             android:paddingTop="8dp">
 
             <TextView
@@ -499,6 +513,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
                     android:orientation="horizontal">
 
                     <TextView
@@ -525,6 +541,7 @@
                     android:id="@+id/lnlRepeatOptions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="16dp"
                     android:orientation="vertical"
                     android:visibility="gone"
                     android:layout_marginTop="10dp">

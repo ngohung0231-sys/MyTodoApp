@@ -31,6 +31,7 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
     private lateinit var imgListIcon: ImageView
     private lateinit var imgListIconBg: com.google.android.material.imageview.ShapeableImageView
     private lateinit var btnBack: ImageView
+    private lateinit var btnSettings: ImageView
     private lateinit var rvTasks: RecyclerView
     private lateinit var btnAddTaskToggle: ImageView
     private lateinit var tvEmptyState: TextView
@@ -58,6 +59,7 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
         imgListIcon = view.findViewById(R.id.imgListIcon)
         imgListIconBg = view.findViewById(R.id.imgListIconBg)
         btnBack = view.findViewById(R.id.btnBack)
+        btnSettings = view.findViewById(R.id.btnSettings)
         rvTasks = view.findViewById(R.id.rvTasks)
         btnAddTaskToggle = view.findViewById(R.id.btnAddTaskToggle)
         tvEmptyState = view.findViewById(R.id.tvEmptyState)
@@ -78,6 +80,13 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
     private fun setupListeners() {
         btnBack.setOnClickListener {
             findNavController().popBackStack()
+        }
+
+        btnSettings.setOnClickListener {
+            val bundle = Bundle().apply {
+                putInt("listId", listId)
+            }
+            findNavController().navigate(R.id.action_listDetailFragment_to_addListFragment, bundle)
         }
 
         btnAddTaskToggle.setOnClickListener {

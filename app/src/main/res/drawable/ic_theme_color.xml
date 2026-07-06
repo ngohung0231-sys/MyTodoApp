@@ -1,0 +1,24 @@
+<!--
+  ~ Copyright (C) 2026 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="50dp"
+    android:height="50dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:pathData="M3.839,5.858c2.94,-3.916 9.03,-5.055 13.364,-2.36c4.28,2.66 5.854,7.777 4.1,12.577c-1.655,4.533 -6.016,6.328 -9.159,4.048c-1.177,-0.854 -1.634,-1.925 -1.854,-3.664l-0.106,-0.987l-0.045,-0.398c-0.123,-0.934 -0.311,-1.352 -0.705,-1.572c-0.535,-0.298 -0.892,-0.305 -1.595,-0.033l-0.351,0.146l-0.179,0.078c-1.014,0.44 -1.688,0.595 -2.541,0.416l-0.2,-0.047l-0.164,-0.047c-2.789,-0.864 -3.202,-4.647 -0.565,-8.157m0.984,6.716l0.123,0.037l0.134,0.03c0.439,0.087 0.814,0.015 1.437,-0.242l0.602,-0.257c1.202,-0.493 1.985,-0.54 3.046,0.05c0.917,0.512 1.275,1.298 1.457,2.66l0.053,0.459l0.055,0.532l0.047,0.422c0.172,1.361 0.485,2.09 1.248,2.644c2.275,1.65 5.534,0.309 6.87,-3.349c1.516,-4.152 0.174,-8.514 -3.484,-10.789c-3.675,-2.284 -8.899,-1.306 -11.373,1.987c-2.075,2.763 -1.82,5.28 -0.215,5.816m11.225,-1.994a1.25,1.25 0,1 1,2.414 -0.647a1.25,1.25 0,0 1,-2.414 0.647m0.494,3.488a1.25,1.25 0,1 1,2.415 -0.647a1.25,1.25 0,0 1,-2.415 0.647M14.07,7.577a1.25,1.25 0,1 1,2.415 -0.647a1.25,1.25 0,0 1,-2.415 0.647m-0.028,8.998a1.25,1.25 0,1 1,2.414 -0.647a1.25,1.25 0,0 1,-2.414 0.647m-3.497,-9.97a1.25,1.25 0,1 1,2.415 -0.646a1.25,1.25 0,0 1,-2.415 0.646"
+      android:fillColor="#000"/>
+</vector>

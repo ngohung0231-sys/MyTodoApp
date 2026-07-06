@@ -37,6 +37,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/calendar"
+                android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 

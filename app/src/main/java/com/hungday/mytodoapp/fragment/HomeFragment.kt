@@ -169,7 +169,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             val bundle = Bundle().apply {
                 putInt("folderId", folder.folderId)
             }
-            findNavController().navigate(R.id.action_homeFragment_to_folderDetailFragment, bundle)
+            findNavController().navigate(R.id.addFolderFragment, bundle)
         }, { task ->
             val bundle = Bundle().apply {
                 putInt("taskId", task.id)

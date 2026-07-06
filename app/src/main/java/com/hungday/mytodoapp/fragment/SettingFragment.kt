@@ -78,6 +78,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     private lateinit var lnlDarkMode: LinearLayout
     private lateinit var lnlLanguage: LinearLayout
     private lateinit var lnlBirthDay: LinearLayout
+    private lateinit var lnlTrashBin: LinearLayout
     private lateinit var lnlDeleteAllData: LinearLayout
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -99,6 +100,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         lnlDarkMode = view.findViewById(R.id.lnlDarkMode)
         lnlLanguage = view.findViewById(R.id.lnlLanguage)
         lnlBirthDay = view.findViewById(R.id.lnlBirthday)
+        lnlTrashBin = view.findViewById(R.id.lnlTrashBin)
         lnlDeleteAllData = view.findViewById(R.id.lnlDeleteData)
     }
 
@@ -149,6 +151,11 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         // Xóa dữ liệu
         lnlDeleteAllData.setOnClickListener {
             showDeleteConfirmDialog()
+        }
+
+        // Thùng rác
+        lnlTrashBin.setOnClickListener {
+            findNavController().navigate(R.id.trashBinFragment)
         }
     }
 

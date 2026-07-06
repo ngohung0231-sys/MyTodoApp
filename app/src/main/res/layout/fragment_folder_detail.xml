@@ -35,6 +35,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/personal"
+            android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -121,6 +122,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:textColor="@color/black"
                 android:text="There is no list here"
                 android:textAlignment="center" />
         </FrameLayout>
@@ -155,6 +157,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:textColor="@color/black"
                 android:text="There is no task here"
                 android:textAlignment="center" />
         </FrameLayout>

@@ -3,6 +3,7 @@ package com.hungday.mytodoapp.fragment
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -12,6 +13,7 @@ import com.hungday.mytodoapp.R
 import com.hungday.mytodoapp.adapter.FolderGridAdapter
 import com.hungday.mytodoapp.database.TodoDatabase
 import com.hungday.mytodoapp.database.TodoRepository
+import com.hungday.mytodoapp.model.Folder
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -24,7 +26,10 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
 
     // UI Components
     private lateinit var btnBack: ImageView
+    private lateinit var btnEdit: ImageView
     private lateinit var rvFoldersGrid: RecyclerView
+    
+    private var isInEditMode = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,18 +47,21 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
 
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
+        btnEdit = view.findViewById(R.id.btnEdit)
         rvFoldersGrid = view.findViewById(R.id.rvFoldersGrid)
     }
 
     private fun setupAdapters() {
         folderGridAdapter = FolderGridAdapter(emptyList(), {
             // Click "New Folder"
-            // TODO: Mở Dialog hoặc Fragment thêm folder
+            findNavController().navigate(R.id.action_foldersFragment_to_addFolderFragment)
         }, { folder ->
             val bundle = Bundle().apply {
                 putInt("folderId", folder.folderId)
             }
             findNavController().navigate(R.id.action_foldersFragment_to_folderDetailFragment, bundle)
+        }, { folder ->
+            deleteFolder(folder)
         })
 
         rvFoldersGrid.layoutManager = GridLayoutManager(requireContext(), 2)
@@ -83,5 +91,42 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
         btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
+        
+        btnEdit.setOnClickListener {
+            isInEditMode = !isInEditMode
+            folderGridAdapter.setEditMode(isInEditMode)
+            if (isInEditMode) {
+                btnEdit.setImageResource(R.drawable.ic_done)
+            } else {
+                btnEdit.setImageResource(R.drawable.ic_setting_task)
+            }
+        }
+    }
+
+    private fun deleteFolder(folder: Folder) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm_delete_folder, null)
+        val alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
+        val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
+        val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+
+        tvMessage.text = "Are you sure you want to delete '${folder.folderName}' and all its tasks? This action will move it to the trash bin."
+
+        btnCancel.setOnClickListener { alertDialog.dismiss() }
+
+        btnConfirm.setOnClickListener {
+            alertDialog.dismiss()
+            viewLifecycleOwner.lifecycleScope.launch {
+                repository.moveFolderToTrash(folder)
+            }
+        }
+
+        alertDialog.show()
     }
 }

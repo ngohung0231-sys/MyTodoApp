@@ -13,6 +13,7 @@ class FolderAdapter(
     private var folderList: List<Folder>,
     private val onFolderClick: (Folder) -> Unit
 ) : RecyclerView.Adapter<FolderAdapter.FolderViewHolder>() {
+
     class FolderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgFolderIc: ImageView = itemView.findViewById(R.id.imgFolderIc)
         val tvFolderName: TextView = itemView.findViewById(R.id.tvFolderName)

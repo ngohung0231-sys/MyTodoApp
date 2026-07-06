@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.transition.TransitionSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,57 +19,43 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hungday.mytodoapp.R
-import com.hungday.mytodoapp.adapter.FolderAddTaskAdapter
 import com.hungday.mytodoapp.database.TodoDatabase
 import com.hungday.mytodoapp.database.TodoRepository
-import com.hungday.mytodoapp.model.SubTask
-import com.hungday.mytodoapp.model.TodoList
+import com.hungday.mytodoapp.model.Folder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class AddListFragment : Fragment(R.layout.fragment_add_list) {
+class AddFolderFragment : Fragment(R.layout.fragment_add_folder) {
 
     private lateinit var repository: TodoRepository
-    private lateinit var folderAdapter: FolderAddTaskAdapter
     
-    private var listId: Int = -1
-    private var selectedFolderId = 1
+    private var folderId: Int = -1
     private var selectedColor = 0xFF4997CF.toInt()
-    private var selectedIcon = R.drawable.ic_book
-    private var existingSubTasks: List<SubTask> = emptyList()
+    private var selectedIcon = R.drawable.ic_folder
 
     private lateinit var btnBack: ImageView
-    private lateinit var btnTrash: ImageView
     private lateinit var tvHeaderTitle: TextView
-    private lateinit var etListTitle: EditText
+    private lateinit var etFolderName: EditText
     
-    private lateinit var rowSelectFolder: LinearLayout
     private lateinit var rowSelectColor: LinearLayout
     private lateinit var rowSelectIcon: LinearLayout
     
-    private lateinit var expandableSelectFolder: LinearLayout
     private lateinit var expandableSelectColor: LinearLayout
     private lateinit var expandableSelectIcon: LinearLayout
     
-    private lateinit var chevronFolder: ImageView
     private lateinit var chevronColor: ImageView
     private lateinit var chevronIcon: ImageView
     
-    private lateinit var tvSelectedFolder: TextView
     private lateinit var viewSelectedColor: View
     private lateinit var imgSelectedIcon: ImageView
     
-    private lateinit var rvFolders: RecyclerView
     private lateinit var rvIcons: RecyclerView
     private lateinit var layoutColorPicker: LinearLayout
-    private lateinit var btnAddList: Button
+    private lateinit var btnAddFolder: Button
 
-    private var existingList: TodoList? = null
-    private var isFolderExpanded = false
     private var isColorExpanded = false
     private var isIconExpanded = false
 
@@ -80,101 +65,61 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
         val database = TodoDatabase.getDatabase(requireContext())
         repository = TodoRepository(database.todoDao(), database.trashDao())
 
-        listId = arguments?.getInt("listId", -1) ?: -1
-        selectedFolderId = arguments?.getInt("folderId", 1) ?: 1
+        folderId = arguments?.getInt("folderId", -1) ?: -1
 
         initViews(view)
-        setupFolderList()
         setupColorPicker()
         setupIconList()
         setupListeners()
 
-        if (listId != -1) {
-            loadListData()
+        if (folderId != -1) {
+            loadFolderData()
         }
     }
 
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
-        btnTrash = view.findViewById(R.id.btnTrash)
-        btnTrash.isVisible = listId != -1
-        
         tvHeaderTitle = view.findViewById(R.id.tvHeaderTitle)
-        etListTitle = view.findViewById(R.id.etListTitle)
+        etFolderName = view.findViewById(R.id.etFolderName)
         
-        rowSelectFolder = view.findViewById(R.id.rowSelectFolder)
         rowSelectColor = view.findViewById(R.id.rowSelectColor)
         rowSelectIcon = view.findViewById(R.id.rowSelectIcon)
         
-        expandableSelectFolder = view.findViewById(R.id.expandableSelectFolder)
         expandableSelectColor = view.findViewById(R.id.expandableSelectColor)
         expandableSelectIcon = view.findViewById(R.id.expandableSelectIcon)
         
-        chevronFolder = view.findViewById(R.id.chevronFolder)
         chevronColor = view.findViewById(R.id.chevronColor)
         chevronIcon = view.findViewById(R.id.chevronIcon)
         
-        tvSelectedFolder = view.findViewById(R.id.tvSelectedFolder)
         viewSelectedColor = view.findViewById(R.id.viewSelectedColor)
         imgSelectedIcon = view.findViewById(R.id.imgSelectedIcon)
         imgSelectedIcon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.black))
         
-        rvFolders = view.findViewById(R.id.rvFolders)
         rvIcons = view.findViewById(R.id.rvIcons)
         layoutColorPicker = view.findViewById(R.id.layoutColorPicker)
-        btnAddList = view.findViewById(R.id.btnAddList)
+        btnAddFolder = view.findViewById(R.id.btnAddFolder)
     }
 
-    private fun loadListData() {
+    private fun loadFolderData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            repository.getListById(listId)?.let { list ->
-                existingList = list
-                tvHeaderTitle.text = "Edit List"
-                btnAddList.text = "Update List"
-                etListTitle.setText(list.title)
-                selectedColor = list.color
-                selectedIcon = list.icon
-                selectedFolderId = list.folderId
-                existingSubTasks = list.subTasks
-
+            repository.getFolderById(folderId)?.let { folder ->
+                tvHeaderTitle.text = "Edit Folder"
+                btnAddFolder.text = "Update Folder"
+                etFolderName.setText(folder.folderName)
+                selectedColor = folder.folderColor
+                selectedIcon = folder.folderImg
+                
                 viewSelectedColor.backgroundTintList = ColorStateList.valueOf(selectedColor)
                 imgSelectedIcon.setImageResource(selectedIcon)
             }
         }
     }
 
-    private fun setupFolderList() {
-        rvFolders.layoutManager = LinearLayoutManager(requireContext())
-        viewLifecycleOwner.lifecycleScope.launch {
-            repository.allFolders.collect { folders ->
-                // Set initial folder name
-                folders.find { it.folderId == selectedFolderId }?.let {
-                    tvSelectedFolder.text = it.folderName
-                }
-
-                folderAdapter = FolderAddTaskAdapter(folders) { folder ->
-                    selectedFolderId = folder.folderId
-                    tvSelectedFolder.text = folder.folderName
-                    isFolderExpanded = false
-                    toggleExpandableRow(view as ViewGroup, expandableSelectFolder, chevronFolder, isFolderExpanded)
-                }
-                rvFolders.adapter = folderAdapter
-            }
-        }
-    }
-
     private fun setupColorPicker() {
         val colorResIds = listOf(
-            R.color.blue,
-            R.color.pink,
-            R.color.red,
-            R.color.green,
-            R.color.cyan,
-            R.color.purple,
-            R.color.yellow,
-            R.color.amber,
-            R.color.orange,
-            R.color.deep_orange,
+            R.color.blue, R.color.pink, R.color.red, R.color.green,
+            R.color.cyan, R.color.purple, R.color.yellow, R.color.amber,
+            R.color.orange, R.color.deep_orange,
         )
 
         colorResIds.forEach { resId ->
@@ -198,9 +143,9 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
 
     private fun setupIconList() {
         val icons = listOf(
-            R.drawable.ic_book, R.drawable.ic_study, R.drawable.ic_shopping,
-            R.drawable.ic_exercise, R.drawable.ic_travel, R.drawable.ic_profile,
-            R.drawable.ic_project, R.drawable.ic_pin, R.drawable.ic_calendar
+            R.drawable.ic_folder, R.drawable.ic_book, R.drawable.ic_study, 
+            R.drawable.ic_shopping, R.drawable.ic_exercise, R.drawable.ic_travel, 
+            R.drawable.ic_profile, R.drawable.ic_project, R.drawable.ic_calendar
         )
 
         rvIcons.layoutManager = GridLayoutManager(requireContext(), 4)
@@ -218,7 +163,6 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
                 imageView.setOnClickListener {
                     selectedIcon = iconRes
                     imgSelectedIcon.setImageResource(iconRes)
-                    imgSelectedIcon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.black))
                     isIconExpanded = false
                     toggleExpandableRow(view as ViewGroup, expandableSelectIcon, chevronIcon, isIconExpanded)
                 }
@@ -231,15 +175,6 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
     private fun setupListeners() {
         btnBack.setOnClickListener { findNavController().popBackStack() }
 
-        btnTrash.setOnClickListener {
-            showDeleteConfirmDialog()
-        }
-
-        rowSelectFolder.setOnClickListener {
-            isFolderExpanded = !isFolderExpanded
-            toggleExpandableRow(view as ViewGroup, expandableSelectFolder, chevronFolder, isFolderExpanded)
-        }
-
         rowSelectColor.setOnClickListener {
             isColorExpanded = !isColorExpanded
             toggleExpandableRow(view as ViewGroup, expandableSelectColor, chevronColor, isColorExpanded)
@@ -250,71 +185,31 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
             toggleExpandableRow(view as ViewGroup, expandableSelectIcon, chevronIcon, isIconExpanded)
         }
 
-        btnAddList.setOnClickListener {
-            val title = etListTitle.text.toString().trim()
-            if (title.isEmpty()) {
-                etListTitle.error = "Title is required"
+        btnAddFolder.setOnClickListener {
+            val name = etFolderName.text.toString().trim()
+            if (name.isEmpty()) {
+                etFolderName.error = "Name is required"
                 return@setOnClickListener
             }
 
-            val list = TodoList(
-                id = if (listId == -1) 0 else listId,
-                title = title,
-                color = selectedColor,
-                icon = selectedIcon,
-                folderId = selectedFolderId,
-                subTasks = if (listId == -1) listOf(SubTask(title = "", isTask = false)) else existingSubTasks
+            val folder = Folder(
+                folderId = if (folderId == -1) 0 else folderId,
+                folderName = name,
+                folderColor = selectedColor,
+                folderImg = selectedIcon
             )
 
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    if (listId == -1) {
-                        Log.d("AddListFragment", "Inserting new list: $list")
-                        repository.insertTodoList(list)
-                    } else {
-                        Log.d("AddListFragment", "Updating list: $list")
-                        repository.updateTodoList(list)
-                    }
-                    withContext(Dispatchers.Main) {
-                        findNavController().popBackStack()
-                    }
-                } catch (e: Exception) {
-                    Log.e("AddListFragment", "Error saving list", e)
+                if (folderId == -1) {
+                    repository.insertFolder(folder)
+                } else {
+                    repository.updateFolder(folder)
+                }
+                withContext(Dispatchers.Main) {
+                    findNavController().popBackStack()
                 }
             }
         }
-    }
-
-    private fun showDeleteConfirmDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete_folder, null)
-        val alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
-
-        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
-        val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
-        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
-        val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
-
-        tvTitle.text = "Delete List?"
-        tvMessage.text = "Are you sure you want to delete this list? This action will move it to the trash bin."
-
-        btnCancel.setOnClickListener { alertDialog.dismiss() }
-        btnConfirm.setOnClickListener {
-            alertDialog.dismiss()
-            existingList?.let { list ->
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    repository.moveListToTrash(list)
-                    withContext(Dispatchers.Main) {
-                        findNavController().popBackStack()
-                    }
-                }
-            }
-        }
-        alertDialog.show()
     }
 
     private fun toggleExpandableRow(rootView: ViewGroup, expandableLayout: View, chevron: ImageView, isExpanded: Boolean) {

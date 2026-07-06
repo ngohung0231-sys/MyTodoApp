@@ -11,6 +11,12 @@ interface TodoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFolder(folder: Folder)
 
+    @Update
+    suspend fun updateFolder(folder: Folder)
+
+    @Query("SELECT * FROM folders WHERE folderId = :folderId")
+    suspend fun getFolderById(folderId: Int): Folder?
+
     @Query("SELECT * FROM folders")
     fun getAllFolders(): Flow<List<Folder>>
 
@@ -37,6 +43,12 @@ interface TodoDao {
 
     @Delete
     suspend fun deleteFolder(folder: Folder)
+
+    @Query("DELETE FROM tasks WHERE folderId = :folderId")
+    suspend fun deleteTasksByFolderId(folderId: Int)
+
+    @Query("DELETE FROM lists WHERE folderId = :folderId")
+    suspend fun deleteListsByFolderId(folderId: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTask(task: Task): Long
