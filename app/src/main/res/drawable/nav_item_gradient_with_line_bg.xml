@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Trạng thái khi ô tab được chọn (Active) -->
+    <item android:state_checked="true">
+        <layer-list>
+            <!-- 1. Hiệu ứng Gradient mượt mà từ trên xuống (Màu đã được chỉnh nhạt hơn trong colors.xml) -->
+            <item>
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:angle="270"
+                        android:startColor="@color/nav_active_gradient_start"
+                        android:endColor="@android:color/transparent"
+                        android:type="linear" />
+                </shape>
+            </item>
+
+            <!-- 2. Thanh ngang nhỏ (Indicator Line) sát cạnh trên: Dài full chiều ngang và Mỏng đi (4dp) -->
+            <item
+                android:top="0dp"
+                android:left="0dp"
+                android:right="0dp"
+                android:bottom="72dp"> <!-- Chỉnh lại từ 64dp thành 66dp để thanh line mỏng thành 4dp -->
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/blue" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <!-- Trạng thái mặc định (Unchecked) -->
+    <item android:drawable="@android:color/transparent" />
+</selector>

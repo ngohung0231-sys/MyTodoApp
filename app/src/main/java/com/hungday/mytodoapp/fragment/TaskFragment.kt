@@ -19,6 +19,7 @@ import com.hungday.mytodoapp.model.Folder
 import com.hungday.mytodoapp.model.FolderWithTasks
 import com.hungday.mytodoapp.model.Task
 import kotlinx.coroutines.launch
+import java.time.LocalTime
 
 class TaskFragment : Fragment(R.layout.fragment_task) {
     // Database & Repository
@@ -124,7 +125,20 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
     private fun getFolderGroups(tasks: List<Task>): List<FolderWithTasks> {
         return allFolders.mapNotNull { folder ->
             val tasksInFolder = tasks.filter { it.folderId == folder.folderId }
-            if (tasksInFolder.isNotEmpty()) FolderWithTasks(folder, tasksInFolder) else null
+            if (tasksInFolder.isNotEmpty()) {
+                val sortedTasks = tasksInFolder.sortedWith(
+                    compareBy<Task> {
+                        when (it.priority) {
+                            "High" -> 1
+                            "Medium" -> 2
+                            "Low" -> 3
+                            else -> 4
+                        }
+                    }.thenBy { it.date }
+                        .thenBy { it.time ?: LocalTime.MAX }
+                )
+                FolderWithTasks(folder, sortedTasks)
+            } else null
         }
     }
     //--------------------------------------------------------------------------------------------//

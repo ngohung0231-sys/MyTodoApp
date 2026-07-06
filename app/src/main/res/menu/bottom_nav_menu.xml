@@ -9,7 +9,14 @@
     <item
         android:id="@+id/taskFragment"
         android:icon="@drawable/ic_nav_task"
-        android:title="Tasks" />
+        android:title="@string/tasks_lower_case" />
+
+    <!-- Placeholder cho nút Add Task (FAB) -->
+    <item
+        android:id="@+id/placeholder"
+        android:icon="@android:color/transparent"
+        android:title=""
+        android:enabled="false" />
 
     <item
         android:id="@+id/calenderFragment"
@@ -17,7 +24,7 @@
         android:title="@string/calendar" />
 
     <item
-        android:id="@+id/addTaskFragment"
-        android:icon="@drawable/ic_add_folder"
-        android:title="@string/add_task" />
+        android:id="@+id/settingFragment"
+        android:icon="@drawable/ic_profile"
+        android:title="@string/settings" />
 </menu>

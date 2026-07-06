@@ -61,6 +61,12 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
     private var selectedMinute: Int = LocalTime.now().minute
     private var selectedReminderMinutes: Int? = null
 
+    // Biến cho tính năng lặp lại
+    private var repeatType = "NONE"
+    private var repeatValues: String? = null
+    private val dayOfWeekNames = arrayOf("Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật")
+    private val selectedDays = BooleanArray(7) // Để lưu trạng thái chọn các thứ trong tuần
+
     // Permission launcher for POST_NOTIFICATIONS (Android 13+)
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -119,6 +125,19 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
     private lateinit var btnNoti30Min: TextView
     private lateinit var btnNoti1Hour: TextView
 
+    // Repeat UI
+    private lateinit var switchRepeat: SwitchCompat
+    private lateinit var lnlRepeatOptions: LinearLayout
+    private lateinit var btnRepeatDaily: TextView
+    private lateinit var btnRepeatWeekly: TextView
+    private lateinit var btnRepeatMonthly: TextView
+    private lateinit var btnRepeatYearly: TextView
+    private lateinit var lnlWeeklySelection: LinearLayout
+    private lateinit var lnlDateSelectionSummary: LinearLayout
+    private lateinit var tvWeeklySummary: TextView
+    private lateinit var tvRepeatDateVal: TextView
+    private val weekdayButtons = mutableListOf<TextView>()
+
     // Button Add Task
     private lateinit var btnAddTask: Button
 
@@ -172,11 +191,30 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         btnNoti30Min = view.findViewById(R.id.btnNoti30Min)
         btnNoti1Hour = view.findViewById(R.id.btnNoti1Hour)
 
+        // Repeat UI
+        switchRepeat = view.findViewById(R.id.switchRepeat)
+        lnlRepeatOptions = view.findViewById(R.id.lnlRepeatOptions)
+        btnRepeatDaily = view.findViewById(R.id.btnRepeatDaily)
+        btnRepeatWeekly = view.findViewById(R.id.btnRepeatWeekly)
+        btnRepeatMonthly = view.findViewById(R.id.btnRepeatMonthly)
+        btnRepeatYearly = view.findViewById(R.id.btnRepeatYearly)
+        lnlWeeklySelection = view.findViewById(R.id.lnlWeeklySelection)
+        lnlDateSelectionSummary = view.findViewById(R.id.lnlDateSelectionSummary)
+        tvWeeklySummary = view.findViewById(R.id.tvWeeklySummary)
+        tvRepeatDateVal = view.findViewById(R.id.tvRepeatDateVal)
+
+        // Khởi tạo các nút thứ trong tuần
+        val dayIds = arrayOf(R.id.day2, R.id.day3, R.id.day4, R.id.day5, R.id.day6, R.id.day7, R.id.dayCN)
+        dayIds.forEach { id -> weekdayButtons.add(view.findViewById(id)) }
+
         btnAddTask = view.findViewById(R.id.btnAddTask)
 
         // Thiết lập trạng thái mặc định ban đầu
         btnLow.isSelected = true
         btnLow.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+
+        // Khởi tạo trạng thái cho Notification (Vô hiệu hóa nếu chưa chọn Ngày/Giờ)
+        updateNotificationRowState()
     }
 
     private fun setupFolderList() {
@@ -254,12 +292,18 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
 
         // Sự kiện click cả thanh hàng Thông báo
         rowAddNoti.setOnClickListener {
-            etTaskTitle.clearFocus()
-            switchAddTask.isChecked = !switchAddTask.isChecked
+            if (rowAddNoti.isEnabled) {
+                etTaskTitle.clearFocus()
+                switchAddTask.isChecked = !switchAddTask.isChecked
+            }
         }
 
         // Bắt sự kiện gạt công tắc thông báo (SwitchCompat)
         switchAddTask.setOnCheckedChangeListener { _, isChecked ->
+            if (!rowAddNoti.isEnabled && isChecked) {
+                switchAddTask.isChecked = false
+                return@setOnCheckedChangeListener
+            }
             etTaskTitle.clearFocus()
 
             val customTransition = TransitionSet().addTransition(ChangeBounds()).setDuration(300)
@@ -283,6 +327,33 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         btnNoti10Min.setOnClickListener { updateNotiState(10, btnNoti10Min) }
         btnNoti30Min.setOnClickListener { updateNotiState(30, btnNoti30Min) }
         btnNoti1Hour.setOnClickListener { updateNotiState(60, btnNoti1Hour) }
+
+        // Logic cho tính năng Repeat
+        switchRepeat.setOnCheckedChangeListener { _, isChecked ->
+            TransitionManager.beginDelayedTransition(view as ViewGroup)
+            lnlRepeatOptions.isVisible = isChecked
+            if (!isChecked) {
+                repeatType = "NONE"
+                repeatValues = null
+                resetRepeatUI()
+            }
+        }
+
+        // Cấu hình chọn kiểu lặp chính (Grid 2x2)
+        btnRepeatDaily.setOnClickListener { selectRepeatType("DAILY") }
+        btnRepeatWeekly.setOnClickListener { selectRepeatType("WEEKLY") }
+        btnRepeatMonthly.setOnClickListener { selectRepeatType("MONTHLY") }
+        btnRepeatYearly.setOnClickListener { selectRepeatType("YEARLY") }
+
+        // Cấu hình chọn các thứ trong tuần (Multi-select)
+        weekdayButtons.forEachIndexed { index, btn ->
+            btn.setOnClickListener {
+                btn.isSelected = !btn.isSelected
+                btn.setTextColor(if (btn.isSelected) ContextCompat.getColor(requireContext(), R.color.white) 
+                                 else ContextCompat.getColor(requireContext(), R.color.black))
+                updateWeeklySummary()
+            }
+        }
 
         setupDateTimePickers()
 
@@ -329,7 +400,9 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
                 folderId = selectedFolderId,
                 isNotify = selectedReminderMinutes,
                 date = finalDate,
-                dateStr = dateText
+                dateStr = dateText,
+                repeatType = repeatType,
+                repeatValues = repeatValues
             )
 
             // 6. Đẩy dữ liệu xuống Room DB
@@ -356,6 +429,7 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
             val dateString = DateConverter.dateToString(selectedDate)
             tvSelectedDate.text = dateString
             Log.d("CalendarLog", "Selected Date: $selectedDate")
+            updateNotificationRowState()
         }
 
         // Đón đầu mốc Giờ khi người dùng cuộn đồng hồ
@@ -378,6 +452,7 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
                 val dateString = DateConverter.dateToString(selectedDate)
                 tvSelectedDate.text = dateString
             }
+            updateNotificationRowState()
         }
     }
 
@@ -420,6 +495,76 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
         }
     }
+
+    //-------------------- Repeat Feature Logic --------------------//
+
+    /**
+     * Hàm chọn kiểu lặp chính và xử lý hiển thị vùng mở rộng
+     */
+    private fun selectRepeatType(type: String) {
+        repeatType = type
+        
+        // Cập nhật trạng thái Selected của các nút Grid
+        btnRepeatDaily.isSelected = (type == "DAILY")
+        btnRepeatWeekly.isSelected = (type == "WEEKLY")
+        btnRepeatMonthly.isSelected = (type == "MONTHLY")
+        btnRepeatYearly.isSelected = (type == "YEARLY")
+
+        // Nhuộm màu chữ cho nút được chọn
+        val buttons = listOf(btnRepeatDaily, btnRepeatWeekly, btnRepeatMonthly, btnRepeatYearly)
+        buttons.forEach { btn ->
+            btn.setTextColor(if (btn.isSelected) ContextCompat.getColor(requireContext(), R.color.blue) 
+                             else ContextCompat.getColor(requireContext(), R.color.black))
+        }
+
+        // Hiển thị vùng mở rộng tương ứng bằng TransitionManager
+        TransitionManager.beginDelayedTransition(view as ViewGroup)
+        lnlWeeklySelection.isVisible = (type == "WEEKLY")
+        lnlDateSelectionSummary.isVisible = (type == "MONTHLY" || type == "YEARLY")
+
+        if (type == "MONTHLY" || type == "YEARLY") {
+            updateRepeatDateSummary()
+        }
+    }
+
+    private fun resetRepeatUI() {
+        listOf(btnRepeatDaily, btnRepeatWeekly, btnRepeatMonthly, btnRepeatYearly).forEach {
+            it.isSelected = false
+            it.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+        lnlWeeklySelection.isVisible = false
+        lnlDateSelectionSummary.isVisible = false
+        weekdayButtons.forEach { 
+            it.isSelected = false
+            it.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+    }
+
+    private fun updateWeeklySummary() {
+        val selectedIndices = mutableListOf<Int>()
+        val selectedNames = mutableListOf<String>()
+        
+        weekdayButtons.forEachIndexed { index, btn ->
+            if (btn.isSelected) {
+                selectedIndices.add(index + 1) // 1=T2, ..., 7=CN
+                selectedNames.add(dayOfWeekNames[index])
+            }
+        }
+        
+        repeatValues = if (selectedIndices.isNotEmpty()) selectedIndices.joinToString(",") else null
+        tvWeeklySummary.text = if (selectedNames.isNotEmpty()) "Mỗi ${selectedNames.joinToString(", ")}" else "Mỗi tuần vào..."
+    }
+
+    private fun updateRepeatDateSummary() {
+        val date = selectedDate ?: LocalDate.now()
+        repeatValues = if (repeatType == "MONTHLY") date.dayOfMonth.toString() 
+                       else "${date.monthValue},${date.dayOfMonth}"
+        
+        tvRepeatDateVal.text = if (repeatType == "MONTHLY") "Ngày ${date.dayOfMonth} hàng tháng"
+                               else "Ngày ${date.dayOfMonth}/${date.monthValue} hàng năm"
+    }
+
+    // Xóa các hàm Dialog cũ không còn dùng
 
     //-------------------- Các hàm chức năng bổ trợ (Helper Functions) --------------------//
 
@@ -464,6 +609,23 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
     }
 
     /**
+     * Cập nhật trạng thái của hàng Thông báo dựa trên việc đã chọn Ngày & Giờ hay chưa
+     */
+    private fun updateNotificationRowState() {
+        // Điều kiện: Phải chọn cả Ngày và Giờ (selectedTime không null)
+        val isDateTimeSelected = selectedDate != null && selectedTime != null
+        
+        rowAddNoti.isEnabled = isDateTimeSelected
+        rowAddNoti.alpha = if (isDateTimeSelected) 1.0f else 0.5f
+        switchAddTask.isEnabled = isDateTimeSelected
+        
+        // Nếu bị vô hiệu hóa mà đang bật thì tắt đi
+        if (!isDateTimeSelected && switchAddTask.isChecked) {
+            switchAddTask.isChecked = false
+        }
+    }
+
+    /**
      * Cập nhật số phút nhắc nhở và giao diện nút tương ứng
      */
     private fun updateNotiState(minutes: Int, selectedView: TextView) {
@@ -492,4 +654,5 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
             btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         }
     }
+
 }

@@ -11,14 +11,16 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.hungday.mytodoapp.model.Folder
 import com.hungday.mytodoapp.model.Task
 import com.hungday.mytodoapp.model.TodoList
+import com.hungday.mytodoapp.model.TrashItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Folder::class, Task::class, TodoList::class], version = 18, exportSchema = false)
+@Database(entities = [Folder::class, Task::class, TodoList::class, TrashItem::class], version = 21, exportSchema = false)
 @TypeConverters(DateConverter::class)
 abstract class TodoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
+    abstract fun trashDao(): TrashDao
 
     companion object {
         @Volatile

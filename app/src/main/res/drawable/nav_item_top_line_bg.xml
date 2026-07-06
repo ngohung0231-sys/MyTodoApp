@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <layer-list>
+            <!-- Nền trong suốt -->
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="@android:color/transparent" />
+                </shape>
+            </item>
+            <!-- Thanh indicator ở sát cạnh trên: Dày hơn và Dài hơn -->
+            <item
+                android:top="0dp"
+                android:bottom="65dp"
+                android:left="10dp"
+                android:right="10dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/blue" />
+                    <corners
+                        android:bottomLeftRadius="2dp"
+                        android:bottomRightRadius="2dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

@@ -37,7 +37,7 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
 
     private fun initDatabase() {
         val database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao())
     }
 
     private fun initViews(view: View) {

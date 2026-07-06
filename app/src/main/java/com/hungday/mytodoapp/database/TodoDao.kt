@@ -32,6 +32,9 @@ interface TodoDao {
     @Query("SELECT * FROM lists WHERE folderId = :folderId")
     fun getListsByFolder(folderId: Int): Flow<List<TodoList>>
 
+    @Query("SELECT * FROM lists WHERE folderId = :folderId")
+    suspend fun getListsByFolderSync(folderId: Int): List<TodoList>
+
     @Delete
     suspend fun deleteFolder(folder: Folder)
 
@@ -53,11 +56,17 @@ interface TodoDao {
     @Query("SELECT * FROM tasks WHERE folderId = :folderId")
     fun getTasksByFolder(folderId: Int): Flow<List<Task>>
 
+    @Query("SELECT * FROM tasks WHERE folderId = :folderId")
+    suspend fun getTasksByFolderSync(folderId: Int): List<Task>
+
     @Query("SELECT * FROM tasks WHERE date = :selectedDate")
     fun getTasksByDate(selectedDate: String): Flow<List<Task>>
 
-    @Query("UPDATE tasks SET isCompleted = :isCompleted WHERE id = :taskId")
-    suspend fun updateTaskStatus(taskId: Int, isCompleted: Boolean)
+    @Query("UPDATE tasks SET isCompleted = :isCompleted, completedAt = :completedAt WHERE id = :taskId")
+    suspend fun updateTaskStatus(taskId: Int, isCompleted: Boolean, completedAt: Long?)
+
+    @Query("SELECT * FROM tasks WHERE isCompleted = 1 AND completedAt <= :expiryTime")
+    suspend fun getExpiredCompletedTasks(expiryTime: Long): List<Task>
 
     @Query("DELETE FROM tasks WHERE isCompleted = 1")
     suspend fun deleteCompletedTasks()

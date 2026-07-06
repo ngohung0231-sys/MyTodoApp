@@ -71,7 +71,7 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
         super.onViewCreated(view, savedInstanceState)
 
         val database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao())
 
         selectedFolderId = arguments?.getInt("folderId") ?: 1
 

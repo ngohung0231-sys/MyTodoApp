@@ -53,6 +53,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     implementation("androidx.fragment:fragment-ktx:1.8.1")
+    implementation(libs.gson)
 
     implementation("androidx.core:core-splashscreen:1.0.1")
 }

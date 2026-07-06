@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_checked="true" android:color="#4997cf" />
+    <!-- Icon chuyển màu xanh khi tab được chọn -->
+    <item android:color="@color/blue" android:state_checked="true" />
 
-    <item android:color="#808080" />
+    <!-- Icon màu xám ở trạng thái mặc định -->
+    <item android:color="#9E9E9E" />
 </selector>

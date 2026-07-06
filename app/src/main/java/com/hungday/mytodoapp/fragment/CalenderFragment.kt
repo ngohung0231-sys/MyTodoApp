@@ -197,7 +197,16 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
         val list = mutableListOf<HourTimeline>()
 
         // 0. Xử lý các task không có giờ (All day)
-        val allDayTasks = tasks.filter { it.time == null }
+        val allDayTasks = tasks.filter { it.time == null }.sortedWith(
+            compareBy<Task> {
+                when (it.priority) {
+                    "High" -> 1
+                    "Medium" -> 2
+                    "Low" -> 3
+                    else -> 4
+                }
+            }.thenBy { it.date }
+        )
         if (allDayTasks.isNotEmpty()) {
             list.add(HourTimeline("All day", null, allDayTasks))
         }
@@ -221,10 +230,19 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
             }
             val hourText = String.format("%02d:00 %s", displayHour, amPm)
 
-            // Lọc ra các task con thuộc khung giờ này (Ví dụ: từ h:00 đến h:59)
+            // Lọc ra các task con thuộc khung giờ này (Ví dụ: từ h:00 đến h:59) và sắp xếp theo phút
             val tasksInThisHour = tasks.filter { task ->
                 task.time?.hour == h
-            }
+            }.sortedWith(
+                compareBy<Task> {
+                    when (it.priority) {
+                        "High" -> 1
+                        "Medium" -> 2
+                        "Low" -> 3
+                        else -> 4
+                    }
+                }.thenBy { it.time }
+            )
 
             list.add(HourTimeline(hourText, startLocalTime, tasksInThisHour))
         }

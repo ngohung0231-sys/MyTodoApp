@@ -40,4 +40,7 @@
     <color name="brown">#795548</color>
     <color name="blue_grey">#607D8B</color>
     <color name="deep_purple">#673AB7</color>
+
+    <!-- Navigation Custom Colors -->
+    <color name="nav_active_gradient_start">#E3F2FD</color>
 </resources>

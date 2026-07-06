@@ -60,16 +60,6 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-
-                <ImageView
-                    android:id="@+id/btnSetting"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/setting"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:stateListAnimator="@animator/btn_click_scale"
-                    android:foreground="@drawable/ripple_rounded_bg" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView

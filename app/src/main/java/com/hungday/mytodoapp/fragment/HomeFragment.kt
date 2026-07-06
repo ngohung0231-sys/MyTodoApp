@@ -33,6 +33,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalTime
+import com.hungday.mytodoapp.utils.TaskFilter
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -54,7 +56,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var rvFolders: RecyclerView
     private lateinit var rvCalendar: RecyclerView
     private lateinit var blank: FrameLayout
-    private lateinit var btnSetting: ImageView
     private lateinit var etSearchTask: EditText
     private lateinit var tvTabToday: TextView
     private lateinit var tvTabUpcoming: TextView
@@ -92,7 +93,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun initDatabase() {
         database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao())
     }
 
     private fun initViews(view: View) {
@@ -111,7 +112,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         lnlFolders = view.findViewById(R.id.lnlFolders)
         lnlFilter = view.findViewById(R.id.lnlFilter)
         blank = view.findViewById(R.id.blank)
-        btnSetting = view.findViewById(R.id.btnSetting)
     }
 
     private fun setupInitialState() {
@@ -222,7 +222,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 .build()
             findNavController().navigate(R.id.taskFragment, null, navOptions)
         }
-        btnSetting.setOnClickListener { findNavController().navigate(R.id.settingFragment) }
 
         // filter today/Upcoming
         tvTabToday.setOnClickListener {
@@ -381,7 +380,20 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun getFolderGroups(tasks: List<Task>): List<FolderWithTasks> {
         return allFolders.mapNotNull { folder ->
             val tasksInFolder = tasks.filter { it.folderId == folder.folderId }
-            if (tasksInFolder.isNotEmpty()) FolderWithTasks(folder, tasksInFolder) else null
+            if (tasksInFolder.isNotEmpty()) {
+                val sortedTasks = tasksInFolder.sortedWith(
+                    compareBy<Task> {
+                        when (it.priority) {
+                            "High" -> 1
+                            "Medium" -> 2
+                            "Low" -> 3
+                            else -> 4
+                        }
+                    }.thenBy { it.date }
+                        .thenBy { it.time ?: LocalTime.MAX }
+                )
+                FolderWithTasks(folder, sortedTasks)
+            } else null
         }
     }
 
@@ -396,7 +408,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 dayOfWeek = nextDay.format(dayFormatter),
                 dayOfMonth = nextDay.dayOfMonth.toString(),
                 isSelected = (i == 0),
-                hasTask = allTasks.any { it.date == nextDay }
+                hasTask = TaskFilter.filterTasksByDate(allTasks, nextDay).isNotEmpty()
             ))
         }
     }
