@@ -1,6 +1,5 @@
 package com.hungday.mytodoapp.fragment
 
-import android.app.ActivityManager
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
@@ -72,12 +71,15 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     private lateinit var tvUserName: TextView
     private lateinit var switchDarkMode: SwitchCompat
     private lateinit var tvDarkMode: TextView
+    private lateinit var switchThemeColor: SwitchCompat
+    private lateinit var tvThemeColor: TextView
     private lateinit var tvLanguage: TextView
     private lateinit var tvBirthDate: TextView
     private lateinit var lnlUserName: LinearLayout
     private lateinit var lnlDarkMode: LinearLayout
     private lateinit var lnlLanguage: LinearLayout
     private lateinit var lnlBirthDay: LinearLayout
+    private lateinit var lnlThemeColor: LinearLayout
     private lateinit var lnlTrashBin: LinearLayout
     private lateinit var lnlDeleteAllData: LinearLayout
 
@@ -94,12 +96,15 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         tvUserName = view.findViewById(R.id.tvUserName)
         switchDarkMode = view.findViewById(R.id.switchDarkMode)
         tvDarkMode = view.findViewById(R.id.tvDarkMode)
+        switchThemeColor = view.findViewById(R.id.switchThemeColor)
+        tvThemeColor = view.findViewById(R.id.tvThemeColor)
         tvLanguage = view.findViewById(R.id.tvLanguage)
         tvBirthDate = view.findViewById(R.id.tvBirthdate)
         lnlUserName = view.findViewById(R.id.lnlUsername)
         lnlDarkMode = view.findViewById(R.id.lnlDarkMode)
         lnlLanguage = view.findViewById(R.id.lnlLanguage)
         lnlBirthDay = view.findViewById(R.id.lnlBirthday)
+        lnlThemeColor = view.findViewById(R.id.lnlThemeColor)
         lnlTrashBin = view.findViewById(R.id.lnlTrashBin)
         lnlDeleteAllData = view.findViewById(R.id.lnlDeleteData)
     }
@@ -116,6 +121,10 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
             currentUri = Uri.parse(it)
             avatar.setImageURI(currentUri)
         }
+
+        val isPinkTheme = sharedPref.getBoolean("IS_PINK_THEME", false)
+        switchThemeColor.isChecked = isPinkTheme
+        tvThemeColor.text = if (isPinkTheme) "Pink" else "Blue"
     }
 
     private fun setupListeners() {
@@ -138,9 +147,30 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         }
 
         switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
-            TransitionManager.beginDelayedTransition(view as ViewGroup, TransitionSet().addTransition(ChangeBounds()).setDuration(300))
+            TransitionManager.beginDelayedTransition(requireView() as ViewGroup, TransitionSet().addTransition(ChangeBounds()).setDuration(300))
             tvDarkMode.text = if (isChecked) "Dark" else "Light"
             // TODO: Apply Theme changes
+        }
+
+        // Đổi màu chủ đạo
+        lnlThemeColor.setOnClickListener {
+            switchThemeColor.isChecked = !switchThemeColor.isChecked
+        }
+
+        switchThemeColor.setOnCheckedChangeListener { _, isChecked ->
+            val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+            val wasChecked = sharedPref.getBoolean("IS_PINK_THEME", false)
+            
+            if (isChecked != wasChecked) {
+                sharedPref.edit().putBoolean("IS_PINK_THEME", isChecked).apply()
+                tvThemeColor.text = if (isChecked) "PINK" else "BLUE"
+                
+                // Cập nhật launcher icon
+                updateLauncherIcon(isChecked)
+                
+                // Recreate activity để áp dụng theme mới
+                requireActivity().recreate()
+            }
         }
 
         // Thay đổi ngày sinh
@@ -156,6 +186,25 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         // Thùng rác
         lnlTrashBin.setOnClickListener {
             findNavController().navigate(R.id.trashBinFragment)
+        }
+    }
+
+    private fun updateLauncherIcon(isPink: Boolean) {
+        val context = requireContext()
+        val pm = context.packageManager
+        
+        val blueAlias = "com.hungday.mytodoapp.activity.MainActivityBlue"
+        val pinkAlias = "com.hungday.mytodoapp.activity.MainActivityPink"
+        
+        val blueComponent = android.content.ComponentName(context, blueAlias)
+        val pinkComponent = android.content.ComponentName(context, pinkAlias)
+        
+        if (isPink) {
+            pm.setComponentEnabledSetting(pinkComponent, android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED, android.content.pm.PackageManager.DONT_KILL_APP)
+            pm.setComponentEnabledSetting(blueComponent, android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED, android.content.pm.PackageManager.DONT_KILL_APP)
+        } else {
+            pm.setComponentEnabledSetting(blueComponent, android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED, android.content.pm.PackageManager.DONT_KILL_APP)
+            pm.setComponentEnabledSetting(pinkComponent, android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED, android.content.pm.PackageManager.DONT_KILL_APP)
         }
     }
 

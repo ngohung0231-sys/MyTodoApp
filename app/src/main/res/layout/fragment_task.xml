@@ -47,74 +47,82 @@
         android:layout_height="0.5dp"
         android:background="#ced8dd"/>
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="18dp"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
-            android:id="@+id/lnlAddTask"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_blue"
-            android:orientation="horizontal"
-            android:layout_marginBottom="18dp"
-            android:padding="10dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:stateListAnimator="@animator/btn_click_scale"
-            android:foreground="@drawable/ripple_rounded_bg">
-            <ImageView
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:src="@drawable/ic_add_task"
-                app:tint="@color/white" />
+            android:paddingHorizontal="18dp"
+            android:paddingTop="18dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/lnlAddTask"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_main_theme"
+                android:orientation="horizontal"
+                android:layout_marginBottom="18dp"
+                android:padding="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:stateListAnimator="@animator/btn_click_scale"
+                android:foreground="@drawable/ripple_rounded_bg">
+                <ImageView
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:src="@drawable/ic_add_task"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_task"
+                    android:layout_gravity="center"
+                    android:textColor="@color/white"
+                    android:layout_marginLeft="10dp"
+                    android:textSize="18sp"/>
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/add_task"
-                android:layout_gravity="center"
-                android:textColor="@color/white"
-                android:layout_marginLeft="10dp"
-                android:textSize="18sp"/>
-        </LinearLayout>
+                android:text="@string/tasks_upper_case"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="20sp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tasks_upper_case"
-            android:layout_marginBottom="10dp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:textSize="20sp"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvFolderGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:visibility="gone"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_folder_group" />
-
-        <FrameLayout
-            android:id="@+id/blank"
-            android:layout_width="match_parent"
-            android:layout_height="270dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/bg_grey">
-
-            <TextView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFolderGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:layout_gravity="center"
-                android:text="There is no task here"/>
-        </FrameLayout>
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_folder_group" />
 
-    </LinearLayout>
+            <FrameLayout
+                android:id="@+id/blank"
+                android:layout_width="match_parent"
+                android:layout_height="270dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_grey">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:layout_gravity="center"
+                    android:text="There is no task here"/>
+            </FrameLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 
 </LinearLayout>

@@ -40,6 +40,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import android.util.TypedValue
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
     // Database & Repository
@@ -281,7 +284,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val activeTab = if (isToday) tvTabToday else tvTabUpcoming
         val inactiveTab = if (isToday) tvTabUpcoming else tvTabToday
 
-        activeTab.setTextColor("#4a93ce".toColorInt())
+        activeTab.setTextColor(getColorFromAttr(R.attr.mainThemeColor))
         activeTab.setBackgroundResource(R.drawable.filter_task_bg)
 
         inactiveTab.setTextColor("#A0A0A0".toColorInt())
@@ -289,17 +292,25 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun updateTabIndicator(isToday: Boolean) {
+        val color = getColorFromAttr(R.attr.mainThemeColor)
         if (isToday) {
-            tvTabToday.setTextColor("#4a93ce".toColorInt())
+            tvTabToday.setTextColor(color)
             tvTabToday.setBackgroundResource(R.drawable.filter_task_bg)
             tvTabUpcoming.setTextColor("#A0A0A0".toColorInt())
             tvTabUpcoming.setBackgroundResource(android.R.color.transparent)
         } else {
-            tvTabUpcoming.setTextColor("#4a93ce".toColorInt())
+            tvTabUpcoming.setTextColor(color)
             tvTabUpcoming.setBackgroundResource(R.drawable.filter_task_bg)
             tvTabToday.setTextColor("#A0A0A0".toColorInt())
             tvTabToday.setBackgroundResource(android.R.color.transparent)
         }
+    }
+
+    @ColorInt
+    private fun getColorFromAttr(@AttrRes attrColor: Int): Int {
+        val typedValue = TypedValue()
+        requireContext().theme.resolveAttribute(attrColor, typedValue, true)
+        return typedValue.data
     }
 
     private fun toggleExtraSectionsVisibility(isVisible: Boolean) {

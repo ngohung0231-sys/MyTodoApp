@@ -69,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="18dp"
-            android:background="@drawable/bg_blue"
+            android:background="@drawable/bg_main_theme"
             android:clickable="true"
             android:focusable="true"
             android:foreground="@drawable/ripple_rounded_bg"

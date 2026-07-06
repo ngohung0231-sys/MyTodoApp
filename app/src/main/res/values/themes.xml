@@ -7,7 +7,21 @@
 
     <style name="Theme.MyTodoApp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/white</item>
+        <item name="colorAccent">@color/blue</item>
+        <item name="mainThemeColor">@color/blue</item>
+        <item name="mainThemeLight">#dbe9f5</item>
+        <item name="navGradientStart">#E3F2FD</item>
+        <item name="appLogo">@drawable/icon</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 
+    <style name="Theme.MyTodoApp.Pink" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorAccent">@color/pink_theme</item>
+        <item name="mainThemeColor">@color/pink_theme</item>
+        <item name="mainThemeLight">#ffdede</item>
+        <item name="navGradientStart">#FFF1F1</item>
+        <item name="appLogo">@drawable/logo_pink</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
@@ -17,9 +31,9 @@
 
     <!-- Theme cho CalendarView -->
     <style name="CustomCalendarTheme" parent="Theme.Material3.Light.Dialog">
-        <item name="colorPrimary">@color/blue</item>
-        <item name="android:headerBackground">@color/blue</item>
-        <item name="colorAccent">@color/blue</item>
+        <item name="colorPrimary">?attr/mainThemeColor</item>
+        <item name="android:headerBackground">?attr/mainThemeColor</item>
+        <item name="colorAccent">?attr/mainThemeColor</item>
         <item name="android:buttonBarPositiveButtonStyle">@style/BlackButtonStyle</item>
         <item name="android:buttonBarNegativeButtonStyle">@style/BlackButtonStyle</item>
     </style>
@@ -34,12 +48,12 @@
     </style>
 
     <style name="CustomTodayDate" parent="CustomCalendarDate">
-        <item name="android:textColor">@color/blue</item>
+        <item name="android:textColor">?attr/mainThemeColor</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="CustomCalendarWeek">
-        <item name="android:textColor">#4997cf</item>
+        <item name="android:textColor">?attr/mainThemeColor</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -58,12 +72,16 @@
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/blue</item>
-
         <item name="windowSplashScreenAnimatedIcon">@drawable/icon</item>
-
         <item name="windowSplashScreenAnimationDuration">1500</item>
-
         <item name="postSplashScreenTheme">@style/Theme.MyTodoApp</item>
+    </style>
+
+    <style name="Theme.App.Starting.Pink" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/pink_theme</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_pink</item>
+        <item name="windowSplashScreenAnimationDuration">1500</item>
+        <item name="postSplashScreenTheme">@style/Theme.MyTodoApp.Pink</item>
     </style>
 
     <style name="DayCircleStyle">

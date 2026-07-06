@@ -106,7 +106,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_folder"
-                    app:tint="#4a93ce" />
+                    app:tint="?attr/mainThemeColor" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -285,7 +285,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginTop="40dp"
             android:layout_marginBottom="20dp"
-            android:backgroundTint="#4a93ce"
+            android:backgroundTint="?attr/mainThemeColor"
             android:text="Add List"
             android:textColor="@color/white"
             android:textSize="18sp"

@@ -1,7 +1,10 @@
 package com.hungday.mytodoapp.activity
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
@@ -20,38 +23,45 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mainNavHostFragment: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
+        // 1. Khởi tạo Splash Screen API
+        installSplashScreen()
+
+        // 2. Thiết lập Theme nội dung dựa trên lựa chọn người dùng
+        val sharedPref = getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+        val isPinkTheme = sharedPref.getBoolean("IS_PINK_THEME", false)
+
+        if (isPinkTheme) {
+            setTheme(R.style.Theme_MyTodoApp_Pink)
+        } else {
+            setTheme(R.style.Theme_MyTodoApp)
+        }
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // UI Components
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
         fabAddTask = findViewById(R.id.fabAddTask)
-        mainNavHostFragment = findViewById(R.id.mainNavHostFragment)
-        
+        mainNavHostFragment = findViewById<View>(R.id.mainNavHostFragment)
+
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.mainNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Handle start destination based on profile setup
-        val sharedPref = getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
+        // Khôi phục trạng thái điều hướng
         val isProfileSetup = sharedPref.getBoolean("IS_PROFILE_SETUP", false)
-
         if (isProfileSetup) {
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
             navGraph.setStartDestination(R.id.homeFragment)
             navController.graph = navGraph
         }
 
-        // Setup with NavController
         bottomNavigationView.setupWithNavController(navController)
 
-        // Fix bottom gap by handling insets manually
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(bottomNavigationView) { v, insets ->
-            v.setPadding(0, 0, 0, 0) // Force zero padding to touch bottom
+            v.setPadding(0, 0, 0, 0)
             insets
         }
 
-        // Xử lý sự kiện click cho FAB để mở màn hình Add Task
         fabAddTask.setOnClickListener {
             val builder = NavOptions.Builder()
                 .setLaunchSingleTop(true)
@@ -60,7 +70,6 @@ class MainActivity : AppCompatActivity() {
             navController.navigate(R.id.addTaskFragment, null, builder.build())
         }
 
-        // Custom listener để xử lý điều hướng cho các tab khác
         bottomNavigationView.setOnItemSelectedListener { item ->
             val builder = NavOptions.Builder()
                 .setLaunchSingleTop(true)
@@ -88,23 +97,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Visibility handling cho cả BottomNav và FAB
         navController.addOnDestinationChangedListener { _, destination, _ ->
+            val params = mainNavHostFragment.layoutParams as ViewGroup.MarginLayoutParams
+            val density = resources.displayMetrics.density
+            
             when (destination.id) {
                 R.id.homeFragment, R.id.taskFragment, R.id.calenderFragment, R.id.settingFragment -> {
                     bottomNavigationView.visibility = View.VISIBLE
                     fabAddTask.visibility = View.VISIBLE
-                    // Thêm padding cho nội dung khi có BottomNav (70dp = 70 * mật độ màn hình)
-                    val density = resources.displayMetrics.density
-                    mainNavHostFragment.setPadding(0, 0, 0, (70 * density).toInt())
+                    params.setMargins(0, 0, 0, (70 * density).toInt())
                 }
                 else -> {
                     bottomNavigationView.visibility = View.GONE
                     fabAddTask.visibility = View.GONE
-                    // Gỡ bỏ padding khi không có BottomNav
-                    mainNavHostFragment.setPadding(0, 0, 0, 0)
+                    params.setMargins(0, 0, 0, 0)
                 }
             }
+            mainNavHostFragment.layoutParams = params
         }
     }
 }

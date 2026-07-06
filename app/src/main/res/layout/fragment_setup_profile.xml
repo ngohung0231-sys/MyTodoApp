@@ -33,7 +33,7 @@
             android:layout_height="100dp"
             android:layout_gravity="center"
             android:layout_marginTop="50dp"
-            android:src="@drawable/icon"
+            android:src="?attr/appLogo"
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/CircleImageStyle"/>
 

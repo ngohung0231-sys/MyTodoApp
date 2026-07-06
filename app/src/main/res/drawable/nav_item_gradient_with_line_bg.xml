@@ -8,7 +8,7 @@
                 <shape android:shape="rectangle">
                     <gradient
                         android:angle="270"
-                        android:startColor="@color/nav_active_gradient_start"
+                        android:startColor="?attr/navGradientStart"
                         android:endColor="@android:color/transparent"
                         android:type="linear" />
                 </shape>
@@ -19,9 +19,9 @@
                 android:top="0dp"
                 android:left="0dp"
                 android:right="0dp"
-                android:bottom="72dp"> <!-- Chỉnh lại từ 64dp thành 66dp để thanh line mỏng thành 4dp -->
+                android:bottom="72dp"> <!-- Chỉnh lại từ 72dp thành 66dp để thanh line mỏng thành 4dp trong bar 70dp -->
                 <shape android:shape="rectangle">
-                    <solid android:color="@color/blue" />
+                    <solid android:color="?attr/mainThemeColor" />
                 </shape>
             </item>
         </layer-list>

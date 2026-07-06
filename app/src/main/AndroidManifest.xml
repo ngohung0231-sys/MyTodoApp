@@ -14,20 +14,46 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyTodoApp"
         tools:replace="android:allowBackup">
+
         <receiver
             android:name=".receiver.NotificationReceiver"
             android:enabled="true"
             android:exported="false" />
+
+        <!-- 1. MainActivity gốc: Chỉ chứa nội dung, không phải Launcher -->
         <activity
             android:name=".activity.MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyTodoApp" />
+
+        <!-- 2. Cổng vào mặc định (Blue): Launcher -->
+        <activity
+            android:name=".activity.MainActivityBlue"
+            android:enabled="true"
             android:exported="true"
-            android:theme="@style/Theme.App.Starting">>
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 3. Cổng vào màu hồng (Pink): Launcher -->
+        <activity
+            android:name=".activity.MainActivityPink"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/logo_pink"
+            android:roundIcon="@drawable/logo_pink"
+            android:theme="@style/Theme.App.Starting.Pink">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

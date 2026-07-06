@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add_folder"
         app:tint="@color/white"
-        app:backgroundTint="@color/blue"
+        app:backgroundTint="?attr/mainThemeColor"
         app:fabSize="normal"
         app:elevation="4dp"
         app:borderWidth="0dp"

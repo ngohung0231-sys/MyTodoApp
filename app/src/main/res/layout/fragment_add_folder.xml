@@ -206,7 +206,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginTop="40dp"
             android:layout_marginBottom="20dp"
-            android:backgroundTint="#4a93ce"
+            android:backgroundTint="?attr/mainThemeColor"
             android:text="Add Folder"
             android:textColor="@color/white"
             android:textSize="18sp"

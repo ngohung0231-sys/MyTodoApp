@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="mainThemeColor" format="color" />
+    <attr name="mainThemeLight" format="color" />
+    <attr name="navGradientStart" format="color" />
+    <attr name="appLogo" format="reference" />
+</resources>

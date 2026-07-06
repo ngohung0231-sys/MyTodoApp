@@ -16,6 +16,10 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.Locale
 
+import android.util.TypedValue
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
+
 class TaskAdapter(
     private var taskList: List<Task>,
     private val onTaskClick: (Task) -> Unit,
@@ -114,14 +118,22 @@ class TaskAdapter(
                 holder.imgPriorityIcon.setColorFilter("#ee4d5e".toColorInt())
             }
             "Medium" -> {
-                holder.tvPriorityText.setTextColor("#4997cf".toColorInt())
-                holder.imgPriorityIcon.setColorFilter("#4997cf".toColorInt())
+                val themeColor = getColorFromAttr(holder.itemView.context, R.attr.mainThemeColor)
+                holder.tvPriorityText.setTextColor(themeColor)
+                holder.imgPriorityIcon.setColorFilter(themeColor)
             }
             "Low" -> {
                 holder.tvPriorityText.setTextColor("#44be65".toColorInt())
                 holder.imgPriorityIcon.setColorFilter("#44be65".toColorInt())
             }
         }
+    }
+
+    @ColorInt
+    private fun getColorFromAttr(context: android.content.Context, @AttrRes attrColor: Int): Int {
+        val typedValue = TypedValue()
+        context.theme.resolveAttribute(attrColor, typedValue, true)
+        return typedValue.data
     }
 
     fun updateData(newList: List<Task>) {

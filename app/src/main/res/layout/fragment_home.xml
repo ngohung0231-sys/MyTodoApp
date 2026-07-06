@@ -33,7 +33,7 @@
                     android:id="@+id/imgAvatar"
                     android:layout_width="70dp"
                     android:layout_height="70dp"
-                    android:src="@drawable/icon"
+                    android:src="?attr/appLogo"
                     android:scaleType="centerCrop"
                     app:shapeAppearanceOverlay="@style/CircleImageStyle"/>
 
@@ -127,18 +127,18 @@
                     android:textColor="@color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />
-                <TextView
-                    android:id="@+id/tvSeeAllFolders"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textColor="#4a93ce"
-                    android:padding="5dp"
-                    android:text="@string/see_all"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:stateListAnimator="@animator/btn_click_scale"
-                    android:foreground="@drawable/ripple_rounded_bg"/>
+                    <TextView
+                        android:id="@+id/tvSeeAllFolders"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="?attr/mainThemeColor"
+                        android:padding="5dp"
+                        android:text="@string/see_all"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:stateListAnimator="@animator/btn_click_scale"
+                        android:foreground="@drawable/ripple_rounded_bg"/>
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -169,7 +169,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:textColor="#4a93ce"
+                    android:textColor="?attr/mainThemeColor"
                     android:padding="5dp"
                     android:text="@string/see_all"
                     android:clickable="true"
@@ -195,7 +195,7 @@
                     android:paddingRight="10dp"
                     android:background="@drawable/filter_task_bg"
                     android:textSize="20sp"
-                    android:textColor="#4a93ce"
+                    android:textColor="?attr/mainThemeColor"
                     android:clickable="true"
                     android:focusable="true"
                     android:stateListAnimator="@animator/btn_click_scale"
