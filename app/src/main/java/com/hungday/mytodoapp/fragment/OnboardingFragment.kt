@@ -6,13 +6,14 @@ import android.view.View
 import android.widget.Button
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
-import com.hungday.mytodoapp.model.onboardingList
+import com.hungday.mytodoapp.model.OnboardingItem
 import com.hungday.mytodoapp.R
 import com.hungday.mytodoapp.adapter.OnboardingAdapter
 
 class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
     // Adapters
     private lateinit var onboardingAdapter: OnboardingAdapter
+    private lateinit var onboardingList: List<OnboardingItem>
 
     // UI Components
     private lateinit var viewPager: ViewPager2
@@ -21,6 +22,7 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        onboardingList = com.hungday.mytodoapp.model.getOnboardingList(requireContext())
         initViews(view)
         setupAdapters()
         setupListeners()

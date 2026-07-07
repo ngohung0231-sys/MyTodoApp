@@ -35,8 +35,18 @@ class FolderGroupAdapter(
     }
 
     override fun onBindViewHolder(holder: FolderGroupViewHolder, position: Int) {
+        val context = holder.itemView.context
         val currentFolderGroup = folderGroupList[position]
-        holder.tvFolderName.text = currentFolderGroup.folder.folderName
+        val folderName = when (currentFolderGroup.folder.folderName) {
+            "Others" -> context.getString(R.string.others)
+            "Personal" -> context.getString(R.string.personal)
+            "Exercise" -> context.getString(R.string.exercise)
+            "Travel" -> context.getString(R.string.travel)
+            "Study" -> context.getString(R.string.study)
+            "Groceries" -> context.getString(R.string.shopping)
+            else -> currentFolderGroup.folder.folderName
+        }
+        holder.tvFolderName.text = folderName
         holder.tvFolderName.setTextColor(currentFolderGroup.folder.folderColor)
         holder.btnTaskSetting.setColorFilter(currentFolderGroup.folder.folderColor)
 

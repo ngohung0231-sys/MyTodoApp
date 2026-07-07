@@ -57,9 +57,18 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvFoldersGrid"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:padding="12dp"
         android:clipToPadding="false"
         tools:listitem="@layout/item_folder_grid" />
+
+    <include
+        android:id="@+id/blank"
+        layout="@layout/layout_empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:visibility="gone" />
 
 </LinearLayout>

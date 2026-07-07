@@ -14,7 +14,12 @@ object DateConverter {
 
     @TypeConverter
     fun fromString(value: String?): LocalDate? {
-        return value?.let { LocalDate.parse(it, dateFormatter) }
+        if (value == null || value == "0000-00-00") return null
+        return try {
+            LocalDate.parse(value, dateFormatter)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     @TypeConverter
@@ -24,7 +29,12 @@ object DateConverter {
 
     @TypeConverter
     fun fromTime(value: String?): LocalTime? {
-        return value?.let { LocalTime.parse(it, timeFormatter) }
+        if (value == null) return null
+        return try {
+            LocalTime.parse(value, timeFormatter)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     @TypeConverter

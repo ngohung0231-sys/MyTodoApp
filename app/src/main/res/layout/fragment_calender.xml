@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:fillViewport="true"
     tools:context=".fragment.CalenderFragment">
 
     <LinearLayout
@@ -91,7 +92,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="July 2023"
+                    android:text="@string/july_2023"
                     android:textColor="@color/black"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -117,31 +118,31 @@
 
                 <TextView
                     style="@style/CalendarDayHeader"
-                    android:text="mon" />
+                    android:text="@string/mon" />
 
                 <TextView
                     style="@style/CalendarDayHeader"
-                    android:text="tue" />
+                    android:text="@string/tue" />
 
                 <TextView
                     style="@style/CalendarDayHeader"
-                    android:text="wed" />
+                    android:text="@string/wed" />
 
                 <TextView
                     style="@style/CalendarDayHeader"
-                    android:text="thu" />
+                    android:text="@string/thu" />
 
                 <TextView
                     style="@style/CalendarDayHeader"
-                    android:text="fri" />
+                    android:text="@string/fri" />
 
                 <TextView
                     style="@style/CalendarDayHeader"
-                    android:text="sat" />
+                    android:text="@string/sat" />
 
                 <TextView
                     style="@style/CalendarDayHeader"
-                    android:text="sun" />
+                    android:text="@string/sun" />
             </GridLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -159,7 +160,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="8dp"
-            android:text="Tasks for Today"
+            android:text="@string/tasks_for_today"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -173,21 +174,12 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_folder_group" />
 
-        <FrameLayout
+        <include
             android:id="@+id/blank"
+            layout="@layout/layout_empty_state"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="32dp"
-                android:text="No tasks for this day"
-                android:textColor="#A0A0A0" />
-        </FrameLayout>
+            android:visibility="gone" />
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

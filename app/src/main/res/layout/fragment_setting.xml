@@ -111,7 +111,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_weight="1"
+                android:layout_weight="1.5"
                 android:text="@string/username"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
@@ -137,64 +137,6 @@
                 android:textColor="?attr/mainThemeColor" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/lnlDarkMode"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal"
-            android:background="@drawable/bg_grey"
-            android:padding="10dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_marginBottom="10dp"
-            android:stateListAnimator="@animator/btn_click_scale"
-            android:foreground="@drawable/ripple_rounded_bg">
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:contentDescription="@string/dark_mode"
-                android:src="@drawable/ic_constrast"
-                android:layout_gravity="center"
-                app:tint="?attr/mainThemeColor"
-                android:layout_marginEnd="10dp"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:textColor="@color/black"
-                android:layout_gravity="center"
-                android:text="@string/dark_mode"
-                android:textSize="16sp"/>
-
-            <TextView
-                android:id="@+id/tvDarkMode"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="2"
-                android:text="@string/light"
-                android:textAlignment="textEnd"
-                android:textColor="#696e76"
-                android:textSize="16sp"
-                tools:ignore="RtlCompat" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switchDarkMode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumb="@drawable/switch_thumb"
-                app:track="@drawable/switch_track"
-                app:switchMinWidth="52dp"
-                app:thumbTint="@null"
-                app:trackTint="@null"
-                android:clickable="true"
-                android:focusable="true"
-                android:elevation="0dp"/>
-
-        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/lnlThemeColor"
@@ -382,21 +324,29 @@
             android:stateListAnimator="@animator/btn_click_scale"
             android:foreground="@drawable/ripple_rounded_bg">
 
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_trash_bin"
+                android:layout_gravity="center"
+                android:layout_marginEnd="10dp"
+                app:tint="?attr/mainThemeColor"/>
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/trash_bin"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:layout_gravity="center"
-                android:textStyle="bold"
                 android:textColor="@color/black"/>
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_trash_bin"
-                app:tint="@color/black"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/right_arrow"
+                android:textColor="?attr/mainThemeColor"/>
 
         </LinearLayout>
 
@@ -413,21 +363,23 @@
             android:stateListAnimator="@animator/btn_click_scale"
             android:foreground="@drawable/ripple_rounded_bg">
 
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_delete_permanent"
+                android:layout_gravity="center"
+                android:layout_marginEnd="10dp"
+                app:tint="@color/red"/>
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/delete_all_data"
-                android:textSize="20sp"
-                android:layout_gravity="center"
+                android:textSize="16sp"
                 android:textStyle="bold"
+                android:layout_gravity="center"
                 android:textColor="@color/red"/>
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_delete_permanent"
-                app:tint="@color/red"/>
 
         </LinearLayout>
     </LinearLayout>

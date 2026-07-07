@@ -2,12 +2,15 @@ package com.hungday.mytodoapp.database
 
 import com.google.gson.Gson
 import com.hungday.mytodoapp.model.*
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 
 class TodoRepository(
     private val todoDao: TodoDao,
     private val trashDao: TrashDao? = null
 ) {
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     val allFolders: Flow<List<Folder>> = todoDao.getAllFolders()
     val allTasks: Flow<List<Task>> = todoDao.getAllTasks()
     val allLists: Flow<List<TodoList>> = todoDao.getAllLists()
@@ -189,6 +192,16 @@ class TodoRepository(
     suspend fun updateTaskStatus(taskId: Int, isCompleted: Boolean) {
         val completedAt = if (isCompleted) System.currentTimeMillis() else null
         todoDao.updateTaskStatus(taskId, isCompleted, completedAt)
+
+        if (isCompleted) {
+            repositoryScope.launch {
+                delay(3000)
+                val task = todoDao.getTaskById(taskId)
+                if (task != null && task.isCompleted) {
+                    moveTaskToTrash(task)
+                }
+            }
+        }
     }
 
     suspend fun getTaskById(taskId: Int): Task? {

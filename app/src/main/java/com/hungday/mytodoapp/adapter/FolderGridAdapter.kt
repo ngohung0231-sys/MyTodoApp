@@ -11,6 +11,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.hungday.mytodoapp.R
 import com.hungday.mytodoapp.model.Folder
+import androidx.core.graphics.toColorInt
 
 class FolderGridAdapter(
     private var folderList: List<Folder>,
@@ -52,7 +53,7 @@ class FolderGridAdapter(
         if (getItemViewType(position) == TYPE_NEW_FOLDER) {
             holder.containerFolderData.visibility = View.GONE
             holder.containerNewFolder.visibility = View.VISIBLE
-            holder.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#dbe9f5"))
+            holder.cardView.setCardBackgroundColor("#dbe9f5".toColorInt())
             holder.ivDeleteFolder.visibility = View.GONE
             holder.itemView.clearAnimation()
             
@@ -63,14 +64,23 @@ class FolderGridAdapter(
             val folder = folderList[position - 1]
             holder.containerFolderData.visibility = View.VISIBLE
             holder.containerNewFolder.visibility = View.GONE
-            holder.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#f3f5f9"))
+            holder.cardView.setCardBackgroundColor("#f3f5f9".toColorInt())
             
-            holder.tvFolderName.text = folder.folderName
+            val folderName = when (folder.folderName) {
+                "Others" -> context.getString(R.string.others)
+                "Personal" -> context.getString(R.string.personal)
+                "Exercise" -> context.getString(R.string.exercise)
+                "Travel" -> context.getString(R.string.travel)
+                "Study" -> context.getString(R.string.study)
+                "Groceries" -> context.getString(R.string.shopping)
+                else -> folder.folderName
+            }
+            holder.tvFolderName.text = folderName
             holder.tvFolderName.setTextColor(folder.folderColor)
             holder.imgArrow.setColorFilter(folder.folderColor)
             
-            holder.tvListCount.text = if (folder.listCount < 2) "${folder.listCount} List" else "${folder.listCount} Lists"
-            holder.tvTaskCount.text = if (folder.taskCount < 2) "${folder.taskCount} Task" else "${folder.taskCount} Tasks"
+            holder.tvListCount.text = if (folder.listCount < 2) context.getString(R.string.list_format, folder.listCount) else context.getString(R.string.lists_format, folder.listCount)
+            holder.tvTaskCount.text = if (folder.taskCount < 2) context.getString(R.string.task_format_val, folder.taskCount) else context.getString(R.string.tasks_format_val, folder.taskCount)
             
             holder.imgFolderIllustration.setImageResource(folder.folderImg)
             holder.imgFolderIllustration.setColorFilter(folder.folderColor)

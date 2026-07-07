@@ -3,7 +3,6 @@ package com.hungday.mytodoapp.fragment
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -43,6 +42,7 @@ import androidx.core.content.ContextCompat
 import android.util.TypedValue
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.core.content.edit
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
     // Database & Repository
@@ -58,7 +58,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var rvFolderGroup: RecyclerView
     private lateinit var rvFolders: RecyclerView
     private lateinit var rvCalendar: RecyclerView
-    private lateinit var blank: FrameLayout
+    private lateinit var blank: LinearLayout
     private lateinit var etSearchTask: EditText
     private lateinit var tvTabToday: TextView
     private lateinit var tvTabUpcoming: TextView
@@ -143,17 +143,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // 1. Calendar Horizontal List
         generateCurrentWeek()
         calendarAdapter = CalendarAdapter(calendarDays) { selectedDay ->
-            val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
-            currentFilterMode = FilterMode.CALENDAR
-            sharedPref.edit().putString("LAST_FILTER_MODE", FilterMode.CALENDAR.name).apply()
-            selectedCalendarDate = selectedDay.date
-            refreshTasks()
+            context?.let { ctx ->
+                val sharedPref = ctx.getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
+                currentFilterMode = FilterMode.CALENDAR
+                sharedPref.edit { putString("LAST_FILTER_MODE", FilterMode.CALENDAR.name) }
+                selectedCalendarDate = selectedDay.date
+                refreshTasks()
 
-            lnlFolders.visibility = View.VISIBLE
-            lnlFilter.visibility = View.VISIBLE
-            rvFolders.visibility = View.VISIBLE
+                lnlFolders.visibility = View.VISIBLE
+                lnlFilter.visibility = View.VISIBLE
+                rvFolders.visibility = View.VISIBLE
 
-            updateTabIndicator(selectedDay.date == LocalDate.now())
+                updateTabIndicator(selectedDay.date == LocalDate.now())
+            }
         }
         rvCalendar.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvCalendar.adapter = calendarAdapter
@@ -233,7 +235,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tvTabToday.setOnClickListener {
             updateTabUI(isToday = true)
             currentFilterMode = FilterMode.TODAY
-            sharedPref.edit().putString("LAST_FILTER_MODE", FilterMode.TODAY.name).apply()
+            sharedPref.edit { putString("LAST_FILTER_MODE", FilterMode.TODAY.name) }
             refreshTasks()
             etSearchTask.clearFocus()
             calendarAdapter.selectToday()
@@ -243,7 +245,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tvTabUpcoming.setOnClickListener {
             updateTabUI(isToday = false)
             currentFilterMode = FilterMode.UPCOMING
-            sharedPref.edit().putString("LAST_FILTER_MODE", FilterMode.UPCOMING.name).apply()
+            sharedPref.edit { putString("LAST_FILTER_MODE", FilterMode.UPCOMING.name) }
             refreshTasks()
             etSearchTask.clearFocus()
         }
@@ -270,8 +272,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     etSearchTask.setText("")
                     etSearchTask.clearFocus()
                     toggleExtraSectionsVisibility(true)
-                    val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                    imm.hideSoftInputFromWindow(etSearchTask.windowToken, 0)
+                    context?.let { ctx ->
+                        val imm = ctx.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                        imm.hideSoftInputFromWindow(etSearchTask.windowToken, 0)
+                    }
                     updateTaskDisplay(allTasks)
                 } else {
                     isEnabled = false
@@ -311,8 +315,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     @ColorInt
     private fun getColorFromAttr(@AttrRes attrColor: Int): Int {
+        val ctx = context ?: return 0
         val typedValue = TypedValue()
-        requireContext().theme.resolveAttribute(attrColor, typedValue, true)
+        ctx.theme.resolveAttribute(attrColor, typedValue, true)
         return typedValue.data
     }
 
@@ -334,17 +339,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun loadAvatarSafely(imageView: ImageView, uriString: String) {
+        val appContext = context?.applicationContext ?: return
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val uri = uriString.toUri()
-                val context = requireContext()
                 val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+                appContext.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
 
                 options.inSampleSize = calculateInSampleSize(options, 512, 512)
                 options.inJustDecodeBounds = false
 
-                val bitmap = context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+                val bitmap = appContext.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
 
                 withContext(Dispatchers.Main) {
                     if (bitmap != null) imageView.setImageBitmap(bitmap)
@@ -377,18 +382,27 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             val today = LocalDate.now()
             when (currentFilterMode) {
                 FilterMode.TODAY -> allTasks.filter { it.date == today || (it.dateStr.isNullOrEmpty() && it.timeStr.isNullOrEmpty()) }
-                FilterMode.UPCOMING -> allTasks.filter { it.date.isAfter(today) || (it.dateStr.isNullOrEmpty() && it.timeStr.isNullOrEmpty()) }
+                FilterMode.UPCOMING -> allTasks.filter { (it.date?.isAfter(today) == true) || (it.dateStr.isNullOrEmpty() && it.timeStr.isNullOrEmpty()) }
                 FilterMode.CALENDAR -> allTasks.filter { it.date == selectedCalendarDate }
             }
         }
-        updateTaskDisplay(filteredTasks)
+        updateTaskDisplay(filteredTasks, isSearch = query.isNotEmpty())
     }
 
-    private fun updateTaskDisplay(tasks: List<Task>) {
+    private fun updateTaskDisplay(tasks: List<Task>, isSearch: Boolean = false) {
+        if (!isAdded) return
         val groups = getFolderGroups(tasks)
         folderGroupAdapter.updateData(groups)
         rvFolderGroup.visibility = if (groups.isEmpty()) View.GONE else View.VISIBLE
-        blank.visibility = if (groups.isEmpty()) View.VISIBLE else View.GONE
+        
+        if (groups.isEmpty()) {
+            blank.visibility = View.VISIBLE
+            blank.findViewById<ImageView>(R.id.ivEmptyImg).setImageResource(R.drawable.empty_img)
+            val tvEmptyText = blank.findViewById<TextView>(R.id.tvEmptyText)
+            tvEmptyText.text = if (isSearch) getString(R.string.no_tasks_found) else getString(R.string.no_tasks_here)
+        } else {
+            blank.visibility = View.GONE
+        }
     }
 
     private fun getFolderGroups(tasks: List<Task>): List<FolderWithTasks> {
@@ -403,7 +417,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                             "Low" -> 3
                             else -> 4
                         }
-                    }.thenBy { it.date }
+                    }.thenBy { it.date ?: LocalDate.MAX }
                         .thenBy { it.time ?: LocalTime.MAX }
                 )
                 FolderWithTasks(folder, sortedTasks)
@@ -414,7 +428,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun generateCurrentWeek() {
         calendarDays.clear()
         val today = LocalDate.now()
-        val dayFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE", java.util.Locale.ENGLISH)
+        val dayFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE", java.util.Locale.getDefault())
         for (i in 0..6) {
             val nextDay = today.plusDays(i.toLong())
             calendarDays.add(CalendarDay(

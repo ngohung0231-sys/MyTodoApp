@@ -63,8 +63,9 @@ class TaskAdapter(
         holder.imgNotifyBell.visibility = if (currentTask.isNotify != null) View.VISIBLE else View.GONE
 
         currentTask.time?.let {
-            val isOverdue = (currentTask.date < LocalDate.now()) ||
-                            (currentTask.date == LocalDate.now() && it < LocalTime.now())
+            val taskDate = currentTask.date ?: LocalDate.MAX
+            val isOverdue = (taskDate < LocalDate.now()) ||
+                            (taskDate == LocalDate.now() && it < LocalTime.now())
             if (isOverdue && !currentTask.isCompleted) {
                 holder.tvTaskTime.setTextColor(Color.RED)
                 holder.imgClock.setColorFilter(Color.RED)
@@ -73,7 +74,8 @@ class TaskAdapter(
                 holder.imgClock.setColorFilter(Color.GRAY)
             }
         } ?: run {
-            val isOverdue = currentTask.date < LocalDate.now()
+            val taskDate = currentTask.date ?: LocalDate.MAX
+            val isOverdue = taskDate < LocalDate.now()
             if (isOverdue && !currentTask.isCompleted) {
                 holder.tvTaskTime.setTextColor(Color.RED)
                 holder.imgClock.setColorFilter(Color.RED)

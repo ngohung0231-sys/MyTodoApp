@@ -131,9 +131,11 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                 selectedDate = task.date
                 tvSelectedDate.text = DateConverter.dateToString(selectedDate)
 
-                val calendar = Calendar.getInstance()
-                calendar.set(task.date.year, task.date.monthValue - 1, task.date.dayOfMonth)
-                calendarView.date = calendar.timeInMillis
+                task.date?.let {
+                    val calendar = Calendar.getInstance()
+                    calendar.set(it.year, it.monthValue - 1, it.dayOfMonth)
+                    calendarView.date = calendar.timeInMillis
+                }
 
                 task.time?.let { time ->
                     selectedHour = time.hour
@@ -159,6 +161,8 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
 
             // 2. Sau khi đã có task (để lấy folderId), bắt đầu quan sát Folders
             repository.allFolders.collect { foldersList ->
+                val ctx = context ?: return@collect
+                rvFolders.layoutManager = LinearLayoutManager(ctx)
                 folderAddTaskAdapter = FolderAddTaskAdapter(foldersList) { selectedFolder ->
                     selectedFolderId = selectedFolder.folderId
                     tvSelectedFolder.text = selectedFolder.folderName
@@ -290,10 +294,10 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                 return@setOnClickListener
             }
 
-            val finalDate = selectedDate ?: existingTask?.date ?: LocalDate.now()
-            val isUpcoming = finalDate.isAfter(LocalDate.now())
+            val finalDate = selectedDate ?: existingTask?.date
+            val isUpcoming = finalDate?.isAfter(LocalDate.now()) ?: false
 
-            val dateText = finalDate.let {
+            val dateText = finalDate?.let {
                 val monthStr = it.month.name.lowercase(Locale.getDefault())
                     .replaceFirstChar { char -> char.uppercase() }
                     .take(3)
@@ -303,24 +307,25 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
 
             val updatedTask = existingTask?.copy(
                 title = taskTitle,
-                time = if (selectedTime != null) LocalTime.of(selectedHour, selectedMinute) else null,
-                timeStr = selectedTime,
+                time = if (selectedTime != null) LocalTime.of(selectedHour, selectedMinute) else (existingTask?.time),
+                timeStr = if (selectedTime != null) selectedTime else (existingTask?.timeStr),
                 priority = selectedPriority,
                 isUpcoming = isUpcoming,
                 folderId = selectedFolderId,
                 isNotify = selectedReminderMinutes,
                 date = finalDate,
-                dateStr = dateText
+                dateStr = dateText ?: existingTask?.dateStr
             )
 
-            updatedTask?.let {
+            updatedTask?.let { task ->
+                val appContext = context?.applicationContext ?: return@setOnClickListener
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    repository.updateTask(it)
-                    if (selectedReminderMinutes != null) {
-                        scheduleNotification(it.id, taskTitle, finalDate, selectedHour, selectedMinute, selectedReminderMinutes!!)
+                    repository.updateTask(task)
+                    if (selectedReminderMinutes != null && finalDate != null) {
+                        scheduleNotification(appContext, task.id, taskTitle, finalDate, selectedHour, selectedMinute, selectedReminderMinutes!!)
                     }
                     withContext(Dispatchers.Main) {
-                        findNavController().popBackStack()
+                        if (isAdded) findNavController().popBackStack()
                     }
                 }
             }
@@ -328,8 +333,9 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
     }
 
     private fun showDeleteConfirmDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete_folder, null)
-        val alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        val ctx = context ?: return
+        val dialogView = LayoutInflater.from(ctx).inflate(R.layout.dialog_confirm_delete_folder, null)
+        val alertDialog = androidx.appcompat.app.AlertDialog.Builder(ctx)
             .setView(dialogView)
             .setCancelable(true)
             .create()
@@ -366,16 +372,17 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
     }
 
     private fun updatePriorityUI(priority: String) {
+        val ctx = context ?: return
         val buttons = listOf(btnLow to "Low", btnMedium to "Medium", btnHigh to "High")
         val colors = mapOf("Low" to R.color.green, "Medium" to R.color.blue, "High" to R.color.red)
 
         buttons.forEach { (btn, p) ->
             if (p == priority) {
                 btn.isSelected = true
-                btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                btn.setTextColor(ContextCompat.getColor(ctx, R.color.white))
             } else {
                 btn.isSelected = false
-                btn.setTextColor(ContextCompat.getColor(requireContext(), colors[p]!!))
+                btn.setTextColor(ContextCompat.getColor(ctx, colors[p]!!))
             }
         }
     }
@@ -386,22 +393,24 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
     }
 
     private fun updateNotiSelection(selectedView: TextView) {
+        val ctx = context ?: return
         val buttons = listOf(btnNotiAtTime, btnNoti10Min, btnNoti30Min, btnNoti1Hour)
         buttons.forEach { btn ->
             if (btn == selectedView) {
                 btn.isSelected = true
-                btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                btn.setTextColor(ContextCompat.getColor(ctx, R.color.white))
             } else {
                 btn.isSelected = false
-                btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                btn.setTextColor(ContextCompat.getColor(ctx, R.color.black))
             }
         }
     }
 
     private fun clearNotiSelection() {
+        val ctx = context ?: return
         listOf(btnNotiAtTime, btnNoti10Min, btnNoti30Min, btnNoti1Hour).forEach {
             it.isSelected = false
-            it.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            it.setTextColor(ContextCompat.getColor(ctx, R.color.black))
         }
     }
 
@@ -412,14 +421,14 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
         chevron.animate().rotation(if (isExpanded) 180f else 0f).setDuration(250).start()
     }
 
-    private fun scheduleNotification(taskId: Int, title: String, date: LocalDate, hour: Int, minute: Int, reminderMinutes: Int) {
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(requireContext(), NotificationReceiver::class.java).apply {
+    private fun scheduleNotification(context: Context, taskId: Int, title: String, date: LocalDate, hour: Int, minute: Int, reminderMinutes: Int) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
             putExtra("TASK_ID", taskId)
             putExtra("TASK_TITLE", title)
         }
         val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(), taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            context, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         val calendar = Calendar.getInstance().apply {
             set(date.year, date.monthValue - 1, date.dayOfMonth, hour, minute, 0)

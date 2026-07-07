@@ -28,6 +28,7 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
     private lateinit var btnBack: ImageView
     private lateinit var btnEdit: ImageView
     private lateinit var rvFoldersGrid: RecyclerView
+    private lateinit var blank: View
     
     private var isInEditMode = false
 
@@ -49,6 +50,7 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
         btnBack = view.findViewById(R.id.btnBack)
         btnEdit = view.findViewById(R.id.btnEdit)
         rvFoldersGrid = view.findViewById(R.id.rvFoldersGrid)
+        blank = view.findViewById(R.id.blank)
     }
 
     private fun setupAdapters() {
@@ -83,6 +85,14 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
                 }
             }.collect { foldersWithCounts ->
                 folderGridAdapter.updateData(foldersWithCounts)
+                
+                rvFoldersGrid.visibility = if (foldersWithCounts.isEmpty()) View.GONE else View.VISIBLE
+                if (foldersWithCounts.isEmpty()) {
+                    blank.visibility = View.VISIBLE
+                    blank.findViewById<TextView>(R.id.tvEmptyText).text = getString(R.string.no_folders_here)
+                } else {
+                    blank.visibility = View.GONE
+                }
             }
         }
     }
@@ -116,7 +126,7 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
         val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
         val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
 
-        tvMessage.text = "Are you sure you want to delete '${folder.folderName}' and all its tasks? This action will move it to the trash bin."
+        tvMessage.setText(R.string.delete_folder_msg)
 
         btnCancel.setOnClickListener { alertDialog.dismiss() }
 

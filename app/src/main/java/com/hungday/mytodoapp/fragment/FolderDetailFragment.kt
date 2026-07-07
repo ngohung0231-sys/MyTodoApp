@@ -2,7 +2,6 @@ package com.hungday.mytodoapp.fragment
 
 import android.os.Bundle
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,7 +15,6 @@ import com.hungday.mytodoapp.R
 import com.hungday.mytodoapp.adapter.FolderDetailAdapter
 import com.hungday.mytodoapp.adapter.FolderGroupAdapter
 import com.hungday.mytodoapp.database.TodoRepository
-import com.hungday.mytodoapp.model.Folder
 import com.hungday.mytodoapp.model.FolderWithTasks
 import com.hungday.mytodoapp.model.SubTask
 import com.hungday.mytodoapp.model.TodoList
@@ -32,10 +30,11 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
     private lateinit var btnBack: ImageView
     private lateinit var btnSetting: ImageView
     private lateinit var lnlAddTask: LinearLayout
+    private lateinit var btnAddNewTask: LinearLayout
     private lateinit var rvList: RecyclerView
     private lateinit var rvFolderGroup: RecyclerView
-    private lateinit var listBlank: FrameLayout
-    private lateinit var taskBlank: FrameLayout
+    private lateinit var listBlank: LinearLayout
+    private lateinit var taskBlank: LinearLayout
     private lateinit var tvFolderTitle: TextView
 
     private var folderId: Int = 1 // Default
@@ -51,7 +50,7 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
 
     private fun initDatabase() {
         val database = com.hungday.mytodoapp.database.TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao())
         folderId = arguments?.getInt("folderId") ?: 1
     }
 
@@ -59,6 +58,7 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
         btnBack = view.findViewById(R.id.btnBack)
         btnSetting = view.findViewById(R.id.btnNotification)
         lnlAddTask = view.findViewById(R.id.lnlAddTask)
+        btnAddNewTask = view.findViewById(R.id.btnAddNewTask)
         rvList = view.findViewById(R.id.rvList)
         rvFolderGroup = view.findViewById(R.id.rvFolderGroup)
         listBlank = view.findViewById(R.id.listBlank)
@@ -115,6 +115,13 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
             }
             findNavController().navigate(R.id.action_folderDetailFragment_to_addListFragment, bundle)
         }
+
+        btnAddNewTask.setOnClickListener {
+            val bundle = Bundle().apply {
+                putInt("folderId", folderId)
+            }
+            findNavController().navigate(R.id.addTaskFragment, bundle)
+        }
     }
 
     private fun observeData() {
@@ -135,15 +142,34 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
                 // Cập nhật Task group bên dưới
                 val folderTasks = tasks.filter { it.folderId == folderId }
                 if (currentFolder != null) {
-                    tvFolderTitle.text = currentFolder.folderName
+                    val ctx = context ?: return@collect
+                    val folderName = when (currentFolder.folderName) {
+                        "Others" -> ctx.getString(R.string.others)
+                        "Personal" -> ctx.getString(R.string.personal)
+                        "Exercise" -> ctx.getString(R.string.exercise)
+                        "Travel" -> ctx.getString(R.string.travel)
+                        "Study" -> ctx.getString(R.string.study)
+                        "Groceries" -> ctx.getString(R.string.shopping)
+                        else -> currentFolder.folderName
+                    }
+                    tvFolderTitle.text = folderName
                     val folderGroup = FolderWithTasks(currentFolder, folderTasks)
                     folderGroupAdapter.updateData(listOf(folderGroup))
                 }
 
                 rvList.isVisible = lists.isNotEmpty()
                 listBlank.isVisible = lists.isEmpty()
+                if (lists.isEmpty()) {
+                    listBlank.findViewById<ImageView>(R.id.ivEmptyImg).setImageResource(R.drawable.empty_img)
+                    listBlank.findViewById<TextView>(R.id.tvEmptyText).text = getString(R.string.no_lists_here)
+                }
+                
                 rvFolderGroup.isVisible = folderTasks.isNotEmpty()
                 taskBlank.isVisible = folderTasks.isEmpty()
+                if (folderTasks.isEmpty()) {
+                    taskBlank.findViewById<ImageView>(R.id.ivEmptyImg).setImageResource(R.drawable.empty_img)
+                    taskBlank.findViewById<TextView>(R.id.tvEmptyText).text = getString(R.string.no_tasks_here)
+                }
             }
         }
     }

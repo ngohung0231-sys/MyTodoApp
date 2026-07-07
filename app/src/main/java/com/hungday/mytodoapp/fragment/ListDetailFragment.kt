@@ -50,7 +50,7 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
 
     private fun initDatabase() {
         val database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao())
         listId = arguments?.getInt("listId") ?: -1
     }
 

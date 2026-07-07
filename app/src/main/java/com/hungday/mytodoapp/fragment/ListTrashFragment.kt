@@ -25,6 +25,7 @@ class ListTrashFragment : Fragment(R.layout.fragment_list_trash) {
     private lateinit var listTrashAdapter: ListTrashAdapter
     private lateinit var btnBack: ImageView
     private lateinit var rvListTrash: RecyclerView
+    private lateinit var blank: View
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,6 +44,7 @@ class ListTrashFragment : Fragment(R.layout.fragment_list_trash) {
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         rvListTrash = view.findViewById(R.id.rvListTrash)
+        blank = view.findViewById(R.id.blank)
     }
 
     private fun setupAdapter() {
@@ -59,6 +61,14 @@ class ListTrashFragment : Fragment(R.layout.fragment_list_trash) {
                 items.filter { it.itemType == "LIST" }
             }?.collect { listTrashItems ->
                 listTrashAdapter.updateData(listTrashItems)
+                
+                rvListTrash.visibility = if (listTrashItems.isEmpty()) View.GONE else View.VISIBLE
+                if (listTrashItems.isEmpty()) {
+                    blank.visibility = View.VISIBLE
+                    blank.findViewById<TextView>(R.id.tvEmptyText).text = getString(R.string.no_lists_here)
+                } else {
+                    blank.visibility = View.GONE
+                }
             }
         }
     }
@@ -83,14 +93,14 @@ class ListTrashFragment : Fragment(R.layout.fragment_list_trash) {
         val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
         val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
 
-        tvTitle.text = "Restore List?"
+        tvTitle.setText(R.string.restore_list_q)
         tvTitle.setTextColor(resources.getColor(R.color.blue, null))
-        tvMessage.text = "Are you sure you want to restore '${trashItem.title}'?"
+        tvMessage.setText(R.string.restore_list_msg)
         
-        btnCancel.text = "Cancel"
-        btnCancel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(resources.getColor(R.color.red, null)))
-        btnConfirm.text = "Restore"
-        btnConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(resources.getColor(R.color.blue, null)))
+        btnCancel.setText(R.string.cancel)
+        btnCancel.backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.red, null))
+        btnConfirm.setText(R.string.restore)
+        btnConfirm.backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.blue, null))
 
         btnCancel.setOnClickListener { alertDialog.dismiss() }
         btnConfirm.setOnClickListener {

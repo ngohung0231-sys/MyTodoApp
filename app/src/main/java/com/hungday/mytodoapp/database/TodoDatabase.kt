@@ -15,6 +15,7 @@ import com.hungday.mytodoapp.model.TrashItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.core.graphics.toColorInt
 
 @Database(entities = [Folder::class, Task::class, TodoList::class, TrashItem::class], version = 21, exportSchema = false)
 @TypeConverters(DateConverter::class)
@@ -62,12 +63,12 @@ abstract class TodoDatabase : RoomDatabase() {
                     val todoDao = database.todoDao()
 
                     val folders = listOf(
-                        Folder(folderName = "Others", folderImg = com.hungday.mytodoapp.R.drawable.ic_project, folderColor = Color.parseColor("#4997cf")),
-                        Folder(folderName = "Personal", folderImg = com.hungday.mytodoapp.R.drawable.ic_profile, folderColor = Color.parseColor("#ee4d5e")),
-                        Folder(folderName = "Exercise", folderImg = com.hungday.mytodoapp.R.drawable.ic_exercise, folderColor = Color.parseColor("#44be65")),
-                        Folder(folderName = "Travel", folderImg = com.hungday.mytodoapp.R.drawable.ic_travel, folderColor = Color.parseColor("#f9a9ab")),
-                        Folder(folderName = "Study", folderImg = com.hungday.mytodoapp.R.drawable.ic_study, folderColor = Color.parseColor("#f89520")),
-                        Folder(folderName = "Groceries", folderImg = com.hungday.mytodoapp.R.drawable.ic_shopping, folderColor = Color.parseColor("#a792ec"))
+                        Folder(folderName = "Others", folderImg = com.hungday.mytodoapp.R.drawable.ic_project, folderColor = "#4997cf".toColorInt()),
+                        Folder(folderName = "Personal", folderImg = com.hungday.mytodoapp.R.drawable.ic_profile, folderColor = "#ee4d5e".toColorInt()),
+                        Folder(folderName = "Exercise", folderImg = com.hungday.mytodoapp.R.drawable.ic_exercise, folderColor = "#44be65".toColorInt()),
+                        Folder(folderName = "Travel", folderImg = com.hungday.mytodoapp.R.drawable.ic_travel, folderColor = "#f9a9ab".toColorInt()),
+                        Folder(folderName = "Study", folderImg = com.hungday.mytodoapp.R.drawable.ic_study, folderColor = "#f89520".toColorInt()),
+                        Folder(folderName = "Groceries", folderImg = com.hungday.mytodoapp.R.drawable.ic_shopping, folderColor = "#a792ec".toColorInt())
                     )
 
                     folders.forEach { folder ->

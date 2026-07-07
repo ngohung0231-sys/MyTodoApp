@@ -30,7 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Folder Trash"
+            android:text="@string/folder_trash"
             android:textSize="20sp"
             android:layout_weight="1"
             android:textStyle="bold"
@@ -50,9 +50,18 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvFolderTrash"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:padding="12dp"
         android:clipToPadding="false"
         tools:listitem="@layout/item_folder_trash" />
+
+    <include
+        android:id="@+id/blank"
+        layout="@layout/layout_empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:visibility="gone" />
 
 </LinearLayout>

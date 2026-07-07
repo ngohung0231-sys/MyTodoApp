@@ -1,33 +1,34 @@
 package com.hungday.mytodoapp.model
 
+import android.content.Context
 import com.hungday.mytodoapp.R
 
 data class OnboardingItem(
     val backgroundColor: Int,
     val image: Int,
-    val title: String,
-    val desc: String
+    val titleRes: Int,
+    val descRes: Int
 )
 
-val onboardingList = listOf(
-    OnboardingItem(
-        backgroundColor = R.color.blue_light,
-        image = R.drawable.first,
-        title = "Welcome to ToDo",
-        desc = "The simplest and most powerful way to manage your tasks and projects"
-    ),
-    OnboardingItem(
-        backgroundColor = R.color.green_light,
-        image = R.drawable.second,
-        title = "There is so much ToDo",
-        desc = "Create lists, add tasks, set deadlines, assign priorities, and track your progress with ease"
-    ),
-    OnboardingItem(
-        backgroundColor = R.color.red_light,
-        image = R.drawable.third,
-        title = "Ready for local organization",
-        desc = "All your data is securely stored and managed on this single device, Offline-first. Private and under your control."
+fun getOnboardingList(context: Context): List<OnboardingItem> {
+    return listOf(
+        OnboardingItem(
+            backgroundColor = R.color.blue_light,
+            image = R.drawable.first,
+            titleRes = R.string.onboarding_title_1,
+            descRes = R.string.onboarding_desc_1
+        ),
+        OnboardingItem(
+            backgroundColor = R.color.green_light,
+            image = R.drawable.second,
+            titleRes = R.string.onboarding_title_2,
+            descRes = R.string.onboarding_desc_2
+        ),
+        OnboardingItem(
+            backgroundColor = R.color.red_light,
+            image = R.drawable.third,
+            titleRes = R.string.onboarding_title_3,
+            descRes = R.string.onboarding_desc_3
+        )
     )
-)
-
-
+}

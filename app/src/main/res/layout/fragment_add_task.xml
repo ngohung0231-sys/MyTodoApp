@@ -565,7 +565,7 @@
                                 android:background="@drawable/bg_repeat_option_selector"
                                 android:gravity="center"
                                 android:text="@string/daily"
-                                android:textColor="@color/black"
+                                android:textColor="@color/selector_repeat_text"
                                 android:textStyle="bold"
                                 android:clickable="true"
                                 android:focusable="true"/>
@@ -579,7 +579,7 @@
                                 android:background="@drawable/bg_repeat_option_selector"
                                 android:gravity="center"
                                 android:text="@string/weekly"
-                                android:textColor="@color/black"
+                                android:textColor="@color/selector_repeat_text"
                                 android:textStyle="bold"
                                 android:clickable="true"
                                 android:focusable="true"/>
@@ -593,7 +593,7 @@
                                 android:background="@drawable/bg_repeat_option_selector"
                                 android:gravity="center"
                                 android:text="@string/monthly"
-                                android:textColor="@color/black"
+                                android:textColor="@color/selector_repeat_text"
                                 android:textStyle="bold"
                                 android:clickable="true"
                                 android:focusable="true"/>
@@ -607,7 +607,7 @@
                                 android:background="@drawable/bg_repeat_option_selector"
                                 android:gravity="center"
                                 android:text="@string/yearly"
-                                android:textColor="@color/black"
+                                android:textColor="@color/selector_repeat_text"
                                 android:textStyle="bold"
                                 android:clickable="true"
                                 android:focusable="true"/>

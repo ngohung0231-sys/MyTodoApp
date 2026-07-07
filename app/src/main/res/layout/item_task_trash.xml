@@ -39,6 +39,7 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <LinearLayout
+            android:id="@+id/lnlTaskDateTime"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -49,6 +50,7 @@
             app:layout_constraintEnd_toEndOf="@id/tvTaskTitle">
 
             <ImageView
+                android:id="@+id/imgClock"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/clock"

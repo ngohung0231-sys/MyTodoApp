@@ -37,7 +37,17 @@ class FolderAdapter(
         holder.imgFolderIc.setImageResource(currentFolder.folderImg)
         holder.imgFolderIc.setColorFilter(currentFolder.folderColor)
 
-        holder.tvFolderName.text = currentFolder.folderName
+        val context = holder.itemView.context
+        val folderName = when (currentFolder.folderName) {
+            "Others" -> context.getString(R.string.others)
+            "Personal" -> context.getString(R.string.personal)
+            "Exercise" -> context.getString(R.string.exercise)
+            "Travel" -> context.getString(R.string.travel)
+            "Study" -> context.getString(R.string.study)
+            "Groceries" -> context.getString(R.string.shopping)
+            else -> currentFolder.folderName
+        }
+        holder.tvFolderName.text = folderName
         holder.tvFolderName.setTextColor(currentFolder.folderColor)
         
         holder.tvListCount.text = if (currentFolder.listCount < 2) holder.itemView.context.getString(R.string.list_format, currentFolder.listCount) else holder.itemView.context.getString(R.string.lists_format, currentFolder.listCount)

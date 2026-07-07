@@ -25,8 +25,8 @@ class OnboardingAdapter(private val onboardingItems: List<OnboardingItem>) :
     override fun onBindViewHolder(holder: OnBoardingViewHolder, position: Int) {
         val items = onboardingItems[position]
         holder.img.setImageResource(items.image)
-        holder.tvTitle.text = items.title
-        holder.tvDesc.text = items.desc
+        holder.tvTitle.setText(items.titleRes)
+        holder.tvDesc.setText(items.descRes)
 
         holder.itemView.setBackgroundResource(items.backgroundColor)
     }

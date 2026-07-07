@@ -25,7 +25,8 @@ object TaskFilter {
                     val repeatDays = task.repeatValues?.split(",")?.mapNotNull { it.toIntOrNull() } ?: emptyList()
                     
                     // Task lặp chỉ hiển thị từ ngày bắt đầu trở đi
-                    val isAfterStart = !targetDate.isBefore(task.date)
+                    val startDate = task.date ?: return@filter false
+                    val isAfterStart = !targetDate.isBefore(startDate)
                     isAfterStart && repeatDays.contains(dayOfWeek)
                 }
                 "MONTHLY" -> {
@@ -33,7 +34,8 @@ object TaskFilter {
                     val dayOfMonth = targetDate.dayOfMonth
                     val repeatDay = task.repeatValues?.toIntOrNull() ?: 0
                     
-                    val isAfterStart = !targetDate.isBefore(task.date)
+                    val startDate = task.date ?: return@filter false
+                    val isAfterStart = !targetDate.isBefore(startDate)
                     if (!isAfterStart) return@filter false
 
                     // Xử lý case ngày 31: Nếu tháng hiện tại không có ngày 31, thì ngày cuối tháng sẽ khớp
@@ -51,7 +53,8 @@ object TaskFilter {
                     val repeatMonth = parts[0].toIntOrNull() ?: 0
                     val repeatDay = parts[1].toIntOrNull() ?: 0
                     
-                    val isAfterStart = !targetDate.isBefore(task.date)
+                    val startDate = task.date ?: return@filter false
+                    val isAfterStart = !targetDate.isBefore(startDate)
                     if (!isAfterStart || targetDate.monthValue != repeatMonth) return@filter false
 
                     // Xử lý tương tự Monthly cho ngày 29/2 hoặc 31/tháng

@@ -11,6 +11,7 @@ import com.google.gson.Gson
 import com.hungday.mytodoapp.R
 import com.hungday.mytodoapp.model.FolderBackup
 import com.hungday.mytodoapp.model.TrashItem
+import androidx.core.graphics.toColorInt
 
 class FolderTrashAdapter(
     private var trashList: List<TrashItem>,
@@ -37,9 +38,19 @@ class FolderTrashAdapter(
         val backup = Gson().fromJson(trashItem.folderDataJson, FolderBackup::class.java)
         val folder = backup.folder
 
-        holder.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#f3f5f9"))
+        holder.cardView.setCardBackgroundColor("#f3f5f9".toColorInt())
         
-        holder.tvFolderName.text = folder.folderName
+        val context = holder.itemView.context
+        val folderName = when (folder.folderName) {
+            "Others" -> context.getString(R.string.others)
+            "Personal" -> context.getString(R.string.personal)
+            "Exercise" -> context.getString(R.string.exercise)
+            "Travel" -> context.getString(R.string.travel)
+            "Study" -> context.getString(R.string.study)
+            "Groceries" -> context.getString(R.string.shopping)
+            else -> folder.folderName
+        }
+        holder.tvFolderName.text = folderName
         holder.tvFolderName.setTextColor(folder.folderColor)
         holder.imgArrow.setColorFilter(folder.folderColor)
         
@@ -47,8 +58,8 @@ class FolderTrashAdapter(
         val listCount = backup.lists.size
         val taskCount = backup.tasks.size
         
-        holder.tvListCount.text = if (listCount < 2) "$listCount List" else "$listCount Lists"
-        holder.tvTaskCount.text = if (taskCount < 2) "$taskCount Task" else "$taskCount Tasks"
+        holder.tvListCount.text = if (listCount < 2) context.getString(R.string.list_format, listCount) else context.getString(R.string.lists_format, listCount)
+        holder.tvTaskCount.text = if (taskCount < 2) context.getString(R.string.task_format_val, taskCount) else context.getString(R.string.tasks_format_val, taskCount)
         
         holder.imgFolderIllustration.setImageResource(folder.folderImg)
         holder.imgFolderIllustration.setColorFilter(folder.folderColor)

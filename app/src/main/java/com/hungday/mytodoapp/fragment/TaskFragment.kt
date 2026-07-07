@@ -3,9 +3,9 @@ package com.hungday.mytodoapp.fragment
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -37,7 +37,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
     private lateinit var btnBack: ImageView
     private lateinit var lnlAddTask: LinearLayout
     private lateinit var rvFolderGroup: RecyclerView
-    private lateinit var blank: FrameLayout
+    private lateinit var blank: LinearLayout
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,7 +50,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
 
     private fun initDatabase() {
         database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao())
     }
 
     private fun initViews(view: View) {
@@ -121,7 +121,15 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
         val groups = getFolderGroups(tasks)
         folderGroupAdapter.updateData(groups)
         rvFolderGroup.visibility = if (groups.isEmpty()) View.GONE else View.VISIBLE
-        blank.visibility = if (groups.isEmpty()) View.VISIBLE else View.GONE
+        
+        if (groups.isEmpty()) {
+            blank.visibility = View.VISIBLE
+            blank.findViewById<ImageView>(R.id.ivEmptyImg).setImageResource(R.drawable.empty_img)
+            val tvEmptyText = blank.findViewById<TextView>(R.id.tvEmptyText)
+            tvEmptyText.text = getString(R.string.no_tasks_here)
+        } else {
+            blank.visibility = View.GONE
+        }
     }
 
     private fun getFolderGroups(tasks: List<Task>): List<FolderWithTasks> {
@@ -136,7 +144,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                             "Low" -> 3
                             else -> 4
                         }
-                    }.thenBy { it.date }
+                    }.thenBy { it.date ?: java.time.LocalDate.MAX }
                         .thenBy { it.time ?: LocalTime.MAX }
                 )
                 FolderWithTasks(folder, sortedTasks)

@@ -3,8 +3,8 @@ package com.hungday.mytodoapp.fragment
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -46,7 +46,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
     private lateinit var rvCalendarGrid: RecyclerView
     private lateinit var rvTasks: RecyclerView
     private lateinit var tvSelectedDateLabel: TextView
-    private lateinit var blank: FrameLayout
+    private lateinit var blank: LinearLayout
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -60,7 +60,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
 
     private fun initDatabase() {
         database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao())
     }
 
     private fun initViews(view: View) {
@@ -119,7 +119,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
     }
 
     private fun updateCalendar() {
-        val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH)
+        val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
         tvMonthYear.text = currentMonth.format(formatter)
 
         calendarDays.clear()
@@ -162,15 +162,13 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
 
     private fun refreshTasks() {
         val today = LocalDate.now()
-        val pickedDate = selectedDate?.let {
-            val monthStr = it.month.name.lowercase(Locale.getDefault())
-                .replaceFirstChar { char -> char.uppercase() }
-                .take(3)
+        val pickedDate = selectedDate.let {
+            val monthStr = it.month.getDisplayName(java.time.format.TextStyle.SHORT, Locale.getDefault())
             val dayStr = String.format(Locale.getDefault(), "%02d", it.dayOfMonth)
             val yearStr = it.year
             "$monthStr $dayStr, $yearStr"
         }
-        val label = if (selectedDate == today) "Tasks for Today" else "Tasks for $pickedDate"
+        val label = if (selectedDate == today) getString(R.string.tasks_for_today) else getString(R.string.tasks_for_format, pickedDate)
         tvSelectedDateLabel.text = label
 
         // Lọc ra các task của ngày đang chọn
@@ -187,6 +185,11 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
         val hasAnyTaskInDay = tasks.isNotEmpty()
         rvTasks.visibility = if (hasAnyTaskInDay) View.VISIBLE else View.GONE
         blank.visibility = if (hasAnyTaskInDay) View.GONE else View.VISIBLE
+        
+        if (!hasAnyTaskInDay) {
+            blank.findViewById<ImageView>(R.id.ivEmptyImg).setImageResource(R.drawable.empty_img)
+            blank.findViewById<TextView>(R.id.tvEmptyText).text = getString(R.string.no_tasks_for_day)
+        }
     }
 
     /**
@@ -205,10 +208,10 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
                     "Low" -> 3
                     else -> 4
                 }
-            }.thenBy { it.date }
+            }.thenBy { it.date ?: LocalDate.MAX }
         )
         if (allDayTasks.isNotEmpty()) {
-            list.add(HourTimeline("All day", null, allDayTasks))
+            list.add(HourTimeline(getString(R.string.all_day), null, allDayTasks))
         }
 
         // 1. Trích xuất ra danh sách các số giờ duy nhất xuất hiện trong ngày đó và sắp xếp tăng dần
@@ -222,13 +225,13 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
             val startLocalTime = LocalTime.of(h, 0)
 
             // Định dạng chuỗi hiển thị 12 giờ AM/PM (Ví dụ: 09:00 AM, 03:00 PM)
-            val amPm = if (h >= 12) "PM" else "AM"
+            val amPm = if (h >= 12) getString(R.string.pm) else getString(R.string.am)
             val displayHour = when {
                 h == 0 -> 12
                 h > 12 -> h - 12
                 else -> h
             }
-            val hourText = String.format("%02d:00 %s", displayHour, amPm)
+            val hourText = String.format(Locale.getDefault(), "%02d:00 %s", displayHour, amPm)
 
             // Lọc ra các task con thuộc khung giờ này (Ví dụ: từ h:00 đến h:59) và sắp xếp theo phút
             val tasksInThisHour = tasks.filter { task ->

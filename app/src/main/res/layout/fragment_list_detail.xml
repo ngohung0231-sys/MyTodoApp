@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:background="@null"
-                android:text="List name"
+                android:text="@string/list_name"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -103,7 +103,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:gravity="center"
-                android:text="Tap anywhere to start writing..."
+                android:text="@string/tap_to_write"
                 android:textColor="#A0A0A0"
                 android:textSize="18sp"
                 android:visibility="gone" />

@@ -21,6 +21,7 @@ class TaskTrashAdapter(
     class TaskTrashViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvTaskTitle: TextView = itemView.findViewById(R.id.tvTaskTitle)
         val tvTaskDateTime: TextView = itemView.findViewById(R.id.tvTaskDateTime)
+        val imgClock: ImageView = itemView.findViewById(R.id.imgClock)
         val tvPriorityText: TextView = itemView.findViewById(R.id.tvPriorityText)
         val imgPriorityIcon: ImageView = itemView.findViewById(R.id.imgPriorityIcon)
         val btnRestore: View = itemView.findViewById(R.id.btnRestore)
@@ -37,8 +38,22 @@ class TaskTrashAdapter(
 
         holder.tvTaskTitle.text = task.title
         
-        val dateTime = "${task.timeStr ?: ""}, ${task.dateStr ?: ""}"
-        holder.tvTaskDateTime.text = dateTime
+        val hasTime = !task.timeStr.isNullOrEmpty()
+        val hasDate = !task.dateStr.isNullOrEmpty()
+        
+        if (hasTime || hasDate) {
+            holder.imgClock.visibility = View.VISIBLE
+            holder.tvTaskDateTime.visibility = View.VISIBLE
+            val dateTime = when {
+                hasTime && hasDate -> "${task.timeStr}, ${task.dateStr}"
+                hasTime -> task.timeStr
+                else -> task.dateStr
+            }
+            holder.tvTaskDateTime.text = dateTime
+        } else {
+            holder.imgClock.visibility = View.GONE
+            holder.tvTaskDateTime.visibility = View.GONE
+        }
         
         holder.tvPriorityText.text = task.priority
         val priorityColor = when (task.priority.lowercase(Locale.ROOT)) {

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hungday.mytodoapp.R
 import com.hungday.mytodoapp.model.HourTimeline
 import com.hungday.mytodoapp.model.Task
+import androidx.core.graphics.toColorInt
 
 class TimelineHourAdapter(
     private var timelineList: List<HourTimeline>,
@@ -34,10 +35,10 @@ class TimelineHourAdapter(
         // Nếu khung giờ này có task thì bôi đậm chữ giờ lên cho dễ quét UI
         if (item.tasks.isNotEmpty()) {
             holder.tvTimelineHour.setTypeface(null, Typeface.BOLD)
-            holder.tvTimelineHour.setTextColor(Color.parseColor("#111111"))
+            holder.tvTimelineHour.setTextColor("#111111".toColorInt())
         } else {
             holder.tvTimelineHour.setTypeface(null, Typeface.NORMAL)
-            holder.tvTimelineHour.setTextColor(Color.parseColor("#8E8E93"))
+            holder.tvTimelineHour.setTextColor("#8E8E93".toColorInt())
         }
 
         // Nạp danh sách các task con tối giản vào bên phải

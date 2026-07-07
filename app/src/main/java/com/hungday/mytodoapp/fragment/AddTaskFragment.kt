@@ -156,7 +156,7 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
 
     private fun initDatabase() {
         val database = com.hungday.mytodoapp.database.TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao())
     }
 
     private fun initViews(view: View) {
@@ -354,8 +354,6 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         weekdayButtons.forEachIndexed { index, btn ->
             btn.setOnClickListener {
                 btn.isSelected = !btn.isSelected
-                btn.setTextColor(if (btn.isSelected) ContextCompat.getColor(requireContext(), R.color.white) 
-                                 else ContextCompat.getColor(requireContext(), R.color.black))
                 updateWeeklySummary()
             }
         }
@@ -383,17 +381,16 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
                 }
             }
 
-            val finalDate = selectedDate ?: LocalDate.now()
+            val finalDate = selectedDate
+            val isUpcoming = finalDate?.isAfter(LocalDate.now()) ?: false
 
-            val dateText = selectedDate?.let {
+            val dateText = finalDate?.let {
                 val monthStr = it.month.name.lowercase(Locale.getDefault())
                     .replaceFirstChar { char -> char.uppercase() }
                     .take(3)
                 val dayStr = String.format(Locale.getDefault(), "%02d", it.dayOfMonth)
                 "$monthStr $dayStr"
             }
-
-            val isUpcoming = selectedDate?.isAfter(LocalDate.now()) ?: false
 
             val newTask = Task(
                 title = taskTitle,
@@ -411,15 +408,16 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
             )
 
             // 6. Đẩy dữ liệu xuống Room DB
+            val appContext = context?.applicationContext ?: return@setOnClickListener
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val taskId = repository.insertTask(newTask)
 
-                if (selectedReminderMinutes != null) {
-                    scheduleNotification(taskId.toInt(), taskTitle, finalDate, selectedHour, selectedMinute, selectedReminderMinutes!!)
+                if (selectedReminderMinutes != null && finalDate != null) {
+                    scheduleNotification(appContext, taskId.toInt(), taskTitle, finalDate, selectedHour, selectedMinute, selectedReminderMinutes!!)
                 }
 
                 withContext(Dispatchers.Main) {
-                    findNavController().popBackStack()
+                    if (isAdded) findNavController().popBackStack()
                 }
             }
         }
@@ -461,16 +459,16 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         }
     }
 
-    private fun scheduleNotification(taskId: Int, title: String, date: LocalDate, hour: Int, minute: Int, reminderMinutes: Int) {
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    private fun scheduleNotification(context: Context, taskId: Int, title: String, date: LocalDate, hour: Int, minute: Int, reminderMinutes: Int) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        val intent = Intent(requireContext(), NotificationReceiver::class.java).apply {
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
             putExtra("TASK_ID", taskId)
             putExtra("TASK_TITLE", title)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
+            context,
             taskId,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -515,13 +513,6 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         btnRepeatMonthly.isSelected = (type == "MONTHLY")
         btnRepeatYearly.isSelected = (type == "YEARLY")
 
-        // Nhuộm màu chữ cho nút được chọn
-        val buttons = listOf(btnRepeatDaily, btnRepeatWeekly, btnRepeatMonthly, btnRepeatYearly)
-        buttons.forEach { btn ->
-            btn.setTextColor(if (btn.isSelected) ContextCompat.getColor(requireContext(), R.color.blue) 
-                             else ContextCompat.getColor(requireContext(), R.color.black))
-        }
-
         // Hiển thị vùng mở rộng tương ứng bằng TransitionManager
         TransitionManager.beginDelayedTransition(view as ViewGroup)
         lnlWeeklySelection.isVisible = (type == "WEEKLY")
@@ -535,13 +526,11 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
     private fun resetRepeatUI() {
         listOf(btnRepeatDaily, btnRepeatWeekly, btnRepeatMonthly, btnRepeatYearly).forEach {
             it.isSelected = false
-            it.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         }
         lnlWeeklySelection.isVisible = false
         lnlDateSelectionSummary.isVisible = false
         weekdayButtons.forEach { 
             it.isSelected = false
-            it.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         }
     }
 
@@ -593,6 +582,7 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
      * Tối ưu hóa logic nhuộm màu và nhả trạng thái cho cụm 3 nút Priority
      */
     private fun handlePrioritySelection(priority: String, clickedButton: TextView, selectedColorRes: Int) {
+        val ctx = context ?: return
         etTaskTitle.clearFocus()
         selectedPriority = priority
         tvSelectedPriority.text = selectedPriority
@@ -606,10 +596,10 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         priorityButtons.forEach { (btn, defaultColorRes) ->
             if (btn == clickedButton) {
                 btn.isSelected = true
-                btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                btn.setTextColor(ContextCompat.getColor(ctx, R.color.white))
             } else {
                 btn.isSelected = false
-                btn.setTextColor(ContextCompat.getColor(requireContext(), defaultColorRes))
+                btn.setTextColor(ContextCompat.getColor(ctx, defaultColorRes))
             }
         }
     }
@@ -641,23 +631,25 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
     }
 
     private fun updateNotiSelection(selectedView: TextView) {
+        val ctx = context ?: return
         val notiButtons = listOf(btnNotiAtTime, btnNoti10Min, btnNoti30Min, btnNoti1Hour)
         notiButtons.forEach { btn ->
             if (btn == selectedView) {
                 btn.isSelected = true
-                btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                btn.setTextColor(ContextCompat.getColor(ctx, R.color.white))
             } else {
                 btn.isSelected = false
-                btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                btn.setTextColor(ContextCompat.getColor(ctx, R.color.black))
             }
         }
     }
 
     private fun clearNotiSelection() {
+        val ctx = context ?: return
         val notiButtons = listOf(btnNotiAtTime, btnNoti10Min, btnNoti30Min, btnNoti1Hour)
         notiButtons.forEach { btn ->
             btn.isSelected = false
-            btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            btn.setTextColor(ContextCompat.getColor(ctx, R.color.black))
         }
     }
 

@@ -6,13 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.transition.ChangeBounds
-import android.transition.TransitionManager
-import android.transition.TransitionSet
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -27,12 +23,17 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.hungday.mytodoapp.R
 import com.hungday.mytodoapp.database.TodoDatabase
 import com.hungday.mytodoapp.utils.HandleImage
+import com.hungday.mytodoapp.activity.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import androidx.core.content.edit
+import androidx.core.net.toUri
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 
 class SettingFragment : Fragment(R.layout.fragment_setting) {
     // Biến lưu trữ tạm thời
@@ -59,7 +60,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
 
                         // Save the new avatar URI to SharedPreferences
                         val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
-                        sharedPref.edit().putString("USER_AVATAR", internalUri.toString()).apply()
+                        sharedPref.edit { putString("USER_AVATAR", internalUri.toString()) }
                     }
                 }
             }
@@ -70,14 +71,11 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     private lateinit var btnBack: ImageView
     private lateinit var avatar: ShapeableImageView
     private lateinit var tvUserName: TextView
-    private lateinit var switchDarkMode: SwitchCompat
-    private lateinit var tvDarkMode: TextView
     private lateinit var switchThemeColor: SwitchCompat
     private lateinit var tvThemeColor: TextView
     private lateinit var tvLanguage: TextView
     private lateinit var tvBirthDate: TextView
     private lateinit var lnlUserName: LinearLayout
-    private lateinit var lnlDarkMode: LinearLayout
     private lateinit var lnlLanguage: LinearLayout
     private lateinit var lnlBirthDay: LinearLayout
     private lateinit var lnlThemeColor: LinearLayout
@@ -95,14 +93,11 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         btnBack = view.findViewById(R.id.btnBack)
         avatar = view.findViewById(R.id.avatar)
         tvUserName = view.findViewById(R.id.tvUserName)
-        switchDarkMode = view.findViewById(R.id.switchDarkMode)
-        tvDarkMode = view.findViewById(R.id.tvDarkMode)
         switchThemeColor = view.findViewById(R.id.switchThemeColor)
         tvThemeColor = view.findViewById(R.id.tvThemeColor)
         tvLanguage = view.findViewById(R.id.tvLanguage)
         tvBirthDate = view.findViewById(R.id.tvBirthdate)
         lnlUserName = view.findViewById(R.id.lnlUsername)
-        lnlDarkMode = view.findViewById(R.id.lnlDarkMode)
         lnlLanguage = view.findViewById(R.id.lnlLanguage)
         lnlBirthDay = view.findViewById(R.id.lnlBirthday)
         lnlThemeColor = view.findViewById(R.id.lnlThemeColor)
@@ -116,16 +111,27 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         val avatarUriString = sharedPref.getString("USER_AVATAR", null)
         val birthday = sharedPref.getString("USER_BIRTHDAY", "Not set")
 
+        // Read language from AppCompatDelegate
+        val appLocales = AppCompatDelegate.getApplicationLocales()
+        val languageCode = if (appLocales.isEmpty) {
+            // If empty, it means system default. Check if it's Vietnamese.
+            if (java.util.Locale.getDefault().language == "vi") "vi" else "en"
+        } else {
+            appLocales.get(0)?.language ?: "en"
+        }
+
         tvUserName.text = name
         tvBirthDate.text = birthday
         avatarUriString?.let {
-            currentUri = Uri.parse(it)
+            currentUri = it.toUri()
             avatar.setImageURI(currentUri)
         }
 
         val isPinkTheme = sharedPref.getBoolean("IS_PINK_THEME", false)
         switchThemeColor.isChecked = isPinkTheme
-        tvThemeColor.text = if (isPinkTheme) "Pink" else "Blue"
+        tvThemeColor.text = if (isPinkTheme) getString(R.string.pink) else getString(R.string.blue)
+        
+        tvLanguage.text = if (languageCode == "vi") "Tiếng Việt" else "English"
     }
 
     private fun setupListeners() {
@@ -142,15 +148,9 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
             showEditUsernameDialog()
         }
 
-        // Bật/tắt Dark Mode
-        lnlDarkMode.setOnClickListener {
-            switchDarkMode.isChecked = !switchDarkMode.isChecked
-        }
-
-        switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
-            TransitionManager.beginDelayedTransition(requireView() as ViewGroup, TransitionSet().addTransition(ChangeBounds()).setDuration(300))
-            tvDarkMode.text = if (isChecked) "Dark" else "Light"
-            // TODO: Apply Theme changes
+        // Đổi ngôn ngữ
+        lnlLanguage.setOnClickListener {
+            showLanguageDialog()
         }
 
         // Đổi màu chủ đạo
@@ -200,6 +200,43 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
 
     //-------------------- Các hàm chức năng bổ trợ (Helper Functions) --------------------//
 
+    private fun showLanguageDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_select_language, null)
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+        
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        alertDialog.show()
+
+        val btnEnglish = dialogView.findViewById<LinearLayout>(R.id.btnEnglish)
+        val btnVietnamese = dialogView.findViewById<LinearLayout>(R.id.btnVietnamese)
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelLanguage)
+
+        btnEnglish.setOnClickListener {
+            setLocale("en")
+            alertDialog.dismiss()
+        }
+
+        btnVietnamese.setOnClickListener {
+            setLocale("vi")
+            alertDialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener { alertDialog.dismiss() }
+    }
+
+    private fun setLocale(languageCode: String) {
+        val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(languageCode)
+        AppCompatDelegate.setApplicationLocales(appLocale)
+        
+        // Khởi động lại Activity và xóa stack để quay về Home
+        val intent = Intent(requireContext(), MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        requireActivity().finish()
+    }
+
     private fun showEditUsernameDialog() {
         val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_username, null)
@@ -227,7 +264,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
             } else if(etNewUsername.length() > 11) {
                 etNewUsername.error = "Username must be 11 characters or less!"
             } else {
-                sharedPref.edit().putString("USER_NAME", newName).apply()
+                sharedPref.edit { putString("USER_NAME", newName) }
                 tvUserName.text = newName
                 Toast.makeText(requireContext(), "Updated username! 🚀", Toast.LENGTH_SHORT).show()
                 alertDialog.dismiss()
@@ -257,14 +294,17 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
 
         btnOk.setOnClickListener {
             if (isChecked != wasChecked) {
-                sharedPref.edit().putBoolean("IS_PINK_THEME", isChecked).apply()
-                tvThemeColor.text = if (isChecked) "PINK" else "BLUE"
+                sharedPref.edit { putBoolean("IS_PINK_THEME", isChecked) }
+                tvThemeColor.text = if (isChecked) getString(R.string.pink) else getString(R.string.blue)
 
                 // Cập nhật launcher icon
                 updateLauncherIcon(isChecked)
 
-                // Recreate activity để áp dụng theme mới
-                requireActivity().recreate()
+                // Khởi động lại Activity và xóa stack để quay về Home và áp dụng theme mới
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                requireActivity().finish()
             }
             alertDialog.dismiss()
         }
@@ -281,7 +321,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
                 val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
                 val dateString = selectedBirthdate?.format(formatter) ?: ""
                 tvBirthDate.text = dateString
-                sharedPref.edit().putString("USER_BIRTHDAY", dateString).apply()
+                sharedPref.edit { putString("USER_BIRTHDAY", dateString) }
                 Toast.makeText(requireContext(), "Updated birthday! 🚀", Toast.LENGTH_SHORT).show()
             },
             calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
@@ -313,33 +353,36 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     }
 
     private fun resetAppData() {
+        val appContext = context?.applicationContext ?: return
+        val activity = activity ?: return
+        
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 // 1. Xóa Database
-                val database = TodoDatabase.getDatabase(requireContext())
+                val database = TodoDatabase.getDatabase(appContext)
                 database.clearAllTables()
                 
                 // 1.1 Khởi tạo lại dữ liệu mặc định ngay lập tức
-                TodoDatabase.initializeData(requireContext())
+                TodoDatabase.initializeData(appContext)
 
                 // 2. Xóa SharedPreferences
-                val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
-                sharedPref.edit().clear().commit() // Dùng commit để đảm bảo xóa xong ngay lập tức
+                val sharedPref = appContext.getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+                sharedPref.edit(commit = true) { clear() } // Dùng commit để đảm bảo xóa xong ngay lập tức
 
                 // 3. Xóa cache và files (optional nhưng tốt cho việc reset hoàn toàn)
-                requireContext().cacheDir.deleteRecursively()
-                requireContext().filesDir.deleteRecursively()
+                appContext.cacheDir.deleteRecursively()
+                appContext.filesDir.deleteRecursively()
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Data cleared! Restarting...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(appContext, "Data cleared! Restarting...", Toast.LENGTH_SHORT).show()
                     
                     // 4. Khởi động lại ứng dụng
-                    val intent = requireContext().packageManager.getLaunchIntentForPackage(requireContext().packageName)
+                    val intent = appContext.packageManager.getLaunchIntentForPackage(appContext.packageName)
                     intent?.let {
                         it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(it)
                     }
-                    requireActivity().finishAffinity()
+                    activity.finishAffinity()
                     
                     // Kết thúc process để đảm bảo mọi singleton/static variable được reset
                     android.os.Process.killProcess(android.os.Process.myPid())
@@ -347,7 +390,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Failed to clear data completely.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(appContext, "Failed to clear data completely.", Toast.LENGTH_SHORT).show()
                 }
             }
         }

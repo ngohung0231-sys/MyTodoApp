@@ -16,7 +16,7 @@ data class Task(
     val isUpcoming: Boolean = false,
     val folderId: Int = 1,
     val isNotify: Int? = null,
-    val date: LocalDate,
+    val date: LocalDate?,
     val dateStr: String? = null,
     var completedAt: Long? = null,
     val repeatType: String = "NONE", // NONE, WEEKLY, MONTHLY

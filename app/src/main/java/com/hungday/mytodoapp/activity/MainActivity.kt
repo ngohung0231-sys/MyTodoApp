@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
@@ -28,6 +27,7 @@ class MainActivity : AppCompatActivity() {
 
         // 2. Thiết lập Theme nội dung dựa trên lựa chọn người dùng
         val sharedPref = getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+        
         val isPinkTheme = sharedPref.getBoolean("IS_PINK_THEME", false)
 
         if (isPinkTheme) {
