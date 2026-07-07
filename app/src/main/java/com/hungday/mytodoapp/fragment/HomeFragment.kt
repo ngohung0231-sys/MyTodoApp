@@ -170,6 +170,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         // 3. Task Group Vertical List
         folderGroupAdapter = FolderGroupAdapter(emptyList(), { folder ->
+            findNavController().navigate(R.id.folderDetailFragment)
+        }, { folder ->
             val bundle = Bundle().apply {
                 putInt("folderId", folder.folderId)
             }

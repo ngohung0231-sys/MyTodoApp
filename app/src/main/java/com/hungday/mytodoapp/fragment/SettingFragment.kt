@@ -38,6 +38,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     // Biến lưu trữ tạm thời
     private var currentUri: Uri? = null
     private var selectedBirthdate: LocalDate? = null
+    private var isUpdatingTheme = false
 
     // Pick Avatar Launcher
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -158,19 +159,8 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         }
 
         switchThemeColor.setOnCheckedChangeListener { _, isChecked ->
-            val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
-            val wasChecked = sharedPref.getBoolean("IS_PINK_THEME", false)
-            
-            if (isChecked != wasChecked) {
-                sharedPref.edit().putBoolean("IS_PINK_THEME", isChecked).apply()
-                tvThemeColor.text = if (isChecked) "PINK" else "BLUE"
-                
-                // Cập nhật launcher icon
-                updateLauncherIcon(isChecked)
-                
-                // Recreate activity để áp dụng theme mới
-                requireActivity().recreate()
-            }
+            if (isUpdatingTheme) return@setOnCheckedChangeListener
+            showChangeThemeDialog(isChecked)
         }
 
         // Thay đổi ngày sinh
@@ -242,6 +232,41 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
                 Toast.makeText(requireContext(), "Updated username! 🚀", Toast.LENGTH_SHORT).show()
                 alertDialog.dismiss()
             }
+        }
+    }
+
+    private fun showChangeThemeDialog(isChecked: Boolean) {
+        val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+        val wasChecked = sharedPref.getBoolean("IS_PINK_THEME", false)
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_change_theme, null)
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        alertDialog.show()
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDialog)
+        val btnOk = dialogView.findViewById<TextView>(R.id.btnChangeDialog)
+
+        btnCancel.setOnClickListener {
+            isUpdatingTheme = true
+            switchThemeColor.isChecked = !isChecked
+            isUpdatingTheme = false
+            alertDialog.dismiss()
+        }
+
+        btnOk.setOnClickListener {
+            if (isChecked != wasChecked) {
+                sharedPref.edit().putBoolean("IS_PINK_THEME", isChecked).apply()
+                tvThemeColor.text = if (isChecked) "PINK" else "BLUE"
+
+                // Cập nhật launcher icon
+                updateLauncherIcon(isChecked)
+
+                // Recreate activity để áp dụng theme mới
+                requireActivity().recreate()
+            }
+            alertDialog.dismiss()
         }
     }
 

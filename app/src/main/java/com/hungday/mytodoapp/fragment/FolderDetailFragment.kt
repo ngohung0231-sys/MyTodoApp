@@ -79,6 +79,8 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
 
         // RV for Tasks (FolderGroupAdapter used in Home)
         folderGroupAdapter = FolderGroupAdapter(emptyList(), { folder ->
+            // Handle folder detail click
+        }, { folder ->
             // Handle folder setting click
         }, { task ->
             val bundle = Bundle().apply {

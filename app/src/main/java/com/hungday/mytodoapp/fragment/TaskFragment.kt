@@ -61,7 +61,9 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
     }
 
     private fun setupAdapter() {
-        folderGroupAdapter = FolderGroupAdapter(emptyList() , {folder ->
+        folderGroupAdapter = FolderGroupAdapter(emptyList() , { folder ->
+            findNavController().navigate(R.id.folderDetailFragment)
+        }, {folder ->
             val bundle = Bundle().apply {
                 putInt("folderId", folder.folderId)
             }

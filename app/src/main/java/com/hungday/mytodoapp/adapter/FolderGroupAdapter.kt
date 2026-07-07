@@ -16,6 +16,7 @@ import com.hungday.mytodoapp.model.Task
 
 class FolderGroupAdapter(
     private var folderGroupList: List<FolderWithTasks>,
+    private val onFolderClick: (Folder) -> Unit,
     private val onSettingClick: (Folder) -> Unit,
     private val onTaskClick: (Task) -> Unit,
     private val onTaskStatusChanged: (Task, Boolean) -> Unit
@@ -44,7 +45,7 @@ class FolderGroupAdapter(
         }
 
         holder.lnlFolderDetail.setOnClickListener {
-            onSettingClick(currentFolderGroup.folder)
+            onFolderClick(currentFolderGroup.folder)
         }
 
         val taskAdapter = TaskAdapter(currentFolderGroup.taskList, { task ->
