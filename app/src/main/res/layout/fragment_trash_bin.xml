@@ -37,9 +37,17 @@
             android:textStyle="bold"
             android:gravity="center"/>
 
-        <FrameLayout
+        <ImageView
+            android:id="@+id/btnClearAll"
             android:layout_width="40dp"
-            android:layout_height="40dp" />
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_trash_bin"
+            app:tint="@color/red"
+            android:clickable="true"
+            android:focusable="true"
+            android:stateListAnimator="@animator/btn_click_scale"
+            android:foreground="@drawable/ripple_rounded_bg"/>
     </LinearLayout>
 
     <FrameLayout

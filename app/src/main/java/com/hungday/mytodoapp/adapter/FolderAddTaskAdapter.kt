@@ -42,7 +42,17 @@ class FolderAddTaskAdapter(
 
     override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
         val currentFolder = folderList[position]
-        holder.tvFolderName.text = currentFolder.folderName
+        val context = holder.itemView.context
+        val folderName = when (currentFolder.folderName) {
+            "Others" -> context.getString(R.string.others)
+            "Personal" -> context.getString(R.string.personal)
+            "Exercise" -> context.getString(R.string.exercise)
+            "Travel" -> context.getString(R.string.travel)
+            "Study" -> context.getString(R.string.study)
+            "Groceries", "Shopping" -> context.getString(R.string.shopping)
+            else -> currentFolder.folderName
+        }
+        holder.tvFolderName.text = folderName
         holder.tvFolderName.setTextColor(currentFolder.folderColor)
 
         holder.imgFolderIcon.setImageResource(currentFolder.folderImg)

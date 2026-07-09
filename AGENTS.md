@@ -29,7 +29,7 @@ A Task Management (To-Do) application built with Kotlin and modern Android compo
 
 ### 1. Database (`TodoDatabase.kt`)
 - Uses `fallbackToDestructiveMigration()` (Data resets on schema change).
-- **Initialization:** Inserts default folders (Others, Personal, Exercise, Travel, Study, Groceries) using `ic_folder` as the default icon.
+- **Initialization:** Inserts default folders (Others, Personal, Exercise, Travel, Study, Shopping) using `ic_folder` as the default icon.
 
 ### 2. Home Screen (`HomeFragment.kt`)
 - **Calendar:** Horizontal week view.

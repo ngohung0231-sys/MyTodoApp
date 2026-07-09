@@ -45,22 +45,23 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri?.let {
             lifecycleScope.launch(Dispatchers.IO) {
+                val ctx = context ?: return@launch
                 try {
                     val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    requireContext().contentResolver.takePersistableUriPermission(it, takeFlags)
+                    ctx.contentResolver.takePersistableUriPermission(it, takeFlags)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
 
-                val internalUri = HandleImage().copyUriToInternalStorage(requireContext(), it)
+                val internalUri = HandleImage().copyUriToInternalStorage(ctx, it)
                 withContext(Dispatchers.Main) {
-                    if (internalUri != null) {
+                    if (internalUri != null && isAdded) {
                         currentUri = internalUri
                         avatar.setImageURI(internalUri)
 
                         // Save the new avatar URI to SharedPreferences
-                        val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
-                        sharedPref.edit { putString("USER_AVATAR", internalUri.toString()) }
+                        val sharedPref = activity?.getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+                        sharedPref?.edit { putString("USER_AVATAR", internalUri.toString()) }
                     }
                 }
             }
@@ -106,7 +107,9 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     }
 
     private fun setupInitialState() {
-        val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+        val act = activity ?: return
+        val ctx = context ?: return
+        val sharedPref = act.getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
         val name = sharedPref.getString("USER_NAME", "User Name")
         val avatarUriString = sharedPref.getString("USER_AVATAR", null)
         val birthday = sharedPref.getString("USER_BIRTHDAY", "Not set")
@@ -129,7 +132,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
 
         val isPinkTheme = sharedPref.getBoolean("IS_PINK_THEME", false)
         switchThemeColor.isChecked = isPinkTheme
-        tvThemeColor.text = if (isPinkTheme) getString(R.string.pink) else getString(R.string.blue)
+        tvThemeColor.text = if (isPinkTheme) ctx.getString(R.string.pink) else ctx.getString(R.string.blue)
         
         tvLanguage.text = if (languageCode == "vi") "Tiếng Việt" else "English"
     }
@@ -201,8 +204,9 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     //-------------------- Các hàm chức năng bổ trợ (Helper Functions) --------------------//
 
     private fun showLanguageDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_select_language, null)
-        val alertDialog = AlertDialog.Builder(requireContext())
+        val ctx = context ?: return
+        val dialogView = LayoutInflater.from(ctx).inflate(R.layout.dialog_select_language, null)
+        val alertDialog = AlertDialog.Builder(ctx)
             .setView(dialogView)
             .create()
         
@@ -227,20 +231,24 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     }
 
     private fun setLocale(languageCode: String) {
+        val ctx = context ?: return
+        val act = activity ?: return
         val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(languageCode)
         AppCompatDelegate.setApplicationLocales(appLocale)
         
         // Khởi động lại Activity và xóa stack để quay về Home
-        val intent = Intent(requireContext(), MainActivity::class.java)
+        val intent = Intent(ctx, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
-        requireActivity().finish()
+        act.finish()
     }
 
     private fun showEditUsernameDialog() {
-        val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_username, null)
-        val alertDialog = AlertDialog.Builder(requireContext())
+        val act = activity ?: return
+        val ctx = context ?: return
+        val sharedPref = act.getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+        val dialogView = LayoutInflater.from(ctx).inflate(R.layout.dialog_edit_username, null)
+        val alertDialog = AlertDialog.Builder(ctx)
             .setView(dialogView)
             .setCancelable(false)
             .create()
@@ -260,23 +268,25 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         btnSave.setOnClickListener {
             val newName = etNewUsername.text.toString().trim()
             if (newName.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter your name!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, "Please enter your name!", Toast.LENGTH_SHORT).show()
             } else if(etNewUsername.length() > 11) {
                 etNewUsername.error = "Username must be 11 characters or less!"
             } else {
                 sharedPref.edit { putString("USER_NAME", newName) }
                 tvUserName.text = newName
-                Toast.makeText(requireContext(), "Updated username! 🚀", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, "Updated username! 🚀", Toast.LENGTH_SHORT).show()
                 alertDialog.dismiss()
             }
         }
     }
 
     private fun showChangeThemeDialog(isChecked: Boolean) {
-        val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+        val act = activity ?: return
+        val ctx = context ?: return
+        val sharedPref = act.getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
         val wasChecked = sharedPref.getBoolean("IS_PINK_THEME", false)
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_change_theme, null)
-        val alertDialog = AlertDialog.Builder(requireContext())
+        val dialogView = LayoutInflater.from(ctx).inflate(R.layout.dialog_confirm_change_theme, null)
+        val alertDialog = AlertDialog.Builder(ctx)
             .setView(dialogView)
             .setCancelable(false)
             .create()
@@ -295,26 +305,28 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         btnOk.setOnClickListener {
             if (isChecked != wasChecked) {
                 sharedPref.edit { putBoolean("IS_PINK_THEME", isChecked) }
-                tvThemeColor.text = if (isChecked) getString(R.string.pink) else getString(R.string.blue)
+                tvThemeColor.text = if (isChecked) ctx.getString(R.string.pink) else ctx.getString(R.string.blue)
 
                 // Cập nhật launcher icon
                 updateLauncherIcon(isChecked)
 
                 // Khởi động lại Activity và xóa stack để quay về Home và áp dụng theme mới
-                val intent = Intent(requireContext(), MainActivity::class.java)
+                val intent = Intent(ctx, MainActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
-                requireActivity().finish()
+                act.finish()
             }
             alertDialog.dismiss()
         }
     }
 
     private fun showDatePicker() {
-        val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
+        val act = activity ?: return
+        val ctx = context ?: return
+        val sharedPref = act.getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE)
         val calendar = Calendar.getInstance()
         val datePickerDialog = DatePickerDialog(
-            requireContext(),
+            ctx,
             R.style.CustomCalendarTheme,
             { _, selectedYear, selectedMonth, selectedDay ->
                 selectedBirthdate = LocalDate.of(selectedYear, selectedMonth + 1, selectedDay)
@@ -322,7 +334,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
                 val dateString = selectedBirthdate?.format(formatter) ?: ""
                 tvBirthDate.text = dateString
                 sharedPref.edit { putString("USER_BIRTHDAY", dateString) }
-                Toast.makeText(requireContext(), "Updated birthday! 🚀", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, "Updated birthday! 🚀", Toast.LENGTH_SHORT).show()
             },
             calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
         )
@@ -332,8 +344,9 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     }
 
     private fun showDeleteConfirmDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete_data, null)
-        val alertDialog = AlertDialog.Builder(requireContext())
+        val ctx = context ?: return
+        val dialogView = LayoutInflater.from(ctx).inflate(R.layout.dialog_confirm_delete_data, null)
+        val alertDialog = AlertDialog.Builder(ctx)
             .setView(dialogView)
             .setCancelable(false)
             .create()

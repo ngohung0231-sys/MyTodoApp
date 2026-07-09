@@ -57,6 +57,15 @@ class CalendarAdapter(private val daysList: List<CalendarDay>,
 
     override fun getItemCount(): Int = daysList.size
 
+    fun setSelectedPosition(position: Int) {
+        val oldPos = selectedPosition
+        selectedPosition = position
+        notifyItemChanged(oldPos)
+        notifyItemChanged(selectedPosition)
+    }
+
+    fun getSelectedPosition(): Int = selectedPosition
+
     fun selectToday() {
         val today = java.time.LocalDate.now()
         val index = daysList.indexOfFirst { it.date == today }

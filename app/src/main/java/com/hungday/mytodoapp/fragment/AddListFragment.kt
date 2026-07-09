@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -147,7 +148,18 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
         rvFolders.layoutManager = LinearLayoutManager(requireContext())
         viewLifecycleOwner.lifecycleScope.launch {
             repository.allFolders.collect { folders ->
-                // Set initial folder name
+                if (folders.isEmpty()) {
+                    showNoFolderDialog()
+                    return@collect
+                }
+
+                // Kiểm tra xem selectedFolderId hiện tại có tồn tại trong list không
+                val existingFolder = folders.find { it.folderId == selectedFolderId }
+                if (existingFolder == null) {
+                    selectedFolderId = folders[0].folderId
+                }
+
+                // Set current folder name
                 folders.find { it.folderId == selectedFolderId }?.let {
                     tvSelectedFolder.text = it.folderName
                 }
@@ -159,8 +171,46 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
                     toggleExpandableRow(view as ViewGroup, expandableSelectFolder, chevronFolder, isFolderExpanded)
                 }
                 rvFolders.adapter = folderAdapter
+                
+                // Đảm bảo radio button được chọn đúng vị trí ban đầu
+                folderAdapter.setSelectedFolder(selectedFolderId)
             }
         }
+    }
+
+    private fun showNoFolderDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete_folder, null)
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
+        val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
+
+        tvTitle.setText(R.string.no_folder_q)
+        tvTitle.setTextColor(resources.getColor(R.color.blue, null))
+        tvMessage.setText(R.string.no_folder_msg)
+
+        btnCancel.setText(R.string.back)
+        btnCancel.backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.red, null))
+        btnConfirm.setText(R.string.create_folder_dialog)
+        btnConfirm.backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.blue, null))
+
+        btnCancel.setOnClickListener {
+            alertDialog.dismiss()
+            findNavController().popBackStack()
+        }
+        btnConfirm.setOnClickListener {
+            alertDialog.dismiss()
+            findNavController().navigate(R.id.addFolderFragment)
+        }
+
+        alertDialog.show()
     }
 
     private fun setupColorPicker() {
@@ -287,7 +337,7 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
 
     private fun showDeleteConfirmDialog() {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete_folder, null)
-        val alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        val alertDialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .setCancelable(true)
             .create()
@@ -309,7 +359,10 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     repository.moveListToTrash(list)
                     withContext(Dispatchers.Main) {
-                        findNavController().popBackStack()
+                        val bundle = Bundle().apply {
+                            putInt("folderId", list.folderId)
+                        }
+                        findNavController().navigate(R.id.folderDetailFragment, bundle)
                     }
                 }
             }

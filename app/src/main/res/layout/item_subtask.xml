@@ -9,11 +9,10 @@
 
     <CheckBox
         android:id="@+id/cbSubTask"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:button="@drawable/cb_custom_circle"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:button="@null"
+        android:background="@drawable/cb_custom_circle"
         android:clickable="true"
         android:focusable="true"
         android:stateListAnimator="@animator/btn_click_scale"

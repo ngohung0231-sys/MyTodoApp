@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/grey">
 
     <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:background="@color/white"
         android:orientation="horizontal"
         android:padding="10dp"
         app:layout_constraintTop_toTopOf="parent">
@@ -87,6 +88,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:background="#f3f5f9"
         app:layout_constraintBottom_toTopOf="@id/layoutBottom"
         app:layout_constraintTop_toBottomOf="@id/divider">
 
@@ -95,25 +97,44 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
-
-            <!-- Empty state -->
-            <TextView
-                android:id="@+id/tvEmptyState"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:gravity="center"
-                android:text="@string/tap_to_write"
-                android:textColor="#A0A0A0"
-                android:textSize="18sp"
-                android:visibility="gone" />
+            android:padding="16dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTasks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_subtask" />
+                android:background="@drawable/bg_white_16dp"
+                android:padding="8dp"
+                android:elevation="1dp"
+                tools:listitem="@layout/item_note_todo" />
+
+            <!-- Empty state -->
+            <LinearLayout
+                android:id="@+id/lnlEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/empty_img"
+                    android:alpha="0.5"
+                    android:contentDescription="@string/image" />
+
+                <TextView
+                    android:id="@+id/tvEmptyState"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/tap_here_to_start"
+                    android:textColor="?attr/mainThemeColor"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -122,20 +143,98 @@
         android:id="@+id/layoutBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="end"
-        android:padding="16dp"
+        android:background="@drawable/bg_white_50dp"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
             android:id="@+id/btnAddTaskToggle"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_done"
+            android:src="@drawable/ic_check_box"
+            android:padding="8dp"
             android:clickable="true"
             android:focusable="true"
             android:stateListAnimator="@animator/btn_click_scale"
             android:foreground="@drawable/ripple_rounded_bg"
-            app:tint="@color/blue" />
+            app:tint="@color/black" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="24dp"
+            android:background="#DDDDDD"
+            android:layout_marginHorizontal="4dp"/>
+
+        <LinearLayout
+            android:id="@+id/layoutFormatting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="invisible">
+
+            <FrameLayout
+                android:id="@+id/btnTextColor"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/bg_formatting_button_selector">
+
+                <View
+                    android:id="@+id/viewCurrentColor"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_circle_white" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/btnBold"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_formatting_button_selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="@string/bold"
+                android:textColor="@color/formatting_button_text_color"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnItalic"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_formatting_button_selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="@string/italic"
+                android:textColor="@color/formatting_button_text_color"
+                android:textSize="18sp"
+                android:textStyle="italic|bold" />
+
+            <TextView
+                android:id="@+id/btnUnderline"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_formatting_button_selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="@string/underline"
+                android:textColor="@color/formatting_button_text_color"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

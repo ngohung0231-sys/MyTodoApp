@@ -17,4 +17,10 @@ interface TrashDao {
 
     @Query("DELETE FROM trash_items WHERE deletedAt < :expiryTime")
     suspend fun deleteExpiredTrash(expiryTime: Long)
+
+    @Query("DELETE FROM trash_items")
+    suspend fun deleteAllTrash()
+
+    @Query("DELETE FROM trash_items WHERE itemType = :type")
+    suspend fun deleteAllTrashByType(type: String)
 }

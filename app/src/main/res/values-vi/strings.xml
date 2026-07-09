@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Ghi chú ToDo</string>
+    <string name="app_name">MyTodoApp</string>
     <string name="hello_blank_fragment">Xin chào Fragment trống</string>
     <string name="enter_your_name">Nhập tên của bạn</string>
     <string name="setup_profile">Thiết lập hồ sơ</string>
@@ -62,7 +62,7 @@
     <string name="task_title">Tiêu đề công việc</string>
     <string name="description_goes_here">Mô tả ở đây...</string>
     <string name="title_here">Tiêu đề ở đây</string>
-    <string name="todo">Việc cần làm</string>
+    <string name="todo">ToDo</string>
     <string name="image">hình ảnh</string>
     <string name="_20">20%</string>
     <string name="lists">DANH SÁCH</string>
@@ -182,4 +182,22 @@
     <string name="am">SA</string>
     <string name="pm">CH</string>
     <string name="tap_here_to_start">Nhấn vào đây để bắt đầu</string>
+    <string name="size">Cỡ chữ</string>
+    <string name="bold">B</string>
+    <string name="italic">I</string>
+    <string name="underline">U</string>
+    <string name="small_size">Nhỏ (14sp)</string>
+    <string name="medium_size">Vừa (18sp)</string>
+    <string name="large_size">Lớn (22sp)</string>
+    <string name="select_text_size">Chọn cỡ chữ</string>
+    <string name="clear_trash_q">Dọn dẹp thùng rác?</string>
+    <string name="clear_trash_msg">Tất cả các mục trong thùng rác sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác.</string>
+    <string name="clear">Dọn dẹp</string>
+    <string name="folder_deleted_error">Thư mục đã bị xóa</string>
+    <string name="cannot_restore_task_folder_deleted">Không thể khôi phục công việc vì thư mục chứa nó đã bị xóa.</string>
+    <string name="cannot_restore_list_folder_deleted">Không thể khôi phục danh sách vì thư mục chứa nó đã bị xóa.</string>
+    <string name="ok">Đồng ý</string>
+    <string name="no_folder_q">Không tìm thấy thư mục</string>
+    <string name="no_folder_msg">Bạn cần ít nhất một thư mục để lưu trữ công việc. Vui lòng tạo thư mục trước.</string>
+    <string name="create_folder_dialog">Tạo thư mục</string>
 </resources>

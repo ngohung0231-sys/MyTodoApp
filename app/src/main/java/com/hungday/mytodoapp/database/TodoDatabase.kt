@@ -68,7 +68,7 @@ abstract class TodoDatabase : RoomDatabase() {
                         Folder(folderName = "Exercise", folderImg = com.hungday.mytodoapp.R.drawable.ic_exercise, folderColor = "#44be65".toColorInt()),
                         Folder(folderName = "Travel", folderImg = com.hungday.mytodoapp.R.drawable.ic_travel, folderColor = "#f9a9ab".toColorInt()),
                         Folder(folderName = "Study", folderImg = com.hungday.mytodoapp.R.drawable.ic_study, folderColor = "#f89520".toColorInt()),
-                        Folder(folderName = "Groceries", folderImg = com.hungday.mytodoapp.R.drawable.ic_shopping, folderColor = "#a792ec".toColorInt())
+                        Folder(folderName = "Shopping", folderImg = com.hungday.mytodoapp.R.drawable.ic_shopping, folderColor = "#a792ec".toColorInt())
                     )
 
                     folders.forEach { folder ->

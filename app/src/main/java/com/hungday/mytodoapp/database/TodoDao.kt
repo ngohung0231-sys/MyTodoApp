@@ -62,8 +62,14 @@ interface TodoDao {
     @Query("SELECT * FROM tasks WHERE id = :taskId")
     suspend fun getTaskById(taskId: Int): Task?
 
+    @Query("SELECT * FROM tasks WHERE id = :taskId")
+    fun getTaskByIdSync(taskId: Int): Task?
+
     @Query("SELECT * FROM tasks")
     fun getAllTasks(): Flow<List<Task>>
+
+    @Query("SELECT * FROM tasks")
+    suspend fun getAllTasksSync(): List<Task>
 
     @Query("SELECT * FROM tasks WHERE folderId = :folderId")
     fun getTasksByFolder(folderId: Int): Flow<List<Task>>
@@ -85,4 +91,10 @@ interface TodoDao {
 
     @Query("UPDATE folders SET folderColor = :newColor WHERE folderId = :folderId")
     suspend fun updateFolderColor(folderId: Int, newColor: Int)
+
+    @Query("SELECT * FROM tasks WHERE isNotify IS NOT NULL AND isNotify >= 0 AND (isNotify > 0 OR repeatType != 'NONE') AND isCompleted = 0")
+    fun getTasksWithNotifications(): Flow<List<Task>>
+
+    @Query("UPDATE tasks SET isNotify = :isNotify, repeatType = :repeatType WHERE id = :taskId")
+    suspend fun updateTaskNotification(taskId: Int, isNotify: Int, repeatType: String)
 }

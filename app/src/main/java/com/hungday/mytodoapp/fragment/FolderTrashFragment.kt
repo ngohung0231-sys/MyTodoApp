@@ -24,6 +24,7 @@ class FolderTrashFragment : Fragment(R.layout.fragment_folder_trash) {
     private lateinit var repository: TodoRepository
     private lateinit var folderTrashAdapter: FolderTrashAdapter
     private lateinit var btnBack: ImageView
+    private lateinit var btnClearAll: ImageView
     private lateinit var rvFolderTrash: RecyclerView
     private lateinit var blank: View
 
@@ -43,6 +44,7 @@ class FolderTrashFragment : Fragment(R.layout.fragment_folder_trash) {
 
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
+        btnClearAll = view.findViewById(R.id.btnClearAll)
         rvFolderTrash = view.findViewById(R.id.rvFolderTrash)
         blank = view.findViewById(R.id.blank)
     }
@@ -63,6 +65,7 @@ class FolderTrashFragment : Fragment(R.layout.fragment_folder_trash) {
                 folderTrashAdapter.updateData(folderTrashItems)
                 
                 rvFolderTrash.visibility = if (folderTrashItems.isEmpty()) View.GONE else View.VISIBLE
+                btnClearAll.visibility = if (folderTrashItems.isEmpty()) View.INVISIBLE else View.VISIBLE
                 if (folderTrashItems.isEmpty()) {
                     blank.visibility = View.VISIBLE
                     blank.findViewById<TextView>(R.id.tvEmptyText).text = getString(R.string.no_folders_here)
@@ -76,6 +79,47 @@ class FolderTrashFragment : Fragment(R.layout.fragment_folder_trash) {
     private fun setupListeners() {
         btnBack.setOnClickListener {
             findNavController().popBackStack()
+        }
+
+        btnClearAll.setOnClickListener {
+            showClearAllConfirmDialog()
+        }
+    }
+
+    private fun showClearAllConfirmDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete_folder, null)
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
+        val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
+
+        tvTitle.setText(R.string.clear_trash_q)
+        tvTitle.setTextColor(resources.getColor(R.color.red, null))
+        tvMessage.setText(R.string.clear_trash_msg)
+
+        btnCancel.setText(R.string.cancel)
+        btnConfirm.setText(R.string.clear)
+        btnConfirm.backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.red, null))
+
+        btnCancel.setOnClickListener { alertDialog.dismiss() }
+        btnConfirm.setOnClickListener {
+            alertDialog.dismiss()
+            clearAllFolderTrash()
+        }
+
+        alertDialog.show()
+    }
+
+    private fun clearAllFolderTrash() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repository.clearTrashByType("FOLDER")
         }
     }
 

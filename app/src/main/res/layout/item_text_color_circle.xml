@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="60dp"
+    android:layout_height="60dp"
+    android:layout_marginEnd="8dp">
+
+    <!-- The actual color circle - Use bg_circle_white which is a simple white circle shape -->
+    <View
+        android:id="@+id/viewColorCircle"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_circle_white" />
+
+    <!-- 70% White Overlay (Visible when selected) -->
+    <View
+        android:id="@+id/viewSelectionOverlay"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_circle_white"
+        android:alpha="0.7"
+        android:visibility="gone" />
+
+    <!-- Tick Icon (Visible when selected) -->
+    <ImageView
+        android:id="@+id/imgTick"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_done"
+        android:contentDescription="@null"
+        android:visibility="gone"
+        app:tint="@color/black" />
+
+</FrameLayout>

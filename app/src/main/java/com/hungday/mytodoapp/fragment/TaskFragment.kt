@@ -49,8 +49,10 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
     }
 
     private fun initDatabase() {
-        database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao(), database.trashDao())
+        context?.let { ctx ->
+            database = TodoDatabase.getDatabase(ctx)
+            repository = TodoRepository(database.todoDao(), database.trashDao(), requireContext())
+        }
     }
 
     private fun initViews(view: View) {
@@ -61,24 +63,27 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
     }
 
     private fun setupAdapter() {
+        val ctx = context ?: return
         folderGroupAdapter = FolderGroupAdapter(emptyList() , { folder ->
-            findNavController().navigate(R.id.folderDetailFragment)
+            if (isAdded) findNavController().navigate(R.id.folderDetailFragment)
         }, {folder ->
             val bundle = Bundle().apply {
                 putInt("folderId", folder.folderId)
             }
-            findNavController().navigate(R.id.addFolderFragment, bundle)
+            if (isAdded) findNavController().navigate(R.id.addFolderFragment, bundle)
         }, { task ->
             val bundle = Bundle().apply {
                 putInt("taskId", task.id)
             }
-            findNavController().navigate(R.id.editTaskFragment, bundle)
+            if (isAdded) findNavController().navigate(R.id.editTaskFragment, bundle)
         }, { task, isChecked ->
             viewLifecycleOwner.lifecycleScope.launch {
-                repository.updateTaskStatus(task.id, isChecked)
+                if (::repository.isInitialized) {
+                    repository.updateTaskStatus(task.id, isChecked)
+                }
             }
         })
-        rvFolderGroup.layoutManager = LinearLayoutManager(requireContext())
+        rvFolderGroup.layoutManager = LinearLayoutManager(ctx)
         rvFolderGroup.adapter = folderGroupAdapter
     }
 
@@ -118,6 +123,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
     }
 
     private fun updateTaskDisplay(tasks: List<Task>) {
+        val ctx = context ?: return
         val groups = getFolderGroups(tasks)
         folderGroupAdapter.updateData(groups)
         rvFolderGroup.visibility = if (groups.isEmpty()) View.GONE else View.VISIBLE
@@ -126,7 +132,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
             blank.visibility = View.VISIBLE
             blank.findViewById<ImageView>(R.id.ivEmptyImg).setImageResource(R.drawable.empty_img)
             val tvEmptyText = blank.findViewById<TextView>(R.id.tvEmptyText)
-            tvEmptyText.text = getString(R.string.no_tasks_here)
+            tvEmptyText.text = ctx.getString(R.string.no_tasks_here)
         } else {
             blank.visibility = View.GONE
         }

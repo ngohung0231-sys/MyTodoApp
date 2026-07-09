@@ -2,14 +2,35 @@ package com.hungday.mytodoapp.database
 
 import com.google.gson.Gson
 import com.hungday.mytodoapp.model.*
+import com.hungday.mytodoapp.widget.TodoWidgetProvider
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 
 class TodoRepository(
     private val todoDao: TodoDao,
-    private val trashDao: TrashDao? = null
+    private val trashDao: TrashDao? = null,
+    private val context: Context? = null
 ) {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    private fun notifyWidgetDataChanged() {
+        context?.let { ctx ->
+            val appWidgetManager = AppWidgetManager.getInstance(ctx)
+            val ids = appWidgetManager.getAppWidgetIds(ComponentName(ctx, TodoWidgetProvider::class.java))
+            appWidgetManager.notifyAppWidgetViewDataChanged(ids, com.hungday.mytodoapp.R.id.lv_tasks)
+            
+            // Also trigger a full update to refresh the header state if needed, 
+            // though notifyAppWidgetViewDataChanged is enough for the list.
+            val intent = android.content.Intent(ctx, TodoWidgetProvider::class.java).apply {
+                action = android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+            }
+            ctx.sendBroadcast(intent)
+        }
+    }
 
     val allFolders: Flow<List<Folder>> = todoDao.getAllFolders()
     val allTasks: Flow<List<Task>> = todoDao.getAllTasks()
@@ -100,15 +121,28 @@ class TodoRepository(
             )
             tDao.insertTrashItem(trashItem)
             todoDao.deleteTask(task)
+            
+            // Cancel alarm when moved to trash
+            context?.let { ctx ->
+                com.hungday.mytodoapp.receiver.NotificationReceiver().cancelTaskAlarm(ctx, task.id)
+            }
         }
     }
 
-    suspend fun restoreTaskFromTrash(trashItem: TrashItem) {
-        trashDao?.let { tDao ->
+    suspend fun restoreTaskFromTrash(trashItem: TrashItem): Boolean {
+        return trashDao?.let { tDao ->
             val task = Gson().fromJson(trashItem.folderDataJson, Task::class.java)
+            
+            // Kiểm tra xem folder chứa task còn tồn tại không
+            val folder = todoDao.getFolderById(task.folderId)
+            if (folder == null && task.folderId != 1) { // 1 thường là folder "Others" mặc định
+                return false
+            }
+
             todoDao.insertTask(task)
             tDao.deleteTrashItem(trashItem.trashId)
-        }
+            true
+        } ?: false
     }
 
     suspend fun moveListToTrash(todoList: TodoList) {
@@ -125,12 +159,20 @@ class TodoRepository(
         }
     }
 
-    suspend fun restoreListFromTrash(trashItem: TrashItem) {
-        trashDao?.let { tDao ->
+    suspend fun restoreListFromTrash(trashItem: TrashItem): Boolean {
+        return trashDao?.let { tDao ->
             val list = Gson().fromJson(trashItem.folderDataJson, TodoList::class.java)
+            
+            // Kiểm tra xem folder chứa list còn tồn tại không
+            val folder = todoDao.getFolderById(list.folderId)
+            if (folder == null && list.folderId != 1) {
+                return false
+            }
+
             todoDao.insertTodoList(list)
             tDao.deleteTrashItem(trashItem.trashId)
-        }
+            true
+        } ?: false
     }
 
     /**
@@ -171,6 +213,14 @@ class TodoRepository(
         trashDao?.deleteExpiredTrash(expiryTime)
     }
 
+    suspend fun clearAllTrash() {
+        trashDao?.deleteAllTrash()
+    }
+
+    suspend fun clearTrashByType(type: String) {
+        trashDao?.deleteAllTrashByType(type)
+    }
+
     // --- Other Methods ---
 
     suspend fun insertTodoList(todoList: TodoList): Long {
@@ -186,19 +236,40 @@ class TodoRepository(
     }
 
     suspend fun insertTask(task: Task): Long {
-        return todoDao.insertTask(task)
+        val result = todoDao.insertTask(task)
+        notifyWidgetDataChanged()
+        return result
     }
 
     suspend fun updateTaskStatus(taskId: Int, isCompleted: Boolean) {
         val completedAt = if (isCompleted) System.currentTimeMillis() else null
         todoDao.updateTaskStatus(taskId, isCompleted, completedAt)
+        notifyWidgetDataChanged()
 
         if (isCompleted) {
             repositoryScope.launch {
                 delay(3000)
                 val task = todoDao.getTaskById(taskId)
                 if (task != null && task.isCompleted) {
-                    moveTaskToTrash(task)
+                    if (task.repeatType != "NONE") {
+                        // Reschedule recurring task instead of moving to trash
+                        val nextDate = when (task.repeatType) {
+                            "DAILY" -> task.date?.plusDays(1)
+                            "WEEKLY" -> task.date?.plusWeeks(1)
+                            "MONTHLY" -> task.date?.plusMonths(1)
+                            "YEARLY" -> task.date?.plusYears(1)
+                            else -> task.date?.plusDays(1)
+                        }
+                        val updatedTask = task.copy(
+                            date = nextDate,
+                            isCompleted = false,
+                            completedAt = null
+                        )
+                        todoDao.updateTask(updatedTask)
+                    } else {
+                        moveTaskToTrash(task)
+                    }
+                    notifyWidgetDataChanged()
                 }
             }
         }
@@ -210,6 +281,12 @@ class TodoRepository(
 
     suspend fun updateTask(task: Task) {
         todoDao.updateTask(task)
+        notifyWidgetDataChanged()
+    }
+
+    suspend fun deleteTask(task: Task) {
+        todoDao.deleteTask(task)
+        notifyWidgetDataChanged()
     }
 
     suspend fun deleteCompletedTasks() {
@@ -218,5 +295,17 @@ class TodoRepository(
 
     suspend fun updateFolderColor(folderId: Int, newColor: Int) {
         todoDao.updateFolderColor(folderId, newColor)
+    }
+
+    fun getTasksWithNotifications(): Flow<List<Task>> {
+        return todoDao.getTasksWithNotifications()
+    }
+
+    suspend fun turnOffTaskNotification(taskId: Int) {
+        todoDao.updateTaskNotification(taskId, 0, "NONE")
+        context?.let { ctx ->
+            com.hungday.mytodoapp.receiver.NotificationReceiver().cancelTaskAlarm(ctx, taskId)
+        }
+        notifyWidgetDataChanged()
     }
 }

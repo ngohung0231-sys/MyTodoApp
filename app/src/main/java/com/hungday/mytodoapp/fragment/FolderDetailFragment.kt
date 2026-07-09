@@ -149,7 +149,7 @@ class FolderDetailFragment : Fragment(R.layout.fragment_folder_detail) {
                         "Exercise" -> ctx.getString(R.string.exercise)
                         "Travel" -> ctx.getString(R.string.travel)
                         "Study" -> ctx.getString(R.string.study)
-                        "Groceries" -> ctx.getString(R.string.shopping)
+                        "Groceries", "Shopping" -> ctx.getString(R.string.shopping)
                         else -> currentFolder.folderName
                     }
                     tvFolderTitle.text = folderName

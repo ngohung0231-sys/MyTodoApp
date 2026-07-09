@@ -47,7 +47,7 @@ class FolderTrashAdapter(
             "Exercise" -> context.getString(R.string.exercise)
             "Travel" -> context.getString(R.string.travel)
             "Study" -> context.getString(R.string.study)
-            "Groceries" -> context.getString(R.string.shopping)
+            "Groceries", "Shopping" -> context.getString(R.string.shopping)
             else -> folder.folderName
         }
         holder.tvFolderName.text = folderName

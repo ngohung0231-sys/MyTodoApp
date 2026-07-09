@@ -1,6 +1,7 @@
 package com.hungday.mytodoapp.activity
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var fabAddTask: FloatingActionButton
     private lateinit var mainNavHostFragment: View
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        navController.handleDeepLink(intent)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // 1. Khởi tạo Splash Screen API
@@ -56,6 +63,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         bottomNavigationView.setupWithNavController(navController)
+
+        // Handle initial deep link if present
+        navController.handleDeepLink(intent)
 
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(bottomNavigationView) { v, insets ->
             v.setPadding(0, 0, 0, 0)

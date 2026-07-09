@@ -59,6 +59,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var rvFolders: RecyclerView
     private lateinit var rvCalendar: RecyclerView
     private lateinit var blank: LinearLayout
+    private lateinit var blankFolders: LinearLayout
     private lateinit var etSearchTask: EditText
     private lateinit var tvTabToday: TextView
     private lateinit var tvTabUpcoming: TextView
@@ -68,6 +69,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var tvSeeAllTasks: TextView
     private lateinit var lnlFolders: LinearLayout
     private lateinit var lnlFilter: LinearLayout
+    private lateinit var btnNotification: ImageView
 
     // Data lists & Filter states
     private var calendarDays = mutableListOf<CalendarDay>()
@@ -95,8 +97,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun initDatabase() {
-        database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao(), database.trashDao())
+        context?.let { ctx ->
+            database = TodoDatabase.getDatabase(ctx)
+            repository = TodoRepository(database.todoDao(), database.trashDao(), requireContext())
+        }
     }
 
     private fun initViews(view: View) {
@@ -115,12 +119,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         lnlFolders = view.findViewById(R.id.lnlFolders)
         lnlFilter = view.findViewById(R.id.lnlFilter)
         blank = view.findViewById(R.id.blank)
+        blankFolders = view.findViewById(R.id.blankFolders)
+        btnNotification = view.findViewById(R.id.btnNotification)
     }
 
     private fun setupInitialState() {
-        val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
-        val userName = sharedPref.getString("USER_NAME", getString(R.string.user)) ?: getString(R.string.user)
-        tvUserName.text = getString(R.string.hello_user, userName)
+        val act = activity ?: return
+        val ctx = context ?: return
+        val sharedPref = act.getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
+        val defaultUserName = ctx.getString(R.string.user)
+        val userName = sharedPref.getString("USER_NAME", defaultUserName) ?: defaultUserName
+        tvUserName.text = ctx.getString(R.string.hello_user, userName)
         sharedPref.getString("USER_AVATAR", null)?.let { loadAvatarSafely(imgAvatar, it) }
 
         // Khôi phục trạng thái Filter (Cách 1)
@@ -140,6 +149,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun setupAdapters() {
+        val ctx = context ?: return
         // 1. Calendar Horizontal List
         generateCurrentWeek()
         calendarAdapter = CalendarAdapter(calendarDays) { selectedDay ->
@@ -157,7 +167,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 updateTabIndicator(selectedDay.date == LocalDate.now())
             }
         }
-        rvCalendar.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        rvCalendar.layoutManager = LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false)
         rvCalendar.adapter = calendarAdapter
 
         // 2. Folder Horizontal List
@@ -165,30 +175,43 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             val bundle = Bundle().apply {
                 putInt("folderId", folder.folderId)
             }
-            findNavController().navigate(R.id.action_homeFragment_to_folderDetailFragment, bundle)
+            if (isAdded) {
+                findNavController().navigate(R.id.action_homeFragment_to_folderDetailFragment, bundle)
+            }
         }
-        rvFolders.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        rvFolders.layoutManager = LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false)
         rvFolders.adapter = folderAdapter
 
         // 3. Task Group Vertical List
         folderGroupAdapter = FolderGroupAdapter(emptyList(), { folder ->
-            findNavController().navigate(R.id.folderDetailFragment)
+            val bundle = Bundle().apply {
+                putInt("folderId", folder.folderId)
+            }
+            if (isAdded) {
+                findNavController().navigate(R.id.folderDetailFragment, bundle)
+            }
         }, { folder ->
             val bundle = Bundle().apply {
                 putInt("folderId", folder.folderId)
             }
-            findNavController().navigate(R.id.addFolderFragment, bundle)
+            if (isAdded) {
+                findNavController().navigate(R.id.addFolderFragment, bundle)
+            }
         }, { task ->
             val bundle = Bundle().apply {
                 putInt("taskId", task.id)
             }
-            findNavController().navigate(R.id.editTaskFragment, bundle)
+            if (isAdded) {
+                findNavController().navigate(R.id.editTaskFragment, bundle)
+            }
         }, { task, isChecked ->
             viewLifecycleOwner.lifecycleScope.launch {
-                repository.updateTaskStatus(task.id, isChecked)
+                if (::repository.isInitialized) {
+                    repository.updateTaskStatus(task.id, isChecked)
+                }
             }
         })
-        rvFolderGroup.layoutManager = LinearLayoutManager(requireContext())
+        rvFolderGroup.layoutManager = LinearLayoutManager(ctx)
         rvFolderGroup.adapter = folderGroupAdapter
     }
 
@@ -211,24 +234,37 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
                 generateCurrentWeek()
                 if (::calendarAdapter.isInitialized) calendarAdapter.notifyDataSetChanged()
+                
                 folderAdapter.updateData(allFolders)
+                rvFolders.visibility = if (allFolders.isEmpty()) View.GONE else View.VISIBLE
+                blankFolders.visibility = if (allFolders.isEmpty()) View.VISIBLE else View.GONE
+                if (allFolders.isEmpty()) {
+                    blankFolders.findViewById<ImageView>(R.id.ivEmptyImg).setImageResource(R.drawable.empty_img)
+                    blankFolders.findViewById<TextView>(R.id.tvEmptyText).text = getString(R.string.no_folders_here)
+                }
+
                 refreshTasks()
             }
         }
     }
 
     private fun setupListeners() {
-        val sharedPref = requireActivity().getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
+        val act = activity ?: return
+        val sharedPref = act.getSharedPreferences("MyTodoPrefs", android.content.Context.MODE_PRIVATE)
 
         // Change fragment
-        tvSeeAllFolders.setOnClickListener { findNavController().navigate(R.id.foldersFragment) }
+        tvSeeAllFolders.setOnClickListener { 
+            if (isAdded) findNavController().navigate(R.id.foldersFragment) 
+        }
         tvSeeAllTasks.setOnClickListener {
-            val navOptions = NavOptions.Builder()
-                .setLaunchSingleTop(true)
-                .setRestoreState(true)
-                .setPopUpTo(findNavController().graph.startDestinationId, false, true)
-                .build()
-            findNavController().navigate(R.id.taskFragment, null, navOptions)
+            if (isAdded) {
+                val navOptions = NavOptions.Builder()
+                    .setLaunchSingleTop(true)
+                    .setRestoreState(true)
+                    .setPopUpTo(findNavController().graph.startDestinationId, false, true)
+                    .build()
+                findNavController().navigate(R.id.taskFragment, null, navOptions)
+            }
         }
 
         // filter today/Upcoming
@@ -255,6 +291,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             etSearchTask.setBackgroundResource(if (hasFocus) R.drawable.filter_task_bg else R.drawable.bg_search_task)
         }
 
+        btnNotification.setOnClickListener {
+            if (isAdded) findNavController().navigate(R.id.notificationFragment)
+        }
+
         etSearchTask.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -266,7 +306,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         })
 
         // Handle Back Press
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+        act.onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (etSearchTask.isFocused || etSearchTask.text.isNotEmpty()) {
                     etSearchTask.setText("")
@@ -279,7 +319,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     updateTaskDisplay(allTasks)
                 } else {
                     isEnabled = false
-                    requireActivity().onBackPressed()
+                    act.onBackPressed()
                 }
             }
         })
@@ -329,8 +369,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun askNotificationPermission() {
+        val ctx = context ?: return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) !=
+            if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) !=
                 PackageManager.PERMISSION_GRANTED
             ) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -381,8 +422,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         } else {
             val today = LocalDate.now()
             when (currentFilterMode) {
-                FilterMode.TODAY -> allTasks.filter { it.date == today || (it.dateStr.isNullOrEmpty() && it.timeStr.isNullOrEmpty()) }
-                FilterMode.UPCOMING -> allTasks.filter { (it.date?.isAfter(today) == true) || (it.dateStr.isNullOrEmpty() && it.timeStr.isNullOrEmpty()) }
+                FilterMode.TODAY -> allTasks.filter { 
+                    it.date == today || 
+                    (it.date == null && it.repeatType == "NONE") ||
+                    TaskFilter.filterTasksByDate(listOf(it), today).isNotEmpty()
+                }
+                FilterMode.UPCOMING -> allTasks.filter { 
+                    val isAfterToday = it.date?.isAfter(today) == true
+                    val isNoDate = it.date == null && it.repeatType == "NONE"
+                    isAfterToday || (isNoDate && currentFilterMode == FilterMode.TODAY) // Only show no-date in Today
+                }
                 FilterMode.CALENDAR -> allTasks.filter { it.date == selectedCalendarDate }
             }
         }
@@ -390,7 +439,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun updateTaskDisplay(tasks: List<Task>, isSearch: Boolean = false) {
-        if (!isAdded) return
+        val ctx = context ?: return
         val groups = getFolderGroups(tasks)
         folderGroupAdapter.updateData(groups)
         rvFolderGroup.visibility = if (groups.isEmpty()) View.GONE else View.VISIBLE
@@ -399,7 +448,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             blank.visibility = View.VISIBLE
             blank.findViewById<ImageView>(R.id.ivEmptyImg).setImageResource(R.drawable.empty_img)
             val tvEmptyText = blank.findViewById<TextView>(R.id.tvEmptyText)
-            tvEmptyText.text = if (isSearch) getString(R.string.no_tasks_found) else getString(R.string.no_tasks_here)
+            tvEmptyText.text = if (isSearch) ctx.getString(R.string.no_tasks_found) else ctx.getString(R.string.no_tasks_here)
         } else {
             blank.visibility = View.GONE
         }
@@ -431,12 +480,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val dayFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE", java.util.Locale.getDefault())
         for (i in 0..6) {
             val nextDay = today.plusDays(i.toLong())
+            
+            // Chỉ hiển thị dấu chấm đỏ cho các Task KHÔNG lặp (repeatType == "NONE")
+            val hasNonRecurringTask = allTasks.any { it.date == nextDay && it.repeatType == "NONE" }
+
             calendarDays.add(CalendarDay(
                 date = nextDay,
                 dayOfWeek = nextDay.format(dayFormatter),
                 dayOfMonth = nextDay.dayOfMonth.toString(),
                 isSelected = (i == 0),
-                hasTask = TaskFilter.filterTasksByDate(allTasks, nextDay).isNotEmpty()
+                hasTask = hasNonRecurringTask
             ))
         }
     }

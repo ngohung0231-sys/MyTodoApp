@@ -6,6 +6,7 @@ import android.transition.TransitionManager
 import android.transition.TransitionSet
 import android.util.Log
 import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -15,6 +16,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.TimePicker
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -156,7 +158,10 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
 
     private fun initDatabase() {
         val database = com.hungday.mytodoapp.database.TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao(), database.trashDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao(), requireContext())
+        
+        // Nhận folderId từ arguments nếu có (khi được gọi từ FolderDetailFragment)
+        selectedFolderId = arguments?.getInt("folderId") ?: 1
     }
 
     private fun initViews(view: View) {
@@ -229,6 +234,17 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
         // 2. Lấy danh sách Folder từ Room DB đổ động vào Adapter
         viewLifecycleOwner.lifecycleScope.launch {
             repository.allFolders.collect { foldersList ->
+                if (foldersList.isEmpty()) {
+                    showNoFolderDialog()
+                    return@collect
+                }
+
+                // Kiểm tra xem selectedFolderId hiện tại có tồn tại trong list không
+                val existingFolder = foldersList.find { it.folderId == selectedFolderId }
+                if (existingFolder == null) {
+                    // Nếu không tồn tại (đã bị xóa), chọn cái đầu tiên tìm thấy
+                    selectedFolderId = foldersList[0].folderId
+                }
 
                 folderAddTaskAdapter = FolderAddTaskAdapter(foldersList) { selectedFolder ->
                     // Bước A: Gán ID folder vừa chọn vào biến tạm để lát insert DB
@@ -251,13 +267,48 @@ class AddTaskFragment : Fragment(R.layout.fragment_add_task) {
 
                 rvFolders.adapter = folderAddTaskAdapter
                 
-                // Mặc định chọn folder đầu tiên (thường là Others)
+                // Cập nhật selection cho Adapter
                 folderAddTaskAdapter.setSelectedFolder(selectedFolderId)
                 foldersList.find { it.folderId == selectedFolderId }?.let {
                     tvSelectedFolder.text = it.folderName
                 }
             }
         }
+    }
+
+    private fun showNoFolderDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete_folder, null)
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancelDelete)
+        val btnConfirm = dialogView.findViewById<TextView>(R.id.btnConfirmDelete)
+
+        tvTitle.setText(R.string.no_folder_q)
+        tvTitle.setTextColor(resources.getColor(R.color.blue, null))
+        tvMessage.setText(R.string.no_folder_msg)
+
+        btnCancel.setText(R.string.back)
+        btnCancel.backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.red, null))
+        btnConfirm.setText(R.string.create_folder_dialog)
+        btnConfirm.backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.blue, null))
+
+        btnCancel.setOnClickListener {
+            alertDialog.dismiss()
+            findNavController().popBackStack()
+        }
+        btnConfirm.setOnClickListener {
+            alertDialog.dismiss()
+            findNavController().navigate(R.id.addFolderFragment)
+        }
+
+        alertDialog.show()
     }
 
     private fun setupListeners() {

@@ -180,4 +180,22 @@
     <string name="am">AM</string>
     <string name="pm">PM</string>
     <string name="tap_here_to_start">Tap here to start</string>
+    <string name="size">Size</string>
+    <string name="bold">B</string>
+    <string name="italic">I</string>
+    <string name="underline">U</string>
+    <string name="small_size">Small (14sp)</string>
+    <string name="medium_size">Medium (18sp)</string>
+    <string name="large_size">Large (22sp)</string>
+    <string name="select_text_size">Select Text Size</string>
+    <string name="clear_trash_q">Clear Trash?</string>
+    <string name="clear_trash_msg">All items in the trash will be permanently deleted. This action cannot be undone.</string>
+    <string name="clear">Clear</string>
+    <string name="folder_deleted_error">Folder Deleted</string>
+    <string name="cannot_restore_task_folder_deleted">Cannot restore task because its folder has been deleted.</string>
+    <string name="cannot_restore_list_folder_deleted">Cannot restore list because its folder has been deleted.</string>
+    <string name="ok">OK</string>
+    <string name="no_folder_q">No Folders Found</string>
+    <string name="no_folder_msg">You need at least one folder to store your tasks. Please create a folder first.</string>
+    <string name="create_folder_dialog">Create Folder</string>
 </resources>

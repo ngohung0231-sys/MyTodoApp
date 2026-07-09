@@ -1,11 +1,20 @@
 package com.hungday.mytodoapp.fragment
 
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Spannable
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
+import android.util.TypedValue
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -34,10 +43,18 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
     private lateinit var btnSettings: ImageView
     private lateinit var rvTasks: RecyclerView
     private lateinit var btnAddTaskToggle: ImageView
-    private lateinit var tvEmptyState: TextView
+    private lateinit var lnlEmptyState: LinearLayout
+    
+    private lateinit var layoutFormatting: LinearLayout
+    private lateinit var btnTextColor: View
+    private lateinit var viewCurrentColor: View
+    private lateinit var btnBold: TextView
+    private lateinit var btnItalic: TextView
+    private lateinit var btnUnderline: TextView
 
     private lateinit var taskAdapter: SubTaskAdapter
     private var subTasks = mutableListOf<SubTask>()
+    private var activeEditText: EditText? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -49,9 +66,11 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
     }
 
     private fun initDatabase() {
-        val database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao(), database.trashDao())
-        listId = arguments?.getInt("listId") ?: -1
+        context?.let { ctx ->
+            val database = TodoDatabase.getDatabase(ctx)
+            repository = TodoRepository(database.todoDao(), database.trashDao())
+            listId = arguments?.getInt("listId") ?: -1
+        }
     }
 
     private fun initViews(view: View) {
@@ -62,18 +81,34 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
         btnSettings = view.findViewById(R.id.btnSettings)
         rvTasks = view.findViewById(R.id.rvTasks)
         btnAddTaskToggle = view.findViewById(R.id.btnAddTaskToggle)
-        tvEmptyState = view.findViewById(R.id.tvEmptyState)
+        lnlEmptyState = view.findViewById(R.id.lnlEmptyState)
+        
+        layoutFormatting = view.findViewById(R.id.layoutFormatting)
+        btnTextColor = view.findViewById(R.id.btnTextColor)
+        viewCurrentColor = view.findViewById(R.id.viewCurrentColor)
+        btnBold = view.findViewById(R.id.btnBold)
+        btnItalic = view.findViewById(R.id.btnItalic)
+        btnUnderline = view.findViewById(R.id.btnUnderline)
     }
 
     private fun setupAdapter() {
+        val ctx = context ?: return
         taskAdapter = SubTaskAdapter(subTasks, {
             saveListToDatabase()
         }, {
             saveListToDatabase()
             updateUIState()
+        }, { editText, _ ->
+            activeEditText = editText
+            layoutFormatting.visibility = if (editText != null) View.VISIBLE else View.INVISIBLE
+            editText?.let { updateFormattingButtonsState(it) }
+        }, { editText ->
+            activeEditText = editText
+            layoutFormatting.visibility = View.VISIBLE
+            updateFormattingButtonsState(editText)
         })
 
-        rvTasks.layoutManager = LinearLayoutManager(requireContext())
+        rvTasks.layoutManager = LinearLayoutManager(ctx)
         rvTasks.adapter = taskAdapter
     }
 
@@ -91,20 +126,90 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
 
         btnAddTaskToggle.setOnClickListener {
             taskAdapter.toggleTodoModeForCurrentFocus()
+            updateUIState()
         }
 
-        tvEmptyState.setOnClickListener {
-            // Khi nhấn vào màn hình trống, focus vào dòng đầu tiên nếu có
-            if (subTasks.isNotEmpty()) {
-                rvTasks.scrollToPosition(0)
-                rvTasks.post {
-                    val holder = rvTasks.findViewHolderForAdapterPosition(0)
-                    val editText = holder?.itemView?.findViewById<View>(R.id.etNoteText)
-                                ?: holder?.itemView?.findViewById<View>(R.id.etNoteTodoText)
-                    editText?.requestFocus()
-                }
+        lnlEmptyState.setOnClickListener {
+            subTasks.add(SubTask(title = "", isTask = false))
+            taskAdapter.updateData(subTasks)
+            updateUIState()
+            
+            rvTasks.post {
+                val holder = rvTasks.findViewHolderForAdapterPosition(0)
+                holder?.itemView?.findViewById<View>(R.id.etNoteText)?.requestFocus()
             }
         }
+
+        // Formatting Buttons
+        btnBold.setOnClickListener { taskAdapter.toggleBold() }
+        btnItalic.setOnClickListener { taskAdapter.toggleItalic() }
+        btnUnderline.setOnClickListener { taskAdapter.toggleUnderline() }
+        btnTextColor.setOnClickListener { showColorPopup() }
+    }
+
+    private fun showColorPopup() {
+        val start = activeEditText?.selectionStart ?: 0
+        val text = activeEditText?.text as? Spanned
+        val spans = text?.getSpans(start, start, ForegroundColorSpan::class.java)
+        val currentColor = spans?.lastOrNull()?.foregroundColor ?: android.graphics.Color.BLACK
+
+        val bottomSheet = TextColorBottomSheetFragment(currentColor) { selectedColor ->
+            taskAdapter.toggleTextColor(selectedColor)
+        }
+        bottomSheet.show(childFragmentManager, "TextColorBottomSheet")
+    }
+
+    private fun updateFormattingButtonsState(editText: EditText) {
+        val start = editText.selectionStart
+        val end = editText.selectionEnd
+        val text = editText.text as? Spannable ?: return
+        
+        val targetEnd = if (start == end) start else end
+        
+        // 1. StyleSpan (Bold/Italic)
+        val styleSpans = text.getSpans(start, targetEnd, StyleSpan::class.java)
+        var isBold = false
+        var isItalic = false
+        for (span in styleSpans) {
+            if (span.style == Typeface.BOLD) isBold = true
+            if (span.style == Typeface.ITALIC) isItalic = true
+        }
+        
+        // 2. UnderlineSpan
+        val underlineSpans = text.getSpans(start, targetEnd, UnderlineSpan::class.java)
+        var isUnderline = false
+        for (span in underlineSpans) {
+            val flag = text.getSpanFlags(span)
+            if ((flag and android.text.Spanned.SPAN_COMPOSING) == 0) {
+                isUnderline = true
+                break
+            }
+        }
+        
+        // 3. Color
+        val colorSpans = text.getSpans(start, targetEnd, ForegroundColorSpan::class.java)
+        val currentColor = colorSpans.lastOrNull()?.foregroundColor ?: android.graphics.Color.BLACK
+        
+        val drawable = viewCurrentColor.background.mutate()
+        if (drawable is android.graphics.drawable.GradientDrawable) {
+            drawable.setColor(currentColor)
+            // Stroke logic for light colors
+            if (currentColor == android.graphics.Color.WHITE || currentColor == android.graphics.Color.parseColor("#F3F5F9")) {
+                drawable.setStroke(2, android.graphics.Color.LTGRAY)
+            } else {
+                drawable.setStroke(0, android.graphics.Color.TRANSPARENT)
+            }
+        } else {
+            // If it's not a GradientDrawable, set a simple oval background
+            val newDrawable = android.graphics.drawable.GradientDrawable()
+            newDrawable.shape = android.graphics.drawable.GradientDrawable.OVAL
+            newDrawable.setColor(currentColor)
+            viewCurrentColor.background = newDrawable
+        }
+        
+        btnBold.isSelected = isBold
+        btnItalic.isSelected = isItalic
+        btnUnderline.isSelected = isUnderline
     }
 
     private fun loadListData() {
@@ -118,11 +223,6 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
                     imgListIconBg.backgroundTintList = android.content.res.ColorStateList.valueOf(list.color)
 
                     subTasks = list.subTasks.toMutableList()
-
-                    // Nếu danh sách hoàn toàn trống, bắt đầu bằng 1 dòng text trắng
-                    if (subTasks.isEmpty()) {
-                        subTasks.add(SubTask(title = "", isTask = false))
-                    }
 
                     taskAdapter.updateData(subTasks)
                     updateUIState()
@@ -140,11 +240,10 @@ class ListDetailFragment : Fragment(R.layout.fragment_list_detail) {
     }
 
     private fun updateUIState() {
-        // Chỉ hiện empty state nếu thực sự không có gì (hiếm khi xảy ra vì ta luôn giữ 1 dòng trống)
-        val isEmpty = subTasks.isEmpty()
+        val isEmpty = taskAdapter.getSubTasks().isEmpty()
         
         TransitionManager.beginDelayedTransition(view as ViewGroup, ChangeBounds())
-        tvEmptyState.isVisible = isEmpty
+        lnlEmptyState.isVisible = isEmpty
         rvTasks.isVisible = !isEmpty
     }
 }

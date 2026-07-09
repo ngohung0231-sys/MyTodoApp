@@ -42,8 +42,10 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
     }
 
     private fun initDatabase() {
-        val database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao(), database.trashDao())
+        context?.let { ctx ->
+            val database = TodoDatabase.getDatabase(ctx)
+            repository = TodoRepository(database.todoDao(), database.trashDao())
+        }
     }
 
     private fun initViews(view: View) {
@@ -54,19 +56,20 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
     }
 
     private fun setupAdapters() {
+        val ctx = context ?: return
         folderGridAdapter = FolderGridAdapter(emptyList(), {
             // Click "New Folder"
-            findNavController().navigate(R.id.action_foldersFragment_to_addFolderFragment)
+            if (isAdded) findNavController().navigate(R.id.action_foldersFragment_to_addFolderFragment)
         }, { folder ->
             val bundle = Bundle().apply {
                 putInt("folderId", folder.folderId)
             }
-            findNavController().navigate(R.id.action_foldersFragment_to_folderDetailFragment, bundle)
+            if (isAdded) findNavController().navigate(R.id.action_foldersFragment_to_folderDetailFragment, bundle)
         }, { folder ->
             deleteFolder(folder)
         })
 
-        rvFoldersGrid.layoutManager = GridLayoutManager(requireContext(), 2)
+        rvFoldersGrid.layoutManager = GridLayoutManager(ctx, 2)
         rvFoldersGrid.adapter = folderGridAdapter
     }
 
@@ -86,13 +89,14 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
             }.collect { foldersWithCounts ->
                 folderGridAdapter.updateData(foldersWithCounts)
                 
-                rvFoldersGrid.visibility = if (foldersWithCounts.isEmpty()) View.GONE else View.VISIBLE
-                if (foldersWithCounts.isEmpty()) {
-                    blank.visibility = View.VISIBLE
-                    blank.findViewById<TextView>(R.id.tvEmptyText).text = getString(R.string.no_folders_here)
-                } else {
-                    blank.visibility = View.GONE
-                }
+                // Luôn hiển thị RecyclerView để có nút "New Folder"
+                rvFoldersGrid.visibility = View.VISIBLE
+                
+                // Chỉ hiển thị blank state nếu thực sự không có folder nào (ngoại trừ nút New Folder trong adapter)
+                // Tuy nhiên, vì nút New Folder nằm trong grid, việc hiện blank state có thể làm giao diện bị rối.
+                // Nếu muốn giữ nút New Folder, ta không nên hiện blank state lớn đè lên.
+                // Ở đây ta sẽ ẩn blank state đi vì Grid đã có item New Folder rồi.
+                blank.visibility = View.GONE
             }
         }
     }
@@ -114,8 +118,9 @@ class FoldersFragment : Fragment(R.layout.fragment_folders) {
     }
 
     private fun deleteFolder(folder: Folder) {
+        val ctx = context ?: return
         val dialogView = layoutInflater.inflate(R.layout.dialog_confirm_delete_folder, null)
-        val alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        val alertDialog = androidx.appcompat.app.AlertDialog.Builder(ctx)
             .setView(dialogView)
             .setCancelable(true)
             .create()

@@ -24,8 +24,16 @@
         <!-- 1. MainActivity gốc: Chỉ chứa nội dung, không phải Launcher -->
         <activity
             android:name=".activity.MainActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MyTodoApp" />
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.MyTodoApp">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="mytodoapp" android:host="add_task" />
+            </intent-filter>
+        </activity>
 
         <!-- 2. Cổng vào mặc định (Blue): Launcher -->
         <activity
@@ -58,6 +66,22 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <receiver
+            android:name=".widget.TodoWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/todo_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".widget.TodoWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="true" />
 
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

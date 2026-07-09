@@ -46,6 +46,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
 
     private var taskId: Int = -1
     private var existingTask: Task? = null
+    private var isDataLoading = false
 
     private var selectedPriority = "Low"
     private var selectedFolderId = 1
@@ -98,6 +99,24 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
     private lateinit var btnNoti1Hour: TextView
     private lateinit var btnUpdateTask: Button
 
+    // Repeat UI
+    private lateinit var switchRepeat: SwitchCompat
+    private lateinit var lnlRepeatOptions: LinearLayout
+    private lateinit var btnRepeatDaily: TextView
+    private lateinit var btnRepeatWeekly: TextView
+    private lateinit var btnRepeatMonthly: TextView
+    private lateinit var btnRepeatYearly: TextView
+    private lateinit var lnlWeeklySelection: LinearLayout
+    private lateinit var lnlDateSelectionSummary: LinearLayout
+    private lateinit var tvWeeklySummary: TextView
+    private lateinit var tvRepeatDateVal: TextView
+    private val weekdayButtons = mutableListOf<TextView>()
+
+    private var repeatType = "NONE"
+    private var repeatValues: String? = null
+    private val dayOfWeekNames = arrayOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+    private val selectedDays = BooleanArray(7) { false }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initDatabase()
@@ -109,7 +128,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
     private fun initDatabase() {
         taskId = arguments?.getInt("taskId") ?: -1
         val database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao(), database.trashDao())
+        repository = TodoRepository(database.todoDao(), database.trashDao(), requireContext())
     }
 
     private fun loadData() {
@@ -119,6 +138,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
+            isDataLoading = true
             // 1. Lấy dữ liệu Task trước
             existingTask = repository.getTaskById(taskId)
             existingTask?.let { task ->
@@ -129,8 +149,7 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
 
                 selectedFolderId = task.folderId
                 selectedDate = task.date
-                tvSelectedDate.text = DateConverter.dateToString(selectedDate)
-
+                
                 task.date?.let {
                     val calendar = Calendar.getInstance()
                     calendar.set(it.year, it.monthValue - 1, it.dayOfMonth)
@@ -144,6 +163,9 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                     timePicker.hour = selectedHour
                     timePicker.minute = selectedMinute
                 }
+                
+                updateDateTimeSummary()
+                updateNotificationRowState()
 
                 if (task.isNotify != null) {
                     selectedReminderMinutes = task.isNotify
@@ -157,12 +179,45 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                         60 -> updateNotiSelection(btnNoti1Hour)
                     }
                 }
+
+                repeatType = task.repeatType
+                repeatValues = task.repeatValues
+                if (repeatType != "NONE") {
+                    switchRepeat.isChecked = true
+                    lnlRepeatOptions.isVisible = true
+                    selectRepeatType(repeatType)
+                    
+                    if (repeatType == "WEEKLY" && !repeatValues.isNullOrEmpty()) {
+                        repeatValues!!.split(",").forEach {
+                            val index = it.toIntOrNull()
+                            if (index != null && index in 0..6) {
+                                selectedDays[index] = true
+                                weekdayButtons[index].isSelected = true
+                                weekdayButtons[index].setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                            }
+                        }
+                        updateWeeklySummary()
+                    }
+                }
             }
+            isDataLoading = false
 
             // 2. Sau khi đã có task (để lấy folderId), bắt đầu quan sát Folders
             repository.allFolders.collect { foldersList ->
+                if (foldersList.isEmpty()) {
+                    // Trong trường hợp hy hữu toàn bộ folder bị xóa khi đang edit task
+                    findNavController().popBackStack()
+                    return@collect
+                }
+
                 val ctx = context ?: return@collect
                 rvFolders.layoutManager = LinearLayoutManager(ctx)
+                
+                // Nếu folder cũ của task đã bị xóa, tự động gán vào folder đầu tiên có sẵn
+                if (foldersList.none { it.folderId == selectedFolderId }) {
+                    selectedFolderId = foldersList[0].folderId
+                }
+
                 folderAddTaskAdapter = FolderAddTaskAdapter(foldersList) { selectedFolder ->
                     selectedFolderId = selectedFolder.folderId
                     tvSelectedFolder.text = selectedFolder.folderName
@@ -171,10 +226,9 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                 }
                 rvFolders.adapter = folderAddTaskAdapter
 
-                // Đồng bộ selection ngay khi list folder xuất hiện
-                val currentFolderId = selectedFolderId
-                folderAddTaskAdapter.setSelectedFolder(currentFolderId)
-                foldersList.find { it.folderId == currentFolderId }?.let {
+                // Đồng bộ selection
+                folderAddTaskAdapter.setSelectedFolder(selectedFolderId)
+                foldersList.find { it.folderId == selectedFolderId }?.let {
                     tvSelectedFolder.text = it.folderName
                 }
             }
@@ -218,6 +272,37 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
         btnNoti1Hour = view.findViewById(R.id.btnNoti1Hour)
         btnUpdateTask = view.findViewById(R.id.btnAddTask)
         btnUpdateTask.text = getString(R.string.update_task)
+
+        // Initialize Repeat UI
+        switchRepeat = view.findViewById(R.id.switchRepeat)
+        lnlRepeatOptions = view.findViewById(R.id.lnlRepeatOptions)
+        btnRepeatDaily = view.findViewById(R.id.btnRepeatDaily)
+        btnRepeatWeekly = view.findViewById(R.id.btnRepeatWeekly)
+        btnRepeatMonthly = view.findViewById(R.id.btnRepeatMonthly)
+        btnRepeatYearly = view.findViewById(R.id.btnRepeatYearly)
+        lnlWeeklySelection = view.findViewById(R.id.lnlWeeklySelection)
+        lnlDateSelectionSummary = view.findViewById(R.id.lnlDateSelectionSummary)
+        tvWeeklySummary = view.findViewById(R.id.tvWeeklySummary)
+        tvRepeatDateVal = view.findViewById(R.id.tvRepeatDateVal)
+
+        weekdayButtons.clear()
+        weekdayButtons.add(view.findViewById(R.id.day2))
+        weekdayButtons.add(view.findViewById(R.id.day3))
+        weekdayButtons.add(view.findViewById(R.id.day4))
+        weekdayButtons.add(view.findViewById(R.id.day5))
+        weekdayButtons.add(view.findViewById(R.id.day6))
+        weekdayButtons.add(view.findViewById(R.id.day7))
+        weekdayButtons.add(view.findViewById(R.id.dayCN))
+
+        // Setup weekday buttons click listeners
+        weekdayButtons.forEachIndexed { index, textView ->
+            textView.setOnClickListener {
+                selectedDays[index] = !selectedDays[index]
+                textView.isSelected = selectedDays[index]
+                textView.setTextColor(if (selectedDays[index]) ContextCompat.getColor(requireContext(), R.color.white) else ContextCompat.getColor(requireContext(), R.color.black))
+                updateWeeklySummary()
+            }
+        }
 
         expandableSetPriority.visibility = View.GONE
     }
@@ -271,11 +356,14 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
         btnNoti1Hour.setOnClickListener { updateNotiState(60, btnNoti1Hour) }
 
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            if (isDataLoading) return@setOnDateChangeListener
             selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
-            tvSelectedDate.text = DateConverter.dateToString(selectedDate)
+            updateDateTimeSummary()
+            updateNotificationRowState()
         }
 
         timePicker.setOnTimeChangedListener { _, hourOfDay, minute ->
+            if (isDataLoading) return@setOnTimeChangedListener
             selectedHour = hourOfDay
             selectedMinute = minute
             val isPm = hourOfDay >= 12
@@ -285,7 +373,25 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                 else -> hourOfDay
             }
             selectedTime = String.format(Locale.getDefault(), "%02d:%02d %s", hour12, minute, if (isPm) "PM" else "AM")
+            updateDateTimeSummary()
+            updateNotificationRowState()
         }
+
+        switchRepeat.setOnCheckedChangeListener { _, isChecked ->
+            lnlRepeatOptions.isVisible = isChecked
+            if (!isChecked) {
+                repeatType = "NONE"
+                repeatValues = null
+                resetRepeatUI()
+            } else {
+                if (repeatType == "NONE") selectRepeatType("DAILY")
+            }
+        }
+
+        btnRepeatDaily.setOnClickListener { selectRepeatType("DAILY") }
+        btnRepeatWeekly.setOnClickListener { selectRepeatType("WEEKLY") }
+        btnRepeatMonthly.setOnClickListener { selectRepeatType("MONTHLY") }
+        btnRepeatYearly.setOnClickListener { selectRepeatType("YEARLY") }
 
         btnUpdateTask.setOnClickListener {
             val taskTitle = etTaskTitle.text.toString().trim()
@@ -314,7 +420,9 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                 folderId = selectedFolderId,
                 isNotify = selectedReminderMinutes,
                 date = finalDate,
-                dateStr = dateText ?: existingTask?.dateStr
+                dateStr = dateText ?: existingTask?.dateStr,
+                repeatType = repeatType,
+                repeatValues = repeatValues
             )
 
             updatedTask?.let { task ->
@@ -421,6 +529,28 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
         chevron.animate().rotation(if (isExpanded) 180f else 0f).setDuration(250).start()
     }
 
+    private fun updateDateTimeSummary() {
+        val dateStr = selectedDate?.let {
+            val monthStr = it.month.name.lowercase(Locale.getDefault())
+                .replaceFirstChar { char -> char.uppercase() }
+                .take(3)
+            val dayStr = String.format(Locale.getDefault(), "%02d", it.dayOfMonth)
+            "$monthStr $dayStr"
+        } ?: ""
+        val timeStr = selectedTime ?: ""
+        tvSelectedDate.text = if (timeStr.isNotEmpty()) "$dateStr, $timeStr" else dateStr
+    }
+
+    private fun updateNotificationRowState() {
+        val isDateTimeSelected = selectedDate != null && selectedTime != null
+        rowAddNoti.isEnabled = isDateTimeSelected
+        rowAddNoti.alpha = if (isDateTimeSelected) 1.0f else 0.5f
+        switchAddNoti.isEnabled = isDateTimeSelected
+        if (!isDateTimeSelected && switchAddNoti.isChecked) {
+            switchAddNoti.isChecked = false
+        }
+    }
+
     private fun scheduleNotification(context: Context, taskId: Int, title: String, date: LocalDate, hour: Int, minute: Int, reminderMinutes: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, NotificationReceiver::class.java).apply {
@@ -441,5 +571,68 @@ class EditTaskFragment : Fragment(R.layout.fragment_add_task) {
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
             }
         }
+    }
+
+    private fun selectRepeatType(type: String) {
+        repeatType = type
+        resetRepeatUI()
+        val themeColor = if (requireActivity().getSharedPreferences("MyTodoPrefs", Context.MODE_PRIVATE).getBoolean("IS_PINK_THEME", false)) R.color.pink else R.color.blue
+        
+        when (type) {
+            "DAILY" -> {
+                btnRepeatDaily.isSelected = true
+                btnRepeatDaily.setTextColor(ContextCompat.getColor(requireContext(), themeColor))
+            }
+            "WEEKLY" -> {
+                btnRepeatWeekly.isSelected = true
+                btnRepeatWeekly.setTextColor(ContextCompat.getColor(requireContext(), themeColor))
+                lnlWeeklySelection.isVisible = true
+                updateWeeklySummary()
+            }
+            "MONTHLY" -> {
+                btnRepeatMonthly.isSelected = true
+                btnRepeatMonthly.setTextColor(ContextCompat.getColor(requireContext(), themeColor))
+                lnlDateSelectionSummary.isVisible = true
+                updateRepeatDateSummary()
+            }
+            "YEARLY" -> {
+                btnRepeatYearly.isSelected = true
+                btnRepeatYearly.setTextColor(ContextCompat.getColor(requireContext(), themeColor))
+                lnlDateSelectionSummary.isVisible = true
+                updateRepeatDateSummary()
+            }
+        }
+    }
+
+    private fun resetRepeatUI() {
+        val buttons = listOf(btnRepeatDaily, btnRepeatWeekly, btnRepeatMonthly, btnRepeatYearly)
+        buttons.forEach {
+            it.isSelected = false
+            it.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+        lnlWeeklySelection.isVisible = false
+        lnlDateSelectionSummary.isVisible = false
+    }
+
+    private fun updateWeeklySummary() {
+        val selectedIndices = mutableListOf<Int>()
+        selectedDays.forEachIndexed { index, b -> if (b) selectedIndices.add(index) }
+        repeatValues = if (selectedIndices.isEmpty()) null else selectedIndices.joinToString(",")
+        
+        if (selectedIndices.isEmpty()) {
+            tvWeeklySummary.text = getString(R.string.every_week_on)
+        } else {
+            val names = selectedIndices.map { dayOfWeekNames[it] }.joinToString(", ")
+            tvWeeklySummary.text = getString(R.string.every_format, names)
+        }
+    }
+
+    private fun updateRepeatDateSummary() {
+        val date = selectedDate ?: LocalDate.now()
+        repeatValues = if (repeatType == "MONTHLY") date.dayOfMonth.toString() 
+                       else "${date.dayOfMonth},${date.monthValue}"
+        
+        tvRepeatDateVal.text = if (repeatType == "MONTHLY") getString(R.string.day_monthly_format, date.dayOfMonth)
+                               else getString(R.string.day_yearly_format, date.dayOfMonth, date.monthValue)
     }
 }

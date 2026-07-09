@@ -59,8 +59,10 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
     }
 
     private fun initDatabase() {
-        database = TodoDatabase.getDatabase(requireContext())
-        repository = TodoRepository(database.todoDao(), database.trashDao())
+        context?.let { ctx ->
+            database = TodoDatabase.getDatabase(ctx)
+            repository = TodoRepository(database.todoDao(), database.trashDao(), requireContext())
+        }
     }
 
     private fun initViews(view: View) {
@@ -75,13 +77,14 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
     }
 
     private fun setupAdapters() {
+        val ctx = context ?: return
         // 1. Calendar Grid Adapter
         calendarGridAdapter = CalendarGridAdapter(calendarDays, currentMonth) { clickedDay ->
             selectedDate = clickedDay.date
             updateCalendar()
             refreshTasks()
         }
-        rvCalendarGrid.layoutManager = GridLayoutManager(requireContext(), 7)
+        rvCalendarGrid.layoutManager = GridLayoutManager(ctx, 7)
         rvCalendarGrid.adapter = calendarGridAdapter
 
         // 2. Timeline Hour Adapter
@@ -89,9 +92,9 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
             val bundle = Bundle().apply {
                 putInt("taskId", task.id)
             }
-            findNavController().navigate(R.id.editTaskFragment, bundle)
+            if (isAdded) findNavController().navigate(R.id.editTaskFragment, bundle)
         }
-        rvTasks.layoutManager = LinearLayoutManager(requireContext())
+        rvTasks.layoutManager = LinearLayoutManager(ctx)
         rvTasks.adapter = timelineHourAdapter
     }
 
@@ -161,6 +164,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
     }
 
     private fun refreshTasks() {
+        val ctx = context ?: return
         val today = LocalDate.now()
         val pickedDate = selectedDate.let {
             val monthStr = it.month.getDisplayName(java.time.format.TextStyle.SHORT, Locale.getDefault())
@@ -168,7 +172,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
             val yearStr = it.year
             "$monthStr $dayStr, $yearStr"
         }
-        val label = if (selectedDate == today) getString(R.string.tasks_for_today) else getString(R.string.tasks_for_format, pickedDate)
+        val label = if (selectedDate == today) ctx.getString(R.string.tasks_for_today) else ctx.getString(R.string.tasks_for_format, pickedDate)
         tvSelectedDateLabel.text = label
 
         // Lọc ra các task của ngày đang chọn
@@ -177,6 +181,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
     }
 
     private fun updateTaskDisplay(tasks: List<Task>) {
+        val ctx = context ?: return
         val timelineGroups = generateTimelineGroups(tasks)
         timelineHourAdapter.updateData(timelineGroups)
 
@@ -188,7 +193,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
         
         if (!hasAnyTaskInDay) {
             blank.findViewById<ImageView>(R.id.ivEmptyImg).setImageResource(R.drawable.empty_img)
-            blank.findViewById<TextView>(R.id.tvEmptyText).text = getString(R.string.no_tasks_for_day)
+            blank.findViewById<TextView>(R.id.tvEmptyText).text = ctx.getString(R.string.no_tasks_for_day)
         }
     }
 
@@ -211,7 +216,9 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
             }.thenBy { it.date ?: LocalDate.MAX }
         )
         if (allDayTasks.isNotEmpty()) {
-            list.add(HourTimeline(getString(R.string.all_day), null, allDayTasks))
+            context?.let { ctx ->
+                list.add(HourTimeline(ctx.getString(R.string.all_day), null, allDayTasks))
+            }
         }
 
         // 1. Trích xuất ra danh sách các số giờ duy nhất xuất hiện trong ngày đó và sắp xếp tăng dần
@@ -225,7 +232,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
             val startLocalTime = LocalTime.of(h, 0)
 
             // Định dạng chuỗi hiển thị 12 giờ AM/PM (Ví dụ: 09:00 AM, 03:00 PM)
-            val amPm = if (h >= 12) getString(R.string.pm) else getString(R.string.am)
+            val amPm = context?.let { ctx -> if (h >= 12) ctx.getString(R.string.pm) else ctx.getString(R.string.am) } ?: ""
             val displayHour = when {
                 h == 0 -> 12
                 h > 12 -> h - 12
