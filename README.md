@@ -45,7 +45,7 @@ Dự án đã được tối ưu hóa cấu trúc để dễ dàng bảo trì:
 
 | Home Screen | Calendar View | Folder Trash |
 | :---: | :---: | :---: |
-| ![Home](app/src/main/res/drawable/img_home_screen.png#width=250px) | ![Calendar](app/src/main/res/drawable/img_calendar_screen.png#width=250px) | ![Trash](app/src/main/res/drawable/img_trash_screen.png#width=250px) |
+| ![Home](app/src/main/res/drawable/img_home_screen.png#width=50px) | ![Calendar](app/src/main/res/drawable/img_calendar_screen.png#width=50px) | ![Trash](app/src/main/res/drawable/img_trash_screen.png#width=50px) |
 
 ## ⚙️ Cài đặt & Chạy thử
 
