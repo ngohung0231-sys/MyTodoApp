@@ -40,13 +40,7 @@ Dự án đã được tối ưu hóa cấu trúc để dễ dàng bảo trì:
 - `widget/`: Xử lý logic cho App Widget.
 - `utils/`: Các hàm tiện ích bổ trợ.
 - `res/`: Tài nguyên giao diện, màu sắc, và themes.
-
-## 📸 Screenshots
-
-| Home Screen | Calendar View | Folder Trash |
-| :---: | :---: | :---: |
-| ![Home](app/src/main/res/drawable/img_home_screen.png#width=50px) | ![Calendar](app/src/main/res/drawable/img_calendar_screen.png#width=50px) | ![Trash](app/src/main/res/drawable/img_trash_screen.png#width=50px) |
-
+- 
 ## ⚙️ Cài đặt & Chạy thử
 
 1. Clone repository này:
