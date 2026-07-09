@@ -6,39 +6,46 @@
 
 - **Quản lý Thư mục (Folders):** Tạo và tùy chỉnh các thư mục với biểu tượng (icons) và màu sắc riêng biệt (Cá nhân, Học tập, Du lịch, Mua sắm...).
 - **Quản lý Task & Subtask:** Thêm, sửa, xóa công việc chính và các đầu mục nhỏ (subtasks) đi kèm.
-- **Tùy chỉnh linh hoạt:** Chọn màu sắc và icon cho thư mục thông qua Bottom Sheet màu sắc.
-- **Chế độ xem Lịch (Calendar View):** Theo dõi công việc theo tuần với giao diện lịch ngang trực quan.
+- **Soạn thảo văn bản phong phú (Rich Text):** Hỗ trợ định dạng Bold, Italic, Underline và màu sắc cho các Subtasks giúp ghi chú trực quan hơn.
+- **Tiện ích màn hình chính (App Widget):** Xem và quản lý danh sách công việc ngay trên màn hình Home.
+- **Tùy chỉnh linh hoạt:** Chọn màu sắc và icon cho thư mục thông qua giao diện chọn màu sắc hiện đại.
+- **Chế độ xem Lịch (Calendar View):** Theo dõi công việc theo tuần và ngày với giao diện lịch trực quan.
 - **Lọc thông minh:** Phân loại nhanh các công việc trong ngày (Today) hoặc sắp tới (Upcoming).
-- **Thùng rác (Trash Bin):** Khôi phục hoặc xóa vĩnh viễn các thư mục, danh sách và công việc đã xóa.
-- **Giao diện hiện đại:** Thiết kế theo phong cách Material Design 3, hỗ trợ hiệu ứng Ripple và giao diện sạch sẽ.
+- **Thùng rác (Trash Bin):** Khôi phục hoặc xóa vĩnh viễn các thư mục và công việc đã xóa.
+- **Giao diện hiện đại:** Thiết kế theo phong cách Material Design 3, hỗ trợ Dynamic Color và hiệu ứng mượt mà.
 
 ## 🛠 Tech Stack
 
 - **Ngôn ngữ:** [Kotlin](https://kotlinlang.org/)
 - **Cơ sở dữ liệu:** [Room Persistence Library](https://developer.android.com/training/data-storage/room) (SQLite với Coroutines & Flow)
-- **Kiến trúc:** Repository Pattern, Fragment-based Architecture.
+- **Kiến trúc:** Clean Architecture (Repository Pattern), Fragment-based.
 - **Navigation:** [Jetpack Navigation Component](https://developer.android.com/guide/navigation)
 - **UI Components:**
-    - RecyclerView (Nested RecyclerView cho các Task trong Folder)
+    - RecyclerView (Giao diện danh sách lồng nhau)
+    - ViewPager2 (Onboarding)
     - ConstraintLayout, NestedScrollView
     - Material Design 3
     - Splash Screen API (Android 12+)
-- **Dependency:** [Gson](https://github.com/google/gson) (xử lý dữ liệu JSON).
+- **Khác:** [Gson](https://github.com/google/gson), [KSP](https://google.github.io/ksp/) (xử lý annotation cho Room).
 
 ## 📂 Cấu trúc dự án
 
-- `adapter/`: Các bộ điều hợp cho RecyclerView (Folder, Task, Calendar...).
+Dự án đã được tối ưu hóa cấu trúc để dễ dàng bảo trì:
+
+- `adapter/`: Quản lý hiển thị danh sách (Folders, Tasks, Calendar, Widget...).
 - `database/`: Cấu hình Room DB, DAO, Repository và TypeConverters.
-- `fragment/`: Xử lý giao diện người dùng (Home, Calendar, Add Task, Trash Bin...).
-- `model/`: Các Data classes (Folder, Task, TrashItem...).
-- `res/`: Chứa các tài nguyên XML cho giao diện, màu sắc, và themes.
+- `fragment/`: Xử lý logic giao diện người dùng.
+- `model/`: Các định nghĩa dữ liệu (Folder, Task, SubTask...).
+- `view/`: Các Custom View (RichEditText...).
+- `widget/`: Xử lý logic cho App Widget.
+- `utils/`: Các hàm tiện ích bổ trợ.
+- `res/`: Tài nguyên giao diện, màu sắc, và themes.
 
 ## 📸 Screenshots
-*(Bạn có thể thêm hình ảnh vào đây sau khi chụp màn hình ứng dụng)*
 
 | Home Screen | Calendar View | Folder Trash |
 | :---: | :---: | :---: |
-| ![Home](https://via.placeholder.com/200x400) | ![Calendar](https://via.placeholder.com/200x400) | ![Trash](https://via.placeholder.com/200x400) |
+| ![Home](screenshots/home.png) | ![Calendar](screenshots/calendar.png) | ![Trash](screenshots/trash.png) |
 
 ## ⚙️ Cài đặt & Chạy thử
 

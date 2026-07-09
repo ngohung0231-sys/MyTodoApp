@@ -250,7 +250,7 @@ class AddListFragment : Fragment(R.layout.fragment_add_list) {
         val icons = listOf(
             R.drawable.ic_book, R.drawable.ic_study, R.drawable.ic_shopping,
             R.drawable.ic_exercise, R.drawable.ic_travel, R.drawable.ic_profile,
-            R.drawable.ic_project, R.drawable.ic_pin, R.drawable.ic_calendar
+            R.drawable.ic_project, R.drawable.ic_calendar
         )
 
         rvIcons.layoutManager = GridLayoutManager(requireContext(), 4)

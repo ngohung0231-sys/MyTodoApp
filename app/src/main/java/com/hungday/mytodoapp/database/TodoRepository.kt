@@ -56,12 +56,6 @@ class TodoRepository(
         todoDao.deleteFolder(folder)
     }
 
-    suspend fun deleteFolderWithTasks(folder: Folder) {
-        todoDao.deleteTasksByFolderId(folder.folderId)
-        todoDao.deleteListsByFolderId(folder.folderId)
-        todoDao.deleteFolder(folder)
-    }
-
     // --- Trash Logic ---
 
     suspend fun moveFolderToTrash(folder: Folder) {

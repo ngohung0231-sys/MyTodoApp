@@ -62,9 +62,6 @@ interface TodoDao {
     @Query("SELECT * FROM tasks WHERE id = :taskId")
     suspend fun getTaskById(taskId: Int): Task?
 
-    @Query("SELECT * FROM tasks WHERE id = :taskId")
-    fun getTaskByIdSync(taskId: Int): Task?
-
     @Query("SELECT * FROM tasks")
     fun getAllTasks(): Flow<List<Task>>
 
@@ -72,13 +69,7 @@ interface TodoDao {
     suspend fun getAllTasksSync(): List<Task>
 
     @Query("SELECT * FROM tasks WHERE folderId = :folderId")
-    fun getTasksByFolder(folderId: Int): Flow<List<Task>>
-
-    @Query("SELECT * FROM tasks WHERE folderId = :folderId")
     suspend fun getTasksByFolderSync(folderId: Int): List<Task>
-
-    @Query("SELECT * FROM tasks WHERE date = :selectedDate")
-    fun getTasksByDate(selectedDate: String): Flow<List<Task>>
 
     @Query("UPDATE tasks SET isCompleted = :isCompleted, completedAt = :completedAt WHERE id = :taskId")
     suspend fun updateTaskStatus(taskId: Int, isCompleted: Boolean, completedAt: Long?)
