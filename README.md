@@ -40,7 +40,7 @@ Dự án đã được tối ưu hóa cấu trúc để dễ dàng bảo trì:
 - `widget/`: Xử lý logic cho App Widget.
 - `utils/`: Các hàm tiện ích bổ trợ.
 - `res/`: Tài nguyên giao diện, màu sắc, và themes.
-- 
+
 ## ⚙️ Cài đặt & Chạy thử
 
 1. Clone repository này:
