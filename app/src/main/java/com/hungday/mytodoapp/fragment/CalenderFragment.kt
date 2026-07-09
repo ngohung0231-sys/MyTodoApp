@@ -40,6 +40,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
     private var currentMonth: LocalDate = LocalDate.now()
 
     private lateinit var btnBack: ImageView
+    private lateinit var btnNotification: ImageView
     private lateinit var btnPrevMonth: ImageView
     private lateinit var btnNextMonth: ImageView
     private lateinit var tvMonthYear: TextView
@@ -67,6 +68,7 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
 
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
+        btnNotification = view.findViewById(R.id.btnNotification)
         btnPrevMonth = view.findViewById(R.id.btnPrevMonth)
         btnNextMonth = view.findViewById(R.id.btnNextMonth)
         tvMonthYear = view.findViewById(R.id.tvMonthYear)
@@ -100,6 +102,9 @@ class CalenderFragment : Fragment(R.layout.fragment_calender) {
 
     private fun setupListeners() {
         btnBack.setOnClickListener { findNavController().popBackStack() }
+        btnNotification.setOnClickListener {
+            if (isAdded) findNavController().navigate(R.id.notificationFragment)
+        }
         btnPrevMonth.setOnClickListener {
             currentMonth = currentMonth.minusMonths(1)
             updateCalendar()
